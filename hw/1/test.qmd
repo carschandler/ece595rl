@@ -1,0 +1,492 @@
+---
+title: "ECE59500RL HW1"
+author: "Robert (Cars) Chandler -- chandl71@purdue.edu"
+format:
+  html:
+    code-fold: true
+jupyter: python3
+---
+
+## Problem 1
+
+### 1.1
+
+#### Property 1
+
+Proving the first property of a norm over a vector space for $\Vert \mathbf{x}
+\Vert_\infty$, we first recall that the L-$\infty$ norm of a vector is defined
+as the element in the vector with the maximum absolute value. As such,
+
+$$
+\Vert \mathbf{x} \Vert_\infty \ge 0, \quad \forall \mathbf{x} \in \mathbb{R}^n
+$$
+
+since the norm must be an absolute value of some real element, so it must be at
+least zero:
+
+$$
+| r | \ge 0, \quad \forall r \in \mathbb{R}
+$$
+
+Additionally,
+
+$$
+\Vert \mathbf{x} \Vert_\infty = 0 \iff \mathbf{x} = \mathbf{0}
+$$
+
+Since the only number in $\mathbb{R}$ that has an absolute value of $0$ is $0$,
+so for the maximum absolute value (the L-$\infty$ norm) to be 0, all elements of
+$\mathbf{x}$ must be $0$.
+
+#### Property 2
+
+To prove the second property, we begin with $\Vert \mathbf{\alpha x}
+\Vert_\infty$, which is the element of the vector $\alpha \mathbf{x}$ with the
+maximum absolute value. Each element of $\alpha \mathbf{x}$ is $\alpha x_i$, and
+it holds that
+
+$$
+| \alpha r | = | \alpha | |r|, \quad \forall r \in \mathbb{R} 
+$$
+
+So we can say that the maximum absolute value of $\alpha \mathbf{x}$ is equal to the
+maximum absolute value of $\mathbf{x}$ multiplied by $| \alpha |$:
+
+$$
+\Vert \mathbf{\alpha x} \Vert_\infty = |\alpha| \Vert \mathbf{x} \Vert _\infty,
+\quad \forall \mathbf{x} \in \mathbb{R}^n, \alpha \in \mathbb{R}
+$$
+
+#### Property 3
+
+To prove the third property, we begin with $\Vert \mathbf{x}_1 + \mathbf{x}_2
+\Vert _\infty$, which is the maximum absolute value of the vector $\mathbf{x}_1
++ \mathbf{x}_2$. The maximum absolute value of the element-wise sum of two
+vectors is maximized when the two elements with the largest magnitude in each
+vector share the same index:
+
+$$
+\max \left( \Vert \mathbf{x}_1 + \mathbf{x}_2 \Vert _\infty \right) = \Vert
+\mathbf{x}_1 \Vert_\infty  + \Vert \mathbf{x}_2 \Vert_\infty 
+$$
+
+Since this is the maximum value of the LHS, in any other case, we can say that
+the sum on the right-hand side must be greater than $\Vert
+\mathbf{x}_1 + \mathbf{x}_2 \Vert _\infty$.
+
+So we can say that the maximum absolute value of $\mathbf{x}_1 + \mathbf{x}_2$
+is less than or equal to the sum of the maximum absolute values of
+$\mathbf{x}_1$ and $\mathbf{x}_2$:
+
+$$
+\Vert \mathbf{x}_1 + \mathbf{x}_2 \Vert _\infty \le \Vert
+\mathbf{x}_1 \Vert_\infty  + \Vert \mathbf{x}_2 \Vert_\infty , \quad \forall
+\mathbf{x}_1, \mathbf{x}_2 \in \mathbb{R}^n
+$$
+
+### 1.2
+
+Comparing the L1 and L2 norms, we can square each one to compare them more
+directly:
+
+$$
+\Vert \mathbf{x} \Vert_2^2 = \left(\sqrt{\sum_{i=1}^N | x_i |^2 } \right)^2 = \sum_{i=1}^N | x_i |^2
+$$
+
+and
+
+$$
+\Vert \mathbf{x} \Vert_1^2 = \left(\sum_{i=1}^N | x_i | \right)^2 = 
+\sum_{i=1}^N |x_i|^2 + 2 * \sum_{i < j} | x_i | |x_j| 
+$$
+
+We can compare the results of these equations directly, and it is apparent that
+the L1 norm squared has an additional, nonnegative term added, so it must be greater
+than or equal to the L2 norm squared:
+
+$$
+\Vert \mathbf{x} \Vert_1^2 =
+\sum_{i=1}^N |x_i|^2 + 2 * \sum_{i < j} | x_i | |x_j| \ge
+\sum_{i=1}^N | x_i |^2 =
+\Vert \mathbf{x} \Vert_2^2
+$$
+
+This implies that
+
+$$
+\Vert \mathbf{x} \Vert_1 \ge \Vert \mathbf{x} \Vert_2
+$$
+
+If we then compare the square L2 norm to the square of the L-$\infty$ norm:
+
+$$
+\Vert \mathbf{x} \Vert_\infty^2 = \left( \max \{ |x_1|, ..., |x_n| \} \right)^2
+\le \sum_{i=1}^N | x_i |^2
+= \Vert \mathbf{x} \Vert_2^2
+$$
+
+since the square of any one element of a vector of positive values must
+necessarily be less than or equal to a sum of all of those values. This once
+again implies that
+
+$$
+\Vert \mathbf{x} \Vert_2 \ge  \Vert \mathbf{x} \Vert_\infty
+$$
+
+Combining this with the earlier inequality:
+
+$$
+\Vert \mathbf{x} \Vert_\infty \le
+\Vert \mathbf{x} \Vert_2 \le  
+\Vert \mathbf{x} \Vert_1
+$$
+
+### 1.3
+
+Given vectors $\mathbf{x}, \mathbf{y} \in \mathbb{R}^n$, the absolute value of
+the inner product of these vectors is:
+
+$$
+|\langle \mathbf{x}, \mathbf{y} \rangle| = \left| \sum_{i=1}^N x_i y_i \right|
+$$
+
+which, due to the properties of multiplication and absolute value, is also equivalent to
+
+$$
+\sum_{i=1}^N |x_i| |y_i|
+$$
+
+while the product of the L-$\infty$ and L1 norms is:
+
+$$
+\Vert \mathbf{x} \Vert_\infty 
+\Vert \mathbf{y} \Vert_1
+= \max\{ |x_1|, ..., |x_n| \} \sum_{i=1}^N |y_i|
+$$
+
+If we break these down into an index-by-index basis, then for each $i \ge 1 \in
+\mathbb{N}$, it holds that
+
+$$
+|x_i| |y_i| \le x_{\text{absmax}} |y_i|
+$$
+
+and therefore this also holds across the aggregation of these indices into a
+sum:
+
+$$
+\sum_{i=1}^N |x_i| |y_i| \le \max\{ |x_1|, ..., |x_n| \} \sum_{i=1}^N |y_i|
+$$
+
+which is equivalent to
+
+$$
+| \langle \mathbf{x}, \mathbf{y} \rangle | \le \Vert \mathbf{x} \Vert_\infty \Vert \mathbf{y} \Vert_1
+$$
+
+## Problem 2
+
+## Problem 3
+
+### 3.1
+
+The state space is
+
+$$
+\mathcal{S} = \{ \text{Country}, \text{Jazz}, \text{Rock} \}
+$$
+
+The initial distribution is the following discrete probability distribution
+vector, where the indices are in the order Country, Jazz, Rock:
+
+$$
+\mu_0 = \{ 0, 1, 0 \}
+$$
+
+The transition matrix, with rows and columns in the order Country, Jazz, Rock, is:
+
+$$
+P = \begin{bmatrix}
+0 & 0.5 & 0.5 \\
+0.3 & 0.1 & 0.6 \\
+0.2 & 0 & 0.8 \\
+\end{bmatrix}
+$$
+
+## 3.2
+
+Let $C, J, R$ be the states corresponding to the respective genres. The
+probability of starting with Jazz each time is $1$, so we just represent our
+initial state in probability space with a $1$ and we multiply the probability of
+each transition after that.
+
+### 3.2.a
+
+The probability of transitioning from Country to Country $\mathbb{P}(C | C) =
+0$, so the probability of the sequence is $0$.
+
+### 3.2.b
+
+$$
+1 \cdot \mathbb{P}(J | R) \mathbb{P}(R | R) \mathbb{P}(C | R) \mathbb{P} (J | C)
+= 1 \cdot 0.6 \cdot 0.8 \cdot 0.2 \cdot 0.5 = `{python} 0.6 * 0.8 * 0.2 * 0.5`
+$$
+
+### 3.2.c
+
+$$
+\begin{aligned}
+&1 \cdot \mathbb{P}(J | R) \mathbb{P}(C | R) \mathbb{P}(R | C) \mathbb{P} (C | R)
+\ldots \mathbb{P}(R | C) \mathbb{P}(C | R) \\
+= &\mathbb{P}(J | R) \prod_{i=1}^m \mathbb{P}(C | R)  \prod_{i=1}^{m-1} \mathbb{P}(R | C) \\
+= &\mathbb{P}(J | R) \mathbb{P}(C | R)^m  \mathbb{P}(R | C)^{m-1} \\
+= &0.6 \cdot 0.2^m  0.5^{m-1} \\
+\end{aligned}
+$$
+
+# TODO: check above
+
+### 3.2.d
+
+As the final product repeats more and more as $m$ approaches infinity, the
+product will approach $0$ since the fractions raised to the $m$ and $m-1$ power
+will both approach $0$ since they are less than one and raised to an infinite
+power.
+
+## 3.3
+
+We can find this using the transition matrix raised to the $t=2$ power:
+
+```{python}
+import numpy as np
+
+mu0 = np.array([0, 1, 0])
+trans_matrix = np.array([
+  [0 , 0.5 , 0.5],
+  [0.3 , 0.1 , 0.6],
+  [0.2 , 0 , 0.8 ],
+])
+
+mu2 = mu0 @ trans_matrix @ trans_matrix
+mu2 = mu0 @ np.linalg.matrix_power(trans_matrix, 30)
+```
+
+$$
+\mu_0 P^2 = \begin{bmatrix}0 & 1 & 0\end{bmatrix}
+\begin{bmatrix}
+0 & 0.5 & 0.5 \\
+0.3 & 0.1 & 0.6 \\
+0.2 & 0 & 0.8 \\
+\end{bmatrix}^2
+=`{python} [float(e) for e in mu2]`
+$$
+
+Where the entries in the vector correspond to the probability of playing
+Country, Jazz, and Rock at $t=2$, respectively.
+
+## 3.4
+
+We can calculate the steady-state distribution $\bar{\mu}$ using a similar code
+as above, repeatedly applying the transition matrix until some convergence
+threshold is met. We will set the steady-state condition to be reached when a
+difference of less than 1e-8 is reached for all values in the distribution:
+
+```{python}
+state_distribution = mu0
+t = 0
+difference_criterion = 1e-8
+
+while(True):
+  t += 1
+  old_state_distribution = state_distribution.copy()
+  state_distribution = state_distribution @ trans_matrix
+
+  if np.all(np.abs(state_distribution - old_state_distribution) < difference_criterion):
+    break
+```
+
+The steady-state distribution is approximately
+$$
+\bar{\mu} = `{python} [float(e) for e in state_distribution]`
+$$
+
+and the convergence criterion is met at time $t = `{python} t`$.
+
+## 3.5
+
+We first re-define our stationary distribution since the new requirement is to
+extend to 100 timesteps, which is further than the previous convergence
+condition reached. We set it to be the distribution at $t=110$ since this is
+past the final value required for plotting and the distribution should be
+effectively unchanging at this point.
+
+```{python}
+import matplotlib.pyplot as plt
+
+steady_state = mu0 @ np.linalg.matrix_power(trans_matrix, 110)
+
+trans_matrices = np.array([np.linalg.matrix_power(trans_matrix, i) for i in range(101)])
+
+l1_norms = np.linalg.norm(mu0 @ trans_matrices - steady_state, ord=1, axis=1)
+
+fig, ax = plt.subplots()
+ax.plot(l1_norms)
+ax.set_xlabel("t")
+ax.set_ylabel(r"$\Vert \mu_t - \bar{\mu} \Vert_1$");
+```
+
+## 3.6
+
+Based on the steady-state distribution, we expect Rock to be played most often,
+because given any sufficiently large $t$-value, the probability of the state
+being Rock is fixed and is much higher than the other two states. This makes
+sense given that Rock has such a high probability of transitioning to itself.
+
+## Problem 6
+
+### 6.1
+
+The scenario can be described as a POMDP with reward defined by the tuple $\mu =
+(\mu_0, \mathcal{S}, \mathcal{O}, \mathcal{Z}, \mathcal{A}, \mathcal{P},
+\mathcal{R}, \gamma)$
+
+Additionally, we define the following "helper" sets and a function to map
+between the movies available and the genres of those movies. We could describe
+all elements of the MDP without these by writing out all possible combinations,
+but these help to minimize the amount of writing necessary:
+
+$$
+\begin{gathered}
+G = \{ A, H, C \} \\
+M = \{ A, B, C, D \} \\
+\mathcal{G}: M \to G^n, \quad n \in \{1, 2, 3\}
+\end{gathered}
+$$
+
+$G$ is the set of genres available, $M$ is the set of movies available, and
+$\mathcal{G}$ describes which genres apply for a given movie.
+
+
+$\mathcal{S} = \{ s_A, s_H, s_C \}$ where each state corresponds to the user's
+desired genre, which is either Action, Horror, or Comedy, respectively.
+
+$\mathcal{O} = \{ o_L, o_D \}$ where each observation corresponds to whether the
+user submitted a "Like" or a "Dislike" after viewing the movie, which partially
+reveals the underlying state: the user's true genre preference. Instead of
+observing their true preference, we just observe whether the selected movie
+aligned with their true preference or not, as shown.
+
+$\mathcal{Z} = \mathcal{Z}(s, a): \mathcal{S} \times \mathcal{A} \to
+\Delta(\mathcal{O})$
+
+$$
+\mathcal{O}(s, a) = \begin{cases}
+\left[ 1, 0 \right] \text{ when } (s_i, a_j) \text{ where } i \in G, i \in \mathcal{G}(j), j \in M \\
+\left[ 0, 1 \right] \text{ when } (s_i, a_j) \text{ where } i \in G, i \notin \mathcal{G}(j), j \in M \\
+\end{cases}
+$$
+
+In english, the observation takes a state (the user's genre preference) and an
+action (which movie the system suggested), and returns an observation. The
+observation returned depends on whether the genre of the movie (described by the
+function $\mathcal{G}$, which maps a value in the set of available movies to one
+or more genres which apply to that movie) aligns with the desired genre of the
+user. If the genre of the selected movie aligns with the user's true preference,
+the observation will certainly be a "Like", $o_L$, and if it does not align,
+then it will certainly be a "Dislike", $o_D$.
+
+$\mu_0 = \left[  \frac{1}{3},  \frac{1}{3},  \frac{1}{3} \right]$ where the
+order of the indices is Action, Horror, Comedy; the same as for $\mathcal{S}$.
+
+$\mathcal{A} = \{ a_A, a_B, a_C, a_D \}$ which are actions corresponding to
+which movie the system recommends to the user.
+
+$\mathcal{P} = \mathcal{P}(s, a): \mathcal{S} \times \mathcal{A} \to \Delta
+(\mathcal{S})$ where the function can be described piecewise as:
+
+$$
+\mathcal{P}(s, a) = \begin{cases}
+\left[ 1, 0, 0 \right], s = s_A, A \notin \mathcal{G}(a) \\
+\left[ 0, 1, 0 \right], s = s_H, H \notin \mathcal{G}(a) \\
+\left[ 0, 0, 1 \right], s = s_C, C \notin \mathcal{G}(a) \\
+\left[ 0, 0.5, 0.5 \right], s = s_A, A \in \mathcal{G}(a) \\
+\left[ 0.5, 0, 0.5 \right], s = s_H, H \in \mathcal{G}(a) \\
+\left[ 0.5, 0.5, 0 \right], s = s_C, C \in \mathcal{G}(a) \\
+\end{cases}
+$$
+
+When the user's genre preference is not one of the genres of the movie chosen by
+the previous action, the user's genre preference remains the same with
+probability 1. If one of the movie's genres is the user's preference, then the
+next genre preference will be one of the other two genres with equal probability
+(0.5) for each genre.
+
+$\mathcal{R} = \mathcal{R}(s, a): \mathcal{S} \times \mathcal{A} \to r \in [-1, 1]$
+
+No additional information has been given about the reward aside from its bounds.
+
+$\gamma = 0.95$
+
+### 6.2
+
+<!-- ```{dot} -->
+<!-- digraph { -->
+<!--   A -> H [label="a_A, 0.4*0.5 = 0.2"] -->
+<!--   A -> C [label="a_A, 0.4*0.5 = 0.2"] -->
+<!--   A -> H [label="a_B, 0.4*0.5 = 0.2"] -->
+<!--   A -> C [label="a_B, 0.4*0.5 = 0.2"] -->
+<!--   A -> A [label="a_D, 0.2"] -->
+<!--   H -> H [label="a_A, 0.25"] -->
+<!--   H -> A [label="a_B, 0.25*0.5=0.125"] -->
+<!--   H -> C [label="a_B, 0.25*0.5=0.125"] -->
+<!--   H -> A [label="a_C, 0.25*0.5=0.125"] -->
+<!--   H -> C [label="a_C, 0.25*0.5=0.125"] -->
+<!--   H -> A [label="a_D, 0.25*0.5=0.125"] -->
+<!--   H -> C [label="a_D, 0.25*0.5=0.125"] -->
+<!--   C -> C [label="a_B=0.1"] -->
+<!--   C -> A [label="a_C=0.9*0.5=0.45"] -->
+<!--   C -> H [label="a_C=0.9*0.5=0.45"] -->
+<!-- } -->
+<!-- ``` -->
+
+The transition-based graph of the recommendation strategy is shown below where
+the nodes correspond to the different states and the edges are labeled with the
+actions taken in the transitions they represent along with the probability of
+taking that respective action/transition:
+
+```{dot}
+digraph {
+  // layout = fdp
+  graph [nodesep=0.7,]
+  A:nw -> H [label="A\n0.2"]
+  A -> C [label="A\n0.2"]
+  A:nw -> H [label="B\n0.2"]
+  A -> C:ne [label="B\n0.2"]
+  A:n -> A:n [label="D\n0.2"]
+  H:ne -> H:e [label="A\n0.25"]
+  H -> A [label="B\n0.125"]
+  H:sw -> C [label="B\n0.125"]
+  H -> A [label="C\n0.125"]
+  H -> C [label="C\n0.125"]
+  H -> A [label="D\n0.125"]
+  H:se -> C:n [label="D\n0.125"]
+  C:s -> C:se [label="B\n0.1"]
+  C -> A:ne [label="C\n0.45"]
+  C:nw -> H:se [label="C\n0.45"]
+}
+```
+
+The given policy is stationary as it does only depend on the user's current
+genre preference rather than their past or future ones. It is also a stochastic
+policy rather than a deterministic one as the action taken is chosen with some
+degree of randomness as indicated by the probability values on the
+edges/transitions in the graph.
+
+### 6.3
+
+
+<!-- ```{dot} -->
+<!-- digraph { -->
+<!--   A -> B [label=""] -->
+<!-- } -->
+<!-- ``` -->

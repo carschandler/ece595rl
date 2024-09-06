@@ -1,0 +1,5 @@
+# pixi environments
+.pixi
+*.egg-info
+.direnv
+**test_files
