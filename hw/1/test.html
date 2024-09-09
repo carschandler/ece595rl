@@ -213,7 +213,7 @@ window.Quarto = {
 \le \sum_{i=1}^N | x_i |^2
 = \Vert \mathbf{x} \Vert_2^2
 \]</span></p>
-<p>since the square of any one element of a vector of positive values must necessarily be less than or equal to a sum of all of those values. This once again implies that</p>
+<p>since the square of any one element of a vector of positive values must necessarily be less than or equal to a sum of the squares all of those values. This once again implies that</p>
 <p><span class="math display">\[
 \Vert \mathbf{x} \Vert_2 \ge  \Vert \mathbf{x} \Vert_\infty
 \]</span></p>
@@ -257,11 +257,53 @@ window.Quarto = {
 </section>
 <section id="problem-2" class="level2">
 <h2 class="anchored" data-anchor-id="problem-2">Problem 2</h2>
+<section id="section-3" class="level3">
+<h3 class="anchored" data-anchor-id="section-3">2.1</h3>
+<p>We can start with the definition of <span class="math inline">\(\mathbb{E}_X[X]\)</span>, introduce a marginal sum over <span class="math inline">\(Y\)</span>, turn this into a conditional probability sum, rearrange the sums to form an expectation over <span class="math inline">\(Y\)</span>, and finally form a marginal expectation over <span class="math inline">\(X|Y\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathbb{E}_X[X] &amp;= \sum_{x \in \mathcal{X}} x \mathbb{P}(X=x) \\
+&amp;= \sum_{x \in \mathcal{X}} x \sum_{y \in \mathcal{Y}} \mathbb{P}(X=x , Y=y) \\
+&amp;= \sum_{x \in \mathcal{X}} \sum_{y \in \mathcal{Y}} x \mathbb{P}(X=x , Y=y) \\
+&amp;= \sum_{x \in \mathcal{X}} \sum_{y \in \mathcal{Y}} x \mathbb{P}(X=x | Y=y)  \mathbb{P}(Y=y) \\
+&amp;= \sum_{y \in \mathcal{Y}} \left( \sum_{x \in \mathcal{X}} x \mathbb{P}(X=x | Y=y) \right) \mathbb{P}(Y=y) \\
+&amp;= \mathbb{E}_Y\left[ \sum_{x \in \mathcal{X}} x \mathbb{P}(X=x | Y) \right] \\
+&amp;= \mathbb{E}_Y[\mathbb{E}_X[X|Y]]
+\end{aligned}
+\]</span></p>
 </section>
+<section id="section-4" class="level3 proof">
+<h3 class="proof anchored" data-anchor-id="section-4">2.2</h3>
+<p>We can follow the same pattern as before, but with the continuous equivalents of the discrete operations, i.e.&nbsp;integrals instead of sums, pdfs instead of pmfs:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathbb{E}_X[X] &amp;= \int_{X} x f_X(x) \, dx \\
+&amp;= \int_{X} x \left( \int_{Y} f_{XY}(x, y) \, dy \right) \, dx \\
+&amp;= \int_{Y} \int_{X} x f_{XY}(x, y) \, dx \, dy \\
+&amp;= \int_{Y} \int_{X} x f_{X|Y}(x|y) f_Y(y)\, dx \, dy \\
+&amp;= \int_{Y} \left( \int_{X} x f_{X|Y}(x|y) \, dx \right) f_Y(y) \, dy \\
+&amp;= \mathbb{E}_Y\left[ \int_{X} x f_{X|Y}(x|y) \, dx \right] \\
+&amp;= \mathbb{E}_Y[\mathbb{E}_X[X|Y]]
+\end{aligned}
+\]</span></p>
+</section>
+<section id="section-5" class="level3">
+<h3 class="anchored" data-anchor-id="section-5">2.3</h3>
+</section>
+</section>
+<section id="todo" class="level1">
+<h1>TODO</h1>
+<p><span class="math inline">\(\mathbb{E}_R\left[ R_t | S_t = s, A_t = a \right]\)</span> with a stationary policy <span class="math inline">\(\pi(a|s)\)</span> applied specifies which action will be taken, thus lifting the need to specify <span class="math inline">\(\mathcal{A}\)</span> from the model, so we are left with:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathbb{E}_R\left[ R_t | S_t = s \right] = \mathbb{E}_\mathcal{A} \left[ \mathbb{E}_R
+\left[ R_t |  A_t = a, S_t = s \right] \right] \\
+\end{aligned}
+\]</span></p>
 <section id="problem-3" class="level2">
 <h2 class="anchored" data-anchor-id="problem-3">Problem 3</h2>
-<section id="section-3" class="level3">
-<h3 class="anchored" data-anchor-id="section-3">3.1</h3>
+<section id="section-6" class="level3">
+<h3 class="anchored" data-anchor-id="section-6">3.1</h3>
 <p>The state space is</p>
 <p><span class="math display">\[
 \mathcal{S} = \{ \text{Country}, \text{Jazz}, \text{Rock} \}
@@ -280,8 +322,8 @@ P = \begin{bmatrix}
 \]</span></p>
 </section>
 </section>
-<section id="section-4" class="level2">
-<h2 class="anchored" data-anchor-id="section-4">3.2</h2>
+<section id="section-7" class="level2">
+<h2 class="anchored" data-anchor-id="section-7">3.2</h2>
 <p>Let <span class="math inline">\(C, J, R\)</span> be the states corresponding to the respective genres. The probability of starting with Jazz each time is <span class="math inline">\(1\)</span>, so we just represent our initial state in probability space with a <span class="math inline">\(1\)</span> and we multiply the probability of each transition after that.</p>
 <section id="a" class="level3">
 <h3 class="anchored" data-anchor-id="a">3.2.a</h3>
@@ -308,16 +350,17 @@ P = \begin{bmatrix}
 \]</span></p>
 </section>
 </section>
+</section>
 <section id="todo-check-above" class="level1">
 <h1>TODO: check above</h1>
 <section id="d" class="level3">
 <h3 class="anchored" data-anchor-id="d">3.2.d</h3>
 <p>As the final product repeats more and more as <span class="math inline">\(m\)</span> approaches infinity, the product will approach <span class="math inline">\(0\)</span> since the fractions raised to the <span class="math inline">\(m\)</span> and <span class="math inline">\(m-1\)</span> power will both approach <span class="math inline">\(0\)</span> since they are less than one and raised to an infinite power.</p>
 </section>
-<section id="section-5" class="level2">
-<h2 class="anchored" data-anchor-id="section-5">3.3</h2>
+<section id="section-8" class="level2">
+<h2 class="anchored" data-anchor-id="section-8">3.3</h2>
 <p>We can find this using the transition matrix raised to the <span class="math inline">\(t=2\)</span> power:</p>
-<div id="1f9e652c" class="cell" data-execution_count="1">
+<div id="d9aaafde" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -329,8 +372,7 @@ P = \begin{bmatrix}
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">0.2</span> , <span class="dv">0</span> , <span class="fl">0.8</span> ],</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>])</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>mu2 <span class="op">=</span> mu0 <span class="op">@</span> trans_matrix <span class="op">@</span> trans_matrix</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>mu2 <span class="op">=</span> mu0 <span class="op">@</span> np.linalg.matrix_power(trans_matrix, <span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>mu2 <span class="op">=</span> mu0 <span class="op">@</span> np.linalg.matrix_power(trans_matrix, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p><span class="math display">\[
@@ -340,14 +382,14 @@ P = \begin{bmatrix}
 0.3 &amp; 0.1 &amp; 0.6 \\
 0.2 &amp; 0 &amp; 0.8 \\
 \end{bmatrix}^2
-=[0.17475728155339787, 0.09708737864077728, 0.7281553398058259]
+=[0.15, 0.16, 0.69]
 \]</span></p>
 <p>Where the entries in the vector correspond to the probability of playing Country, Jazz, and Rock at <span class="math inline">\(t=2\)</span>, respectively.</p>
 </section>
-<section id="section-6" class="level2">
-<h2 class="anchored" data-anchor-id="section-6">3.4</h2>
+<section id="section-9" class="level2">
+<h2 class="anchored" data-anchor-id="section-9">3.4</h2>
 <p>We can calculate the steady-state distribution <span class="math inline">\(\bar{\mu}\)</span> using a similar code as above, repeatedly applying the transition matrix until some convergence threshold is met. We will set the steady-state condition to be reached when a difference of less than 1e-8 is reached for all values in the distribution:</p>
-<div id="70bc2474" class="cell" data-execution_count="2">
+<div id="19274a2e" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>state_distribution <span class="op">=</span> mu0</span>
@@ -364,14 +406,14 @@ P = \begin{bmatrix}
 </details>
 </div>
 <p>The steady-state distribution is approximately <span class="math display">\[
-\bar{\mu} = [0.17475728268372312, 0.09708737729711539, 0.7281553400191619]
+\bar{\mu} = [0.17475728268372306, 0.09708737729711538, 0.7281553400191617]
 \]</span></p>
 <p>and the convergence criterion is met at time <span class="math inline">\(t = 17\)</span>.</p>
 </section>
-<section id="section-7" class="level2">
-<h2 class="anchored" data-anchor-id="section-7">3.5</h2>
+<section id="section-10" class="level2">
+<h2 class="anchored" data-anchor-id="section-10">3.5</h2>
 <p>We first re-define our stationary distribution since the new requirement is to extend to 100 timesteps, which is further than the previous convergence condition reached. We set it to be the distribution at <span class="math inline">\(t=110\)</span> since this is past the final value required for plotting and the distribution should be effectively unchanging at this point.</p>
-<div id="17c16cda" class="cell" data-execution_count="3">
+<div id="7699d8ca" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -396,14 +438,203 @@ P = \begin{bmatrix}
 </div>
 </div>
 </section>
-<section id="section-8" class="level2">
-<h2 class="anchored" data-anchor-id="section-8">3.6</h2>
+<section id="section-11" class="level2">
+<h2 class="anchored" data-anchor-id="section-11">3.6</h2>
 <p>Based on the steady-state distribution, we expect Rock to be played most often, because given any sufficiently large <span class="math inline">\(t\)</span>-value, the probability of the state being Rock is fixed and is much higher than the other two states. This makes sense given that Rock has such a high probability of transitioning to itself.</p>
+</section>
+<section id="problem-4" class="level2">
+<h2 class="anchored" data-anchor-id="problem-4">Problem 4</h2>
+<section id="section-12" class="level3">
+<h3 class="anchored" data-anchor-id="section-12">4.1</h3>
+<p>We can prove this by induction.</p>
+<p>The <em>induction hypothesis</em> is:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &amp;\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t], \quad \forall t \in
+\mathbb{N}_0, \forall m \in \mathbb{N}
+\end{aligned}
+\]</span></p>
+<p>We assume this hypothesis to be correct for some value <span class="math inline">\(m \in \mathbb{N}\)</span>. Given that the MC satisfies the Markov property, the following <em>base case</em> holds for <span class="math inline">\(m=1\)</span>:</p>
+<p><span class="math display">\[
+\mathbb{P}[X_{t+1} | X_0, X_1, \ldots, X_t] = \mathbb{P}[X_{t+1} | X_t]
+\]</span></p>
+<p>In the <em>induction step</em>, we will show that the hypothesis is also correct for <span class="math inline">\(m+1\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m}, X_{t+m+1} | X_0, X_1, \ldots, X_t] \\
+= &amp;\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m}, X_{t+m+1} | X_t], \quad \forall t \in
+\mathbb{N}_0, \forall m \in \mathbb{N}
+\end{aligned}
+\]</span></p>
+<p>We can start with the LHS of this equation and use the definition of conditional probability (or the “chain rule” or “product rule” if you prefer) to write it as the product of two conditional probabilities, “pulling out” the last event <span class="math inline">\(X_{t+m+1}\)</span>. If we take the form <span class="math inline">\(P(A, B) = P(B | A) P(A)\)</span>, then for our scenario <span class="math inline">\(A = X_{t+1}, ..., X_{t+m}\)</span> and <span class="math inline">\(B = X_{t+m+1}\)</span> and <span class="math inline">\(P = P(\cdot | X_0,
+..., X_t)\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m}, X_{t+m+1} | X_0, X_1, \ldots, X_t] \\
+= &amp;\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_t, X_{t+1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &amp;\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+\end{aligned}
+\]</span></p>
+<p>We can use the induction hypothesis, which is already assumed to be true, to rewrite the second term:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &amp;\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t]
+\end{aligned}
+\]</span></p>
+<p>We want to use the definition of conditional probability once more to pull these two terms back together into a single conditional probability, but the condition of the first term is not quite right. However, because of the Markov property, it is true that:</p>
+<p><span class="math display">\[
+\mathbb{P}[X_{t+m+1} | X_{0}, X_{1} \ldots, X_{t + m}] = \mathbb{P}[X_{t+m+1} | X_{t + m}]
+\]</span></p>
+<p>and it is also true that</p>
+<p><span class="math display">\[
+\mathbb{P}[X_{t+m+1} | X_{t}, X_{t+1} \ldots, X_{t + m}] = \mathbb{P}[X_{t+m+1} | X_{t + m}]
+\]</span></p>
+<p>so we can equate these two by the transitive property:</p>
+<p><span class="math display">\[
+\mathbb{P}[X_{t+m+1} | X_{0}, X_{1} \ldots, X_{t + m}] =
+\mathbb{P}[X_{t+m+1} | X_{t}, X_{t+1} \ldots, X_{t + m}]
+\]</span></p>
+<p>So we can substitute this term in the original equation and use the definition of conditional probability to join the two terms back together:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\mathbb{P}[X_{t+m+1} | X_{0}, X_{1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t] \\
+=&amp;\mathbb{P}[X_{t+m+1} | X_{t}, X_{t+1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t] \\
+=&amp;\frac{\mathbb{P}[X_t, X_{t+1}, \ldots, X_{t+m+1}]}{X_t, X_{t+1}, \ldots, X_{t+m}}
+\frac{X_t, X_{t+1}, \ldots, X_{t+m}}{X_t} \\
+=&amp;\frac{\mathbb{P}[X_t, X_{t+1}, \ldots, X_{t+m+1}]}{X_t} \\
+=&amp; \mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m+1} | X_t] \\
+\end{aligned}
+\]</span></p>
+<p>So, we have proven the induction step, therefore the hypothesis holds for all <span class="math inline">\(m \in \mathbb{N}\)</span>, and the induction hypothesis is proven:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &amp;\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t], \quad \forall t \in
+\mathbb{N}_0, \forall m \in \mathbb{N} &amp; \blacksquare \\
+\end{aligned}
+\]</span></p>
+</section>
+<section id="section-13" class="level3">
+<h3 class="anchored" data-anchor-id="section-13">4.2</h3>
+<p>We can prove this by induction.</p>
+<p>The <em>induction hypothesis</em> is:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &amp;\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m} | X_t], \quad \forall t \in
+\mathbb{N}_0, \forall k,m \in \mathbb{N}, m \ge k
+\end{aligned}
+\]</span></p>
+<p>We assume this hypothesis to be correct for some values <span class="math inline">\(k \le m\)</span> where <span class="math inline">\(k, m \in
+\mathbb{N}\)</span>. Given that the MC satisfies the Markov property, the following <em>base case</em> holds for <span class="math inline">\(k=m=1\)</span>:</p>
+<p><span class="math display">\[
+\mathbb{P}[X_{t+1} | X_0, X_1, \ldots, X_t] = \mathbb{P}[X_{t+1} | X_t]
+\]</span></p>
+<p>We require two induction steps here: one for <span class="math inline">\(m\)</span> and one for <span class="math inline">\(k\)</span>. We can begin with the induction step for <span class="math inline">\(m\)</span>:</p>
+<p>Assuming the inductive hypothesis to be true, we will show that it is also true for <span class="math inline">\(m + 1\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m+1} | X_0, X_1, \ldots, X_t] \\
+= &amp;\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m+1} | X_t], \quad \forall t \in
+\mathbb{N}_0, \forall k,m \in \mathbb{N}, m \ge k
+\end{aligned}
+\]</span></p>
+<p>We use the same pattern as before:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m}, X_{t+m+1} | X_0, X_1, \ldots, X_t] \\
+= &amp;\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &amp;\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m} | X_t] \\
+= &amp;\mathbb{P}[X_{t+m+1} | X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m} | X_t] \\
+= &amp;\frac{\mathbb{P}[X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}, X_{t+m+1}]}{\mathbb{P}[X_t X_{t+k}, X_{t+k+1}, \ldots, X_{t+m}]}
+\frac{\mathbb{P}[X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t+m}]}{X_t} \\
+= &amp;\frac{\mathbb{P}[X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}, X_{t+m+1}]}{X_t} \\
+= &amp;\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}, X_{t+m+1} | X_t] \\
+\end{aligned}
+\]</span></p>
+<p>Thus the induction step for <span class="math inline">\(m\)</span> is proven.</p>
+<p>Next we can prove the inductive step over <span class="math inline">\(k\)</span>, showing that the inductive hypothesis is also true for <span class="math inline">\(k+1\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\mathbb{P}[X_{t+(k+1)}, X_{t+(k+1)+1}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &amp;\mathbb{P}[X_{t+(k+1)}, X_{t+(k+1)+1}, \ldots, X_{t+m} | X_t], \quad \forall t \in
+\mathbb{N}_0, \forall k,m \in \mathbb{N}, m \ge k
+\end{aligned}
+\]</span></p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\mathbb{P}[X_{t+k+1}, X_{t+k+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &amp;\mathbb{P}[X_{t+k+1} | X_0, X_1, \ldots, X_t, X_{t+k+2}, X_{t+k+3}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+k+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &amp;\mathbb{P}[X_{t+k+1} | X_0, X_1, \ldots, X_t, X_{t+k+2}, X_{t+k+3}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m} | X_t] \\
+= &amp;\mathbb{P}[X_{t+m+1} | X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m} | X_t] \\
+= &amp;\frac{\mathbb{P}[X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}, X_{t+m+1}]}{\mathbb{P}[X_t X_{t+k}, X_{t+k+1}, \ldots, X_{t+m}]}
+\frac{\mathbb{P}[X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t+m}]}{X_t} \\
+= &amp;\frac{\mathbb{P}[X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}, X_{t+m+1}]}{X_t} \\
+= &amp;\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}, X_{t+m+1} | X_t] \\
+\end{aligned}
+\]</span></p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &amp;\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t]
+\end{aligned}
+\]</span></p>
+<p>We want to use the definition of conditional probability once more to pull these two terms back together into a single conditional probability, but the condition of the first term is not quite right. However, because of the Markov property, it is true that:</p>
+<p><span class="math display">\[
+\mathbb{P}[X_{t+m+1} | X_{0}, X_{1} \ldots, X_{t + m}] = \mathbb{P}[X_{t+m+1} | X_{t + m}]
+\]</span></p>
+<p>and it is also true that</p>
+<p><span class="math display">\[
+\mathbb{P}[X_{t+m+1} | X_{t}, X_{t+1} \ldots, X_{t + m}] = \mathbb{P}[X_{t+m+1} | X_{t + m}]
+\]</span></p>
+<p>so we can equate these two by the transitive property:</p>
+<p><span class="math display">\[
+\mathbb{P}[X_{t+m+1} | X_{0}, X_{1} \ldots, X_{t + m}] =
+\mathbb{P}[X_{t+m+1} | X_{t}, X_{t+1} \ldots, X_{t + m}]
+\]</span></p>
+<p>So we can substitute this term in the original equation and use the definition of conditional probability to join the two terms back together:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\mathbb{P}[X_{t+m+1} | X_{0}, X_{1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t] \\
+=&amp;\mathbb{P}[X_{t+m+1} | X_{t}, X_{t+1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t] \\
+=&amp;\frac{\mathbb{P}[X_t, X_{t+1}, \ldots, X_{t+m+1}]}{X_t, X_{t+1}, \ldots, X_{t+m}}
+\frac{X_t, X_{t+1}, \ldots, X_{t+m}}{X_t} \\
+=&amp;\frac{\mathbb{P}[X_t, X_{t+1}, \ldots, X_{t+m+1}]}{X_t} \\
+=&amp; \mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m+1} | X_t] \\
+\end{aligned}
+\]</span></p>
+<p>So, we have proven the induction step for <span class="math inline">\(m+1\)</span>, therefore the hypothesis holds for all <span class="math inline">\(m \in \mathbb{N}\)</span>, and the induction hypothesis is proven:</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp;\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &amp;\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t], \quad \forall t \in
+\mathbb{N}_0, \forall m \in \mathbb{N} &amp; \blacksquare \\
+\end{aligned}
+\]</span></p>
+</section>
 </section>
 <section id="problem-5" class="level2">
 <h2 class="anchored" data-anchor-id="problem-5">Problem 5</h2>
-<section id="section-9" class="level3">
-<h3 class="anchored" data-anchor-id="section-9">5.1</h3>
+<section id="section-14" class="level3">
+<h3 class="anchored" data-anchor-id="section-14">5.1</h3>
 <p>We assume that the state <span class="math inline">\((i, j)\)</span> represents the previous two states in <span class="math inline">\(X_{t-2}, X_{t-1}\)</span> order, such that a sequence <span class="math inline">\(2, 1, 2\)</span> in the second-order model can be represented by a sequence <span class="math inline">\((2, 1), (1, 2)\)</span> in the simple MC.</p>
 <p>Using the transition from <span class="math inline">\((1, 1)\)</span> to <span class="math inline">\((1, 1)\)</span> as an example, the probability of this transition is found from the given probability:</p>
 <p><span class="math display">\[
@@ -420,20 +651,22 @@ P = \begin{bmatrix}
 <p>We repeat this across all combinations:</p>
 <p><span class="math display">\[
 \begin{aligned}
-\mathcal{P}((1,1)|(1,1)) = \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 1) = 0.8
-\mathcal{P}((1,2)|(1,1)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 1, X_{t-1} = 1) = 0.2
-\mathcal{P}((2,1)|(1,2)) = \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 2) = 0.1
-\mathcal{P}((2,2)|(1,2)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 1, X_{t-1} = 1) = 0.9
-\mathcal{P}((1,1)|(2,1)) = \mathcal{P}(X_t = 1 | X_{t-2} = 2, X_{t-1} = 1) = 0.3
-\mathcal{P}((1,2)|(2,1)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 2, X_{t-1} = 1) = 0.7
-\mathcal{P}((2,1)|(2,2)) = \mathcal{P}(X_t = 1 | X_{t-2} = 2, X_{t-1} = 2) = 0.7
-\mathcal{P}((2,2)|(2,2)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 2, X_{t-1} = 2) = 0.3
+\mathcal{P}((1,1)|(1,1)) &amp;= \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 1) = 0.8 \\
+\mathcal{P}((1,2)|(1,1)) &amp;= 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 1, X_{t-1} = 1) = 0.2 \\
+\mathcal{P}((2,1)|(1,2)) &amp;= \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 2) = 0.1 \\
+\mathcal{P}((2,2)|(1,2)) &amp;= 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 1, X_{t-1} = 1) = 0.9 \\
+\mathcal{P}((1,1)|(2,1)) &amp;= \mathcal{P}(X_t = 1 | X_{t-2} = 2, X_{t-1} = 1) = 0.3 \\
+\mathcal{P}((1,2)|(2,1)) &amp;= 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 2, X_{t-1} = 1) = 0.7 \\
+\mathcal{P}((2,1)|(2,2)) &amp;= \mathcal{P}(X_t = 1 | X_{t-2} = 2, X_{t-1} = 2) = 0.7 \\
+\mathcal{P}((2,2)|(2,2)) &amp;= 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 2, X_{t-1} = 2) = 0.3 \\
 \end{aligned}
 \]</span></p>
+<p>Which, in graph form, looks like:</p>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
-<div>
-<p></p><figure class="figure"><p></p>
+<div id="fig-graph-p5" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-graph-p5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div>
 <svg width="672" height="480" viewbox="0.00 0.00 258.77 310.40" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 306.4)">
@@ -521,15 +754,14 @@ P = \begin{bmatrix}
 </g>
 </svg>
 </div>
-<p></p></figure><p></p>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-graph-p5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Model Transition Graph
+</figcaption>
+</figure>
 </div>
 </div>
 </div>
-</section>
-</section>
-</section>
-<section id="todo-flip-order-below" class="level1">
-<h1>TODO: flip order below</h1>
 <p>To find the initial state distribution, we take the probabilities of getting all <span class="math inline">\(2 \cdot 2 = 4\)</span> possibilities of the first two states using the probabilities in the problem statement.</p>
 <p>The first-order initial distribution is:</p>
 <p><span class="math display">\[
@@ -543,8 +775,8 @@ P = \begin{bmatrix}
 <p><span class="math display">\[
 \begin{aligned}
 \mathbb{P}_2(X_0 &amp;= (1, 1)) = \mathbb{P}_1(X_1 = 1 | X_0 = 1) \mathbb{P}_1(X_0 = 1) = 0.2 \cdot 0.5 = 0.1 \\
-\mathbb{P}_2(X_0 &amp;= (1, 2)) = \mathbb{P}_1(X_1 = 1 | X_0 = 2) \mathbb{P}_1(X_0 = 2) = 0.4 \cdot 0.5 = 0.2 \\
-\mathbb{P}_2(X_0 &amp;= (2, 1)) = \mathbb{P}_1(X_1 = 2 | X_0 = 1) \mathbb{P}_1(X_0 = 1) = 0.8 \cdot 0.5 = 0.4 \\
+\mathbb{P}_2(X_0 &amp;= (2, 1)) = \mathbb{P}_1(X_1 = 1 | X_0 = 2) \mathbb{P}_1(X_0 = 2) = 0.4 \cdot 0.5 = 0.2 \\
+\mathbb{P}_2(X_0 &amp;= (1, 2)) = \mathbb{P}_1(X_1 = 2 | X_0 = 1) \mathbb{P}_1(X_0 = 1) = 0.8 \cdot 0.5 = 0.4 \\
 \mathbb{P}_2(X_0 &amp;= (2, 2)) = \mathbb{P}_1(X_1 = 2 | X_0 = 2) \mathbb{P}_1(X_0 = 2) = 0.6 \cdot 0.5 = 0.3 \\
 \end{aligned}
 \]</span></p>
@@ -557,10 +789,20 @@ P = \begin{bmatrix}
 <p><span class="math display">\[
 \mathcal{S} = \{(1,1), (1,2), (2,1), (2,2)\}
 \]</span></p>
+</section>
+<section id="section-15" class="level3">
+<h3 class="anchored" data-anchor-id="section-15">5.2</h3>
+<p>To create a simple Markov chain from an MC of order <span class="math inline">\(k\)</span>, we first need to form a new state-space <span class="math inline">\(\mathcal{S}'\)</span> from the original space <span class="math inline">\(\mathcal{S}\)</span> where each element of <span class="math inline">\(\mathcal{S}'\)</span> is a <span class="math inline">\(k\)</span>-tuple such that all <span class="math inline">\(|\mathcal{S}|^k\)</span> combinations of <span class="math inline">\(k\)</span> values from <span class="math inline">\(\mathcal{S}\)</span> are included. The values in the tuple represent a sequence of <span class="math inline">\(k\)</span> states in the <span class="math inline">\(k\)</span>-order space from oldest to newest.</p>
+<p>To form the new state transition probabilities, we take an existing <span class="math inline">\(k\)</span>-tuple from <span class="math inline">\(\mathcal{S}'\)</span> and consider a state from <span class="math inline">\(\mathcal{S}\)</span> as the next state in the sequence. We require each of the state values in the <span class="math inline">\(k\)</span>-tuple sequence to determine the probability of the next state. This probability should be given as a conditional probability in the original model, conditioned on the <span class="math inline">\(k\)</span> previous values. We assign the probability whose condition matches the order of the sequence in the tuple. We repeat this for each tuple in <span class="math inline">\(\mathcal{S}'\)</span>.</p>
+<p>To form the initial distribution, we consider a tuple from <span class="math inline">\(\mathcal{S}'\)</span> and multiply out the probabilities given in the original model of obtaining each step such that the first probability is not conditioned on any former states, and each successive probability will be conditional on one additional previous state. For example, if the tuple is <span class="math inline">\((S_0, S_0, S_1)\)</span>, the first term in the product should be <span class="math inline">\(\mathbb{P}(X_0 = S_0)\)</span>, the the probability of obtaining <span class="math inline">\(S_0\)</span> on the first step. This will be multiplied by <span class="math inline">\(\mathbb{P}(X_1 = S_0 | X_0
+= S_0)\)</span>, and will finally be multiplied by <span class="math inline">\(\mathbb{P}(X_2 = S_1 | X_0 = S_0,
+X_1 = S_0)\)</span>. This process is repeated for each tuple in <span class="math inline">\(\mathcal{S}'\)</span>.</p>
+</section>
+</section>
 <section id="problem-6" class="level2">
 <h2 class="anchored" data-anchor-id="problem-6">Problem 6</h2>
-<section id="section-10" class="level3">
-<h3 class="anchored" data-anchor-id="section-10">6.1</h3>
+<section id="section-16" class="level3">
+<h3 class="anchored" data-anchor-id="section-16">6.1</h3>
 <p>The scenario can be described as an MDP with reward defined by the tuple <span class="math inline">\(\mu =
 (\mu_0, \mathcal{S}, \mathcal{A}, \mathcal{P},
 \mathcal{R}, \gamma)\)</span></p>
@@ -600,8 +842,8 @@ M = \{ A, B, C, D \} \\
 <p>Which is to say that if the genre preference defined by the input state <span class="math inline">\(s_i\)</span> (where <span class="math inline">\(i\)</span> is the genre in the set of genres <span class="math inline">\(G\)</span>) is in the set of genres of the movie chosen in action <span class="math inline">\(a_j\)</span> (which is the output of the function <span class="math inline">\(\mathcal{G}(j)\)</span> where <span class="math inline">\(j\)</span> is the movie in the set of movies <span class="math inline">\(M\)</span>), then the reward will be 1, which corresponds to the user submitting a Like, and if the desired genre is <em>not</em> in the set of genres for the movie chosen, the reward is -1, corrresponding to the user submitting a Dislike.</p>
 <p><span class="math inline">\(\gamma = 0.95\)</span></p>
 </section>
-<section id="section-11" class="level3">
-<h3 class="anchored" data-anchor-id="section-11">6.2</h3>
+<section id="section-17" class="level3">
+<h3 class="anchored" data-anchor-id="section-17">6.2</h3>
 <p>The transition-based graph of the recommendation strategy is shown below where the nodes correspond to the different states and the edges are labeled with the actions taken in the transitions they represent along with the probability of taking that respective action/transition:</p>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
@@ -770,7 +1012,7 @@ M = \{ A, B, C, D \} \\
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-graph-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Model Transition Graph
+Figure&nbsp;2: Model Transition Graph
 </figcaption>
 </figure>
 </div>
@@ -782,11 +1024,11 @@ Figure&nbsp;1: Model Transition Graph
 <p>The given policy is stationary as it only depends on the user’s current genre preference rather than their past or future ones. It is also a stochastic policy rather than a deterministic one as the action taken is chosen with some degree of randomness as indicated by the probability values on the edges/transitions in the graph.</p>
 </section>
 </section>
-<section id="section-12" class="level3">
-<h3 class="anchored" data-anchor-id="section-12">6.3</h3>
-<p>With the policy in <a href="#section-11">6.2</a> prescribed, a Markov chain (with reward) is induced over the MDP from <a href="#section-10">6.1</a>. It is defined by the tuple <span class="math inline">\(\mu = (\mu_0, \mathcal{S},
+<section id="section-18" class="level3">
+<h3 class="anchored" data-anchor-id="section-18">6.3</h3>
+<p>With the policy in <a href="#section-17">6.2</a> prescribed, a Markov chain (with reward) is induced over the MDP from <a href="#section-16">6.1</a>. It is defined by the tuple <span class="math inline">\(\mu = (\mu_0, \mathcal{S},
 \mathcal{P}, \mathcal{R}, \gamma)\)</span>.</p>
-<p>We can simplify the transition-based graph in <a href="#fig-graph" class="quarto-xref">Figure&nbsp;1</a> by removing the specification on which action is taken and summing the remaining edges which make the same transition. This shows how inducing the policy removes the need to specify <span class="math inline">\(\mathcal{A}\)</span> in the model definition: now that a specific set of actions is prescribed for each state, even if we don’t know which exact action will be taken, we can describe the transition from state-to-state via a probability that does not depend on the exact action taken, but rather the total probability of moving from one state to another across all actions that lead to the given transition.</p>
+<p>We can simplify the transition-based graph in <a href="#fig-graph" class="quarto-xref">Figure&nbsp;2</a> by removing the specification on which action is taken and summing the remaining edges which make the same transition. This shows how inducing the policy removes the need to specify <span class="math inline">\(\mathcal{A}\)</span> in the model definition: now that a specific set of actions is prescribed for each state, even if we don’t know which exact action will be taken, we can describe the transition from state-to-state via a probability that does not depend on the exact action taken, but rather the total probability of moving from one state to another across all actions that lead to the given transition.</p>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div id="fig-graph-simplified" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -882,13 +1124,13 @@ Figure&nbsp;1: Model Transition Graph
 </div>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-graph-simplified-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Simplified Model Transition Graph with Actions Removed
+Figure&nbsp;3: Simplified Model Transition Graph with Actions Removed
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>Using the same helper sets and function from <a href="#section-10">6.1</a>, we can define each element of the model:</p>
+<p>Using the same helper sets and function from <a href="#section-16">6.1</a>, we can define each element of the model:</p>
 <p><span class="math inline">\(\mathcal{S} = \{ s_A, s_H, s_C \}\)</span> where each state corresponds to the user’s desired genre, which is either Action, Horror, or Comedy, respectively.</p>
 <p><span class="math inline">\(\mu_0 = \left[  \frac{1}{3},  \frac{1}{3},  \frac{1}{3} \right]\)</span> where the order of the indices is Action, Horror, Comedy.</p>
 <p><span class="math inline">\(\mathcal{P} = \mathcal{P}(s): \mathcal{S} \to \Delta
@@ -900,20 +1142,25 @@ Figure&nbsp;2: Simplified Model Transition Graph with Actions Removed
 0.45 &amp; 0.45 &amp; 0.1 \\
 \end{bmatrix}
 \]</span></p>
-<p>Where the rows and columns follow the same Action, Horror, Comedy order as usual. The values of this matrix are found in the graph in <a href="#fig-graph-simplified" class="quarto-xref">Figure&nbsp;2</a> above, which were calculated as described in <a href="#sec-method" class="quarto-xref">Section&nbsp;2.1.2.1</a>.</p>
+<p>Where the rows and columns follow the same Action, Horror, Comedy order as usual. The values of this matrix are found in the graph in <a href="#fig-graph-simplified" class="quarto-xref">Figure&nbsp;3</a> above, which were calculated as described in <a href="#sec-method" class="quarto-xref">Section&nbsp;2.7.2.1</a>.</p>
 <p><span class="math inline">\(\mathcal{R} = \mathcal{R}(s): \mathcal{S} \to [-1, 1]\)</span></p>
 <p>Where the reward function can be defined piecewise as:</p>
 <p><span class="math display">\[
 \mathcal{R}(s_t) = \begin{cases}
-1 \cdot \gamma^t, \quad s_t \\
+1, \quad s_t \\
 0, \quad i \notin \mathcal{G}(j), i \in G, j \in M \\
 \end{cases}
 \]</span></p>
-<p>Which is to say that if the genre preference defined by the input state <span class="math inline">\(s_i\)</span> (where <span class="math inline">\(i\)</span> is the genre in the set of genres <span class="math inline">\(G\)</span>) is in the set of genres of the movie chosen in action <span class="math inline">\(a_j\)</span> (which is the output of the function <span class="math inline">\(\mathcal{G}(j)\)</span> where <span class="math inline">\(j\)</span> is the movie in the set of movies <span class="math inline">\(M\)</span>), then the reward will be 1, which corresponds to the user submitting a Like, and if the desired genre is <em>not</em> in the set of genres for the movie chosen, the reward is -1, corrresponding to the user submitting a Dislike.</p>
+<p>Which is to say that if the genre preference defined by the input state <span class="math inline">\(s_i\)</span> (where <span class="math inline">\(i\)</span> is the genre in the set of genres <span class="math inline">\(G\)</span>) is in the set of genres of the movie chosen in action <span class="math inline">\(a_j\)</span> (which is the output of the function <span class="math inline">\(\mathcal{G}(j)\)</span> where <span class="math inline">\(j\)</span> is the movie in the set of movies <span class="math inline">\(M\)</span>), then the reward will be 1, which corresponds to the user submitting a Like, and if the desired genre is <em>not</em> in the set of genres for the movie chosen, the reward is -1, corresponding to the user submitting a Dislike.</p>
 <p><span class="math inline">\(\gamma = 0.95\)</span></p>
 </section>
-<section id="section-13" class="level3">
-<h3 class="anchored" data-anchor-id="section-13">6.4</h3>
+<section id="section-19" class="level3">
+<h3 class="anchored" data-anchor-id="section-19">6.4</h3>
+</section>
+</section>
+</section>
+<section id="todo-1" class="level1">
+<h1>TODO</h1>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
@@ -1006,8 +1253,6 @@ Figure&nbsp;2: Simplified Model Transition Graph with Actions Removed
 <!--   A -> B [label=""] -->
 <!-- } -->
 <!-- ``` -->
-</section>
-</section>
 </section>
 
 </main>

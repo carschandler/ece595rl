@@ -126,8 +126,8 @@ $$
 $$
 
 since the square of any one element of a vector of positive values must
-necessarily be less than or equal to a sum of all of those values. This once
-again implies that
+necessarily be less than or equal to a sum of the squares all of those values.
+This once again implies that
 
 $$
 \Vert \mathbf{x} \Vert_2 \ge  \Vert \mathbf{x} \Vert_\infty
@@ -185,6 +185,57 @@ $$
 $$
 
 ## Problem 2
+
+### 2.1
+
+We can start with the definition of $\mathbb{E}_X[X]$, introduce a marginal sum
+over $Y$, turn this into a conditional probability sum, rearrange the sums to
+form an expectation over $Y$, and finally form a marginal expectation over
+$X|Y$:
+
+$$
+\begin{aligned}
+\mathbb{E}_X[X] &= \sum_{x \in \mathcal{X}} x \mathbb{P}(X=x) \\
+&= \sum_{x \in \mathcal{X}} x \sum_{y \in \mathcal{Y}} \mathbb{P}(X=x , Y=y) \\
+&= \sum_{x \in \mathcal{X}} \sum_{y \in \mathcal{Y}} x \mathbb{P}(X=x , Y=y) \\
+&= \sum_{x \in \mathcal{X}} \sum_{y \in \mathcal{Y}} x \mathbb{P}(X=x | Y=y)  \mathbb{P}(Y=y) \\
+&= \sum_{y \in \mathcal{Y}} \left( \sum_{x \in \mathcal{X}} x \mathbb{P}(X=x | Y=y) \right) \mathbb{P}(Y=y) \\
+&= \mathbb{E}_Y\left[ \sum_{x \in \mathcal{X}} x \mathbb{P}(X=x | Y) \right] \\
+&= \mathbb{E}_Y[\mathbb{E}_X[X|Y]]
+\end{aligned}
+$$
+
+### 2.2 {.proof}
+
+We can follow the same pattern as before, but with the continuous equivalents of
+the discrete operations, i.e. integrals instead of sums, pdfs instead of pmfs:
+
+$$
+\begin{aligned}
+\mathbb{E}_X[X] &= \int_{X} x f_X(x) \, dx \\
+&= \int_{X} x \left( \int_{Y} f_{XY}(x, y) \, dy \right) \, dx \\
+&= \int_{Y} \int_{X} x f_{XY}(x, y) \, dx \, dy \\
+&= \int_{Y} \int_{X} x f_{X|Y}(x|y) f_Y(y)\, dx \, dy \\
+&= \int_{Y} \left( \int_{X} x f_{X|Y}(x|y) \, dx \right) f_Y(y) \, dy \\
+&= \mathbb{E}_Y\left[ \int_{X} x f_{X|Y}(x|y) \, dx \right] \\
+&= \mathbb{E}_Y[\mathbb{E}_X[X|Y]]
+\end{aligned}
+$$
+
+### 2.3
+
+# TODO
+
+$\mathbb{E}_R\left[ R_t | S_t = s, A_t = a \right]$ with a stationary policy
+$\pi(a|s)$ applied specifies which action will be taken, thus lifting the need
+to specify $\mathcal{A}$ from the model, so we are left with:
+
+$$
+\begin{aligned}
+\mathbb{E}_R\left[ R_t | S_t = s \right] = \mathbb{E}_\mathcal{A} \left[ \mathbb{E}_R
+\left[ R_t |  A_t = a, S_t = s \right] \right] \\
+\end{aligned}
+$$
 
 ## Problem 3
 
@@ -267,8 +318,7 @@ trans_matrix = np.array([
   [0.2 , 0 , 0.8 ],
 ])
 
-mu2 = mu0 @ trans_matrix @ trans_matrix
-mu2 = mu0 @ np.linalg.matrix_power(trans_matrix, 30)
+mu2 = mu0 @ np.linalg.matrix_power(trans_matrix, 2)
 ```
 
 $$
@@ -342,6 +392,261 @@ because given any sufficiently large $t$-value, the probability of the state
 being Rock is fixed and is much higher than the other two states. This makes
 sense given that Rock has such a high probability of transitioning to itself.
 
+## Problem 4
+
+### 4.1
+
+We can prove this by induction.
+
+The *induction hypothesis* is:
+
+$$
+\begin{aligned}
+&\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t], \quad \forall t \in
+\mathbb{N}_0, \forall m \in \mathbb{N}
+\end{aligned}
+$$
+
+We assume this hypothesis to be correct for some value $m \in \mathbb{N}$. Given
+that the MC satisfies the Markov property, the following *base case* holds for
+$m=1$:
+
+$$
+\mathbb{P}[X_{t+1} | X_0, X_1, \ldots, X_t] = \mathbb{P}[X_{t+1} | X_t]
+$$
+
+In the *induction step*, we will show that the hypothesis is also correct for
+$m+1$:
+
+$$
+\begin{aligned}
+&\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m}, X_{t+m+1} | X_0, X_1, \ldots, X_t] \\
+= &\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m}, X_{t+m+1} | X_t], \quad \forall t \in
+\mathbb{N}_0, \forall m \in \mathbb{N}
+\end{aligned}
+$$
+
+We can start with the LHS of this equation and use the definition of conditional
+probability (or the "chain rule" or "product rule" if you prefer) to write it as
+the product of two conditional probabilities, "pulling out" the last event
+$X_{t+m+1}$. If we take the form $P(A, B) = P(B | A) P(A)$, then for our
+scenario $A = X_{t+1}, ..., X_{t+m}$ and $B = X_{t+m+1}$ and $P = P(\cdot | X_0,
+..., X_t)$:
+
+$$
+\begin{aligned}
+&\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m}, X_{t+m+1} | X_0, X_1, \ldots, X_t] \\
+= &\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_t, X_{t+1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+\end{aligned}
+$$
+
+We can use the induction hypothesis, which is already assumed to be true, to
+rewrite the second term:
+
+$$
+\begin{aligned}
+&\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t]
+\end{aligned}
+$$
+
+We want to use the definition of conditional probability once more to pull these
+two terms back together into a single conditional probability, but the condition
+of the first term is not quite right. However, because of the Markov property,
+it is true that:
+
+$$
+\mathbb{P}[X_{t+m+1} | X_{0}, X_{1} \ldots, X_{t + m}] = \mathbb{P}[X_{t+m+1} | X_{t + m}]
+$$
+
+and it is also true that
+
+$$
+\mathbb{P}[X_{t+m+1} | X_{t}, X_{t+1} \ldots, X_{t + m}] = \mathbb{P}[X_{t+m+1} | X_{t + m}]
+$$
+
+so we can equate these two by the transitive property:
+
+$$
+\mathbb{P}[X_{t+m+1} | X_{0}, X_{1} \ldots, X_{t + m}] = 
+\mathbb{P}[X_{t+m+1} | X_{t}, X_{t+1} \ldots, X_{t + m}]
+$$
+
+So we can substitute this term in the original equation and use the definition
+of conditional probability to join the two terms back together:
+
+$$
+\begin{aligned}
+&\mathbb{P}[X_{t+m+1} | X_{0}, X_{1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t] \\
+=&\mathbb{P}[X_{t+m+1} | X_{t}, X_{t+1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t] \\
+=&\frac{\mathbb{P}[X_t, X_{t+1}, \ldots, X_{t+m+1}]}{X_t, X_{t+1}, \ldots, X_{t+m}}
+\frac{X_t, X_{t+1}, \ldots, X_{t+m}}{X_t} \\
+=&\frac{\mathbb{P}[X_t, X_{t+1}, \ldots, X_{t+m+1}]}{X_t} \\
+=& \mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m+1} | X_t] \\
+\end{aligned}
+$$
+
+So, we have proven the induction step, therefore the hypothesis holds
+for all $m \in \mathbb{N}$, and the induction hypothesis is proven:
+
+$$
+\begin{aligned}
+&\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t], \quad \forall t \in
+\mathbb{N}_0, \forall m \in \mathbb{N} & \blacksquare \\
+\end{aligned}
+$$
+
+### 4.2
+
+We can prove this by induction.
+
+The *induction hypothesis* is:
+
+$$
+\begin{aligned}
+&\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m} | X_t], \quad \forall t \in
+\mathbb{N}_0, \forall k,m \in \mathbb{N}, m \ge k
+\end{aligned}
+$$
+
+We assume this hypothesis to be correct for some values $k \le m$ where $k, m \in
+\mathbb{N}$. Given that the MC satisfies the Markov property, the following
+*base case* holds for $k=m=1$:
+
+$$
+\mathbb{P}[X_{t+1} | X_0, X_1, \ldots, X_t] = \mathbb{P}[X_{t+1} | X_t]
+$$
+
+We require two induction steps here: one for $m$ and one for $k$. We can begin
+with the induction step for $m$:
+
+Assuming the inductive hypothesis to be true, we will show that it is also true
+for $m + 1$:
+
+$$
+\begin{aligned}
+&\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m+1} | X_0, X_1, \ldots, X_t] \\
+= &\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m+1} | X_t], \quad \forall t \in
+\mathbb{N}_0, \forall k,m \in \mathbb{N}, m \ge k
+\end{aligned}
+$$
+
+We use the same pattern as before:
+
+$$
+\begin{aligned}
+&\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m}, X_{t+m+1} | X_0, X_1, \ldots, X_t] \\
+= &\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m} | X_t] \\
+= &\mathbb{P}[X_{t+m+1} | X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m} | X_t] \\
+= &\frac{\mathbb{P}[X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}, X_{t+m+1}]}{\mathbb{P}[X_t X_{t+k}, X_{t+k+1}, \ldots, X_{t+m}]}
+\frac{\mathbb{P}[X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t+m}]}{X_t} \\
+= &\frac{\mathbb{P}[X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}, X_{t+m+1}]}{X_t} \\
+= &\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}, X_{t+m+1} | X_t] \\
+\end{aligned}
+$$
+
+Thus the induction step for $m$ is proven.
+
+Next we can prove the inductive step over $k$, showing that the inductive
+hypothesis is also true for $k+1$:
+
+$$
+\begin{aligned}
+&\mathbb{P}[X_{t+(k+1)}, X_{t+(k+1)+1}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &\mathbb{P}[X_{t+(k+1)}, X_{t+(k+1)+1}, \ldots, X_{t+m} | X_t], \quad \forall t \in
+\mathbb{N}_0, \forall k,m \in \mathbb{N}, m \ge k
+\end{aligned}
+$$
+
+$$
+\begin{aligned}
+&\mathbb{P}[X_{t+k+1}, X_{t+k+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &\mathbb{P}[X_{t+k+1} | X_0, X_1, \ldots, X_t, X_{t+k+2}, X_{t+k+3}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+k+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &\mathbb{P}[X_{t+k+1} | X_0, X_1, \ldots, X_t, X_{t+k+2}, X_{t+k+3}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m} | X_t] \\
+= &\mathbb{P}[X_{t+m+1} | X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t+m} | X_t] \\
+= &\frac{\mathbb{P}[X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}, X_{t+m+1}]}{\mathbb{P}[X_t X_{t+k}, X_{t+k+1}, \ldots, X_{t+m}]}
+\frac{\mathbb{P}[X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t+m}]}{X_t} \\
+= &\frac{\mathbb{P}[X_t, X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}, X_{t+m+1}]}{X_t} \\
+= &\mathbb{P}[X_{t+k}, X_{t+k+1}, \ldots, X_{t + m}, X_{t+m+1} | X_t] \\
+\end{aligned}
+$$
+
+
+$$
+\begin{aligned}
+&\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &\mathbb{P}[X_{t+m+1} | X_0, X_1, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t]
+\end{aligned}
+$$
+
+We want to use the definition of conditional probability once more to pull these
+two terms back together into a single conditional probability, but the condition
+of the first term is not quite right. However, because of the Markov property,
+it is true that:
+
+$$
+\mathbb{P}[X_{t+m+1} | X_{0}, X_{1} \ldots, X_{t + m}] = \mathbb{P}[X_{t+m+1} | X_{t + m}]
+$$
+
+and it is also true that
+
+$$
+\mathbb{P}[X_{t+m+1} | X_{t}, X_{t+1} \ldots, X_{t + m}] = \mathbb{P}[X_{t+m+1} | X_{t + m}]
+$$
+
+so we can equate these two by the transitive property:
+
+$$
+\mathbb{P}[X_{t+m+1} | X_{0}, X_{1} \ldots, X_{t + m}] = 
+\mathbb{P}[X_{t+m+1} | X_{t}, X_{t+1} \ldots, X_{t + m}]
+$$
+
+So we can substitute this term in the original equation and use the definition
+of conditional probability to join the two terms back together:
+
+$$
+\begin{aligned}
+&\mathbb{P}[X_{t+m+1} | X_{0}, X_{1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t] \\
+=&\mathbb{P}[X_{t+m+1} | X_{t}, X_{t+1}, \ldots, X_{t + m}] \cdot
+\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t] \\
+=&\frac{\mathbb{P}[X_t, X_{t+1}, \ldots, X_{t+m+1}]}{X_t, X_{t+1}, \ldots, X_{t+m}}
+\frac{X_t, X_{t+1}, \ldots, X_{t+m}}{X_t} \\
+=&\frac{\mathbb{P}[X_t, X_{t+1}, \ldots, X_{t+m+1}]}{X_t} \\
+=& \mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m+1} | X_t] \\
+\end{aligned}
+$$
+
+So, we have proven the induction step for $m+1$, therefore the hypothesis holds
+for all $m \in \mathbb{N}$, and the induction hypothesis is proven:
+
+$$
+\begin{aligned}
+&\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_0, X_1, \ldots, X_t] \\
+= &\mathbb{P}[X_{t+1}, X_{t+2}, \ldots, X_{t+m} | X_t], \quad \forall t \in
+\mathbb{N}_0, \forall m \in \mathbb{N} & \blacksquare \\
+\end{aligned}
+$$
+
 ## Problem 5
 
 ### 5.1
@@ -371,19 +676,22 @@ We repeat this across all combinations:
 
 $$
 \begin{aligned}
-\mathcal{P}((1,1)|(1,1)) = \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 1) = 0.8
-\mathcal{P}((1,2)|(1,1)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 1, X_{t-1} = 1) = 0.2
-\mathcal{P}((2,1)|(1,2)) = \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 2) = 0.1
-\mathcal{P}((2,2)|(1,2)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 1, X_{t-1} = 1) = 0.9
-\mathcal{P}((1,1)|(2,1)) = \mathcal{P}(X_t = 1 | X_{t-2} = 2, X_{t-1} = 1) = 0.3
-\mathcal{P}((1,2)|(2,1)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 2, X_{t-1} = 1) = 0.7
-\mathcal{P}((2,1)|(2,2)) = \mathcal{P}(X_t = 1 | X_{t-2} = 2, X_{t-1} = 2) = 0.7
-\mathcal{P}((2,2)|(2,2)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 2, X_{t-1} = 2) = 0.3
+\mathcal{P}((1,1)|(1,1)) &= \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 1) = 0.8 \\
+\mathcal{P}((1,2)|(1,1)) &= 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 1, X_{t-1} = 1) = 0.2 \\
+\mathcal{P}((2,1)|(1,2)) &= \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 2) = 0.1 \\
+\mathcal{P}((2,2)|(1,2)) &= 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 1, X_{t-1} = 1) = 0.9 \\
+\mathcal{P}((1,1)|(2,1)) &= \mathcal{P}(X_t = 1 | X_{t-2} = 2, X_{t-1} = 1) = 0.3 \\
+\mathcal{P}((1,2)|(2,1)) &= 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 2, X_{t-1} = 1) = 0.7 \\
+\mathcal{P}((2,1)|(2,2)) &= \mathcal{P}(X_t = 1 | X_{t-2} = 2, X_{t-1} = 2) = 0.7 \\
+\mathcal{P}((2,2)|(2,2)) &= 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 2, X_{t-1} = 2) = 0.3 \\
 \end{aligned}
 $$
 
+Which, in graph form, looks like:
 
 ```{dot}
+//| label: fig-graph-p5
+//| fig-cap: "Model Transition Graph"
 digraph {
   // layout=fdp
   // esep=3
@@ -412,8 +720,6 @@ digraph {
 }
 ```
 
-# TODO: flip order below
-
 To find the initial state distribution, we take the probabilities of getting all
 $2 \cdot 2 = 4$ possibilities of the first two states using the probabilities in
 the problem statement.
@@ -435,8 +741,8 @@ Using this, the second-order initial distribution is:
 $$
 \begin{aligned}
 \mathbb{P}_2(X_0 &= (1, 1)) = \mathbb{P}_1(X_1 = 1 | X_0 = 1) \mathbb{P}_1(X_0 = 1) = 0.2 \cdot 0.5 = 0.1 \\
-\mathbb{P}_2(X_0 &= (1, 2)) = \mathbb{P}_1(X_1 = 1 | X_0 = 2) \mathbb{P}_1(X_0 = 2) = 0.4 \cdot 0.5 = 0.2 \\
-\mathbb{P}_2(X_0 &= (2, 1)) = \mathbb{P}_1(X_1 = 2 | X_0 = 1) \mathbb{P}_1(X_0 = 1) = 0.8 \cdot 0.5 = 0.4 \\
+\mathbb{P}_2(X_0 &= (2, 1)) = \mathbb{P}_1(X_1 = 1 | X_0 = 2) \mathbb{P}_1(X_0 = 2) = 0.4 \cdot 0.5 = 0.2 \\
+\mathbb{P}_2(X_0 &= (1, 2)) = \mathbb{P}_1(X_1 = 2 | X_0 = 1) \mathbb{P}_1(X_0 = 1) = 0.8 \cdot 0.5 = 0.4 \\
 \mathbb{P}_2(X_0 &= (2, 2)) = \mathbb{P}_1(X_1 = 2 | X_0 = 2) \mathbb{P}_1(X_0 = 2) = 0.6 \cdot 0.5 = 0.3 \\
 \end{aligned}
 $$
@@ -456,6 +762,32 @@ $$
 \mathcal{S} = \{(1,1), (1,2), (2,1), (2,2)\}
 $$
 
+### 5.2
+
+To create a simple Markov chain from an MC of order $k$, we first need to form a
+new state-space $\mathcal{S}'$ from the original space $\mathcal{S}$ where each
+element of $\mathcal{S}'$ is a $k$-tuple such that all $|\mathcal{S}|^k$
+combinations of $k$ values from $\mathcal{S}$ are included. The values in the
+tuple represent a sequence of $k$ states in the $k$-order space from oldest to
+newest.
+
+To form the new state transition probabilities, we take an existing $k$-tuple
+from $\mathcal{S}'$ and consider a state from $\mathcal{S}$ as the next state in
+the sequence. We require each of the state values in the $k$-tuple sequence to
+determine the probability of the next state. This probability should be given as
+a conditional probability in the original model, conditioned on the $k$ previous
+values. We assign the probability whose condition matches the order of the
+sequence in the tuple. We repeat this for each tuple in $\mathcal{S}'$.
+
+To form the initial distribution, we consider a tuple from $\mathcal{S}'$ and
+multiply out the probabilities given in the original model of obtaining each
+step such that the first probability is not conditioned on any former states,
+and each successive probability will be conditional on one additional previous
+state. For example, if the tuple is $(S_0, S_0, S_1)$, the first term in the
+product should be $\mathbb{P}(X_0 = S_0)$, the the probability of obtaining
+$S_0$ on the first step. This will be multiplied by $\mathbb{P}(X_1 = S_0 | X_0
+= S_0)$, and will finally be multiplied by $\mathbb{P}(X_2 = S_1 | X_0 = S_0,
+X_1 = S_0)$. This process is repeated for each tuple in $\mathcal{S}'$.
 
 ## Problem 6
 
@@ -646,7 +978,7 @@ Where the reward function can be defined piecewise as:
 
 $$
 \mathcal{R}(s_t) = \begin{cases}
-1 \cdot \gamma^t, \quad s_t \\
+1, \quad s_t \\
 0, \quad i \notin \mathcal{G}(j), i \in G, j \in M \\
 \end{cases}
 $$
@@ -657,11 +989,13 @@ movie chosen in action $a_j$ (which is the output of the function
 $\mathcal{G}(j)$ where $j$ is the movie in the set of movies $M$), then the
 reward will be 1, which corresponds to the user submitting a Like, and if the
 desired genre is *not* in the set of genres for the movie chosen, the reward is
--1, corrresponding to the user submitting a Dislike.
+-1, corresponding to the user submitting a Dislike.
 
 $\gamma = 0.95$
 
 ### 6.4
+
+# TODO
 
 ```{dot}
 digraph {
