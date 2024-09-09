@@ -342,12 +342,127 @@ because given any sufficiently large $t$-value, the probability of the state
 being Rock is fixed and is much higher than the other two states. This makes
 sense given that Rock has such a high probability of transitioning to itself.
 
+## Problem 5
+
+### 5.1
+
+We assume that the state $(i, j)$ represents the previous two states in
+$X_{t-2}, X_{t-1}$ order, such that a sequence $2, 1, 2$ in the second-order
+model can be represented by a sequence $(2, 1), (1, 2)$ in the simple MC.
+
+Using the transition from $(1, 1)$ to $(1, 1)$ as an example, the probability of
+this transition is found from the given probability:
+
+$$
+\mathcal{P}((1,1)|(1,1)) = \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 1) = 0.8
+$$
+
+and we can use the complement to define the probability of $(1,1)$ to $(1,2)$:
+
+$$
+\begin{aligned}
+\mathcal{P}((1,2)|(1,1)) &= \mathcal{P}(X_t = 2 | X_{t-2} = 1, X_{t-1} = 1) \\
+&= 1 - \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 1) \\
+&= 0.2
+\end{aligned}
+$$
+
+We repeat this across all combinations:
+
+$$
+\begin{aligned}
+\mathcal{P}((1,1)|(1,1)) = \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 1) = 0.8
+\mathcal{P}((1,2)|(1,1)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 1, X_{t-1} = 1) = 0.2
+\mathcal{P}((2,1)|(1,2)) = \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 2) = 0.1
+\mathcal{P}((2,2)|(1,2)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 1, X_{t-1} = 1) = 0.9
+\mathcal{P}((1,1)|(2,1)) = \mathcal{P}(X_t = 1 | X_{t-2} = 2, X_{t-1} = 1) = 0.3
+\mathcal{P}((1,2)|(2,1)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 2, X_{t-1} = 1) = 0.7
+\mathcal{P}((2,1)|(2,2)) = \mathcal{P}(X_t = 1 | X_{t-2} = 2, X_{t-1} = 2) = 0.7
+\mathcal{P}((2,2)|(2,2)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 2, X_{t-1} = 2) = 0.3
+\end{aligned}
+$$
+
+
+```{dot}
+digraph {
+  // layout=fdp
+  // esep=3
+  // edge [len=2]
+  // concentrate=true
+  1 [label="(1, 1)"]//, pos="0,2"]
+  2 [label="(1, 2)"]//, pos="2,2"]
+  3 [label="(2, 1)"]//, pos="0,0"]
+  4 [label="(2, 2)"]//, pos="2,0"]
+  // P(1 | 1,1)
+  1 -> 1 [label=0.8]
+  // P(2 | 1,1)
+  1 -> 2 [label=0.2]
+  // P(1 | 1,2)
+  2 -> 3 [label=0.1]
+  // P(2 | 1,2)
+  2 -> 4 [label=0.9]
+  // P(1 | 2,1)
+  3 -> 1 [label=0.3]
+  // P(2 | 2,1)
+  3 -> 2 [label=0.7]
+  // P(1 | 2,2)
+  4 -> 3 [label=0.7]
+  // P(2 | 2,2)
+  4 -> 4 [label=0.3]
+}
+```
+
+# TODO: flip order below
+
+To find the initial state distribution, we take the probabilities of getting all
+$2 \cdot 2 = 4$ possibilities of the first two states using the probabilities in
+the problem statement.
+
+The first-order initial distribution is:
+
+$$
+\begin{aligned}
+\mathbb{P}_1(X_0 = 1) &= 0.5 \\
+\mathbb{P}_1(X_0 = 2) &= 0.5 \\
+\end{aligned}
+$$
+
+Where $\mathbb{P}_1$ indicates that the probability measure is acting on the
+first-order model's state space.
+
+Using this, the second-order initial distribution is:
+
+$$
+\begin{aligned}
+\mathbb{P}_2(X_0 &= (1, 1)) = \mathbb{P}_1(X_1 = 1 | X_0 = 1) \mathbb{P}_1(X_0 = 1) = 0.2 \cdot 0.5 = 0.1 \\
+\mathbb{P}_2(X_0 &= (1, 2)) = \mathbb{P}_1(X_1 = 1 | X_0 = 2) \mathbb{P}_1(X_0 = 2) = 0.4 \cdot 0.5 = 0.2 \\
+\mathbb{P}_2(X_0 &= (2, 1)) = \mathbb{P}_1(X_1 = 2 | X_0 = 1) \mathbb{P}_1(X_0 = 1) = 0.8 \cdot 0.5 = 0.4 \\
+\mathbb{P}_2(X_0 &= (2, 2)) = \mathbb{P}_1(X_1 = 2 | X_0 = 2) \mathbb{P}_1(X_0 = 2) = 0.6 \cdot 0.5 = 0.3 \\
+\end{aligned}
+$$
+
+Where $\mathbb{P}_2$ indicates that the probability measure is acting on the
+second-order model's state space.
+
+Therefore:
+
+$$
+\mu_0 = [0.1, 0.2, 0.4, 0.3]
+$$
+
+for the state-space
+
+$$
+\mathcal{S} = \{(1,1), (1,2), (2,1), (2,2)\}
+$$
+
+
 ## Problem 6
 
 ### 6.1
 
-The scenario can be described as a POMDP with reward defined by the tuple $\mu =
-(\mu_0, \mathcal{S}, \mathcal{O}, \mathcal{Z}, \mathcal{A}, \mathcal{P},
+The scenario can be described as an MDP with reward defined by the tuple $\mu =
+(\mu_0, \mathcal{S}, \mathcal{A}, \mathcal{P},
 \mathcal{R}, \gamma)$
 
 Additionally, we define the following "helper" sets and a function to map
@@ -366,34 +481,8 @@ $$
 $G$ is the set of genres available, $M$ is the set of movies available, and
 $\mathcal{G}$ describes which genres apply for a given movie.
 
-
 $\mathcal{S} = \{ s_A, s_H, s_C \}$ where each state corresponds to the user's
 desired genre, which is either Action, Horror, or Comedy, respectively.
-
-$\mathcal{O} = \{ o_L, o_D \}$ where each observation corresponds to whether the
-user submitted a "Like" or a "Dislike" after viewing the movie, which partially
-reveals the underlying state: the user's true genre preference. Instead of
-observing their true preference, we just observe whether the selected movie
-aligned with their true preference or not, as shown.
-
-$\mathcal{Z} = \mathcal{Z}(s, a): \mathcal{S} \times \mathcal{A} \to
-\Delta(\mathcal{O})$
-
-$$
-\mathcal{O}(s, a) = \begin{cases}
-\left[ 1, 0 \right] \text{ when } (s_i, a_j) \text{ where } i \in G, i \in \mathcal{G}(j), j \in M \\
-\left[ 0, 1 \right] \text{ when } (s_i, a_j) \text{ where } i \in G, i \notin \mathcal{G}(j), j \in M \\
-\end{cases}
-$$
-
-In english, the observation takes a state (the user's genre preference) and an
-action (which movie the system suggested), and returns an observation. The
-observation returned depends on whether the genre of the movie (described by the
-function $\mathcal{G}$, which maps a value in the set of available movies to one
-or more genres which apply to that movie) aligns with the desired genre of the
-user. If the genre of the selected movie aligns with the user's true preference,
-the observation will certainly be a "Like", $o_L$, and if it does not align,
-then it will certainly be a "Dislike", $o_D$.
 
 $\mu_0 = \left[  \frac{1}{3},  \frac{1}{3},  \frac{1}{3} \right]$ where the
 order of the indices is Action, Horror, Comedy; the same as for $\mathcal{S}$.
@@ -421,33 +510,28 @@ probability 1. If one of the movie's genres is the user's preference, then the
 next genre preference will be one of the other two genres with equal probability
 (0.5) for each genre.
 
-$\mathcal{R} = \mathcal{R}(s, a): \mathcal{S} \times \mathcal{A} \to r \in [-1, 1]$
+$\mathcal{R} = \mathcal{R}(s, a): \mathcal{S} \times \mathcal{A} \to [-1, 1]$
 
-No additional information has been given about the reward aside from its bounds.
+Where the reward function can be defined piecewise as:
+
+$$
+\mathcal{R}(s_i, a_j) = \begin{cases}
+1, \quad i \in \mathcal{G}(j), i \in G, j \in M \\
+-1, \quad i \notin \mathcal{G}(j), i \in G, j \in M \\
+\end{cases}
+$$
+
+Which is to say that if the genre preference defined by the input state $s_i$
+(where $i$ is the genre in the set of genres $G$) is in the set of genres of the
+movie chosen in action $a_j$ (which is the output of the function
+$\mathcal{G}(j)$ where $j$ is the movie in the set of movies $M$), then the
+reward will be 1, which corresponds to the user submitting a Like, and if the
+desired genre is *not* in the set of genres for the movie chosen, the reward is
+-1, corrresponding to the user submitting a Dislike.
 
 $\gamma = 0.95$
 
 ### 6.2
-
-<!-- ```{dot} -->
-<!-- digraph { -->
-<!--   A -> H [label="a_A, 0.4*0.5 = 0.2"] -->
-<!--   A -> C [label="a_A, 0.4*0.5 = 0.2"] -->
-<!--   A -> H [label="a_B, 0.4*0.5 = 0.2"] -->
-<!--   A -> C [label="a_B, 0.4*0.5 = 0.2"] -->
-<!--   A -> A [label="a_D, 0.2"] -->
-<!--   H -> H [label="a_A, 0.25"] -->
-<!--   H -> A [label="a_B, 0.25*0.5=0.125"] -->
-<!--   H -> C [label="a_B, 0.25*0.5=0.125"] -->
-<!--   H -> A [label="a_C, 0.25*0.5=0.125"] -->
-<!--   H -> C [label="a_C, 0.25*0.5=0.125"] -->
-<!--   H -> A [label="a_D, 0.25*0.5=0.125"] -->
-<!--   H -> C [label="a_D, 0.25*0.5=0.125"] -->
-<!--   C -> C [label="a_B=0.1"] -->
-<!--   C -> A [label="a_C=0.9*0.5=0.45"] -->
-<!--   C -> H [label="a_C=0.9*0.5=0.45"] -->
-<!-- } -->
-<!-- ``` -->
 
 The transition-based graph of the recommendation strategy is shown below where
 the nodes correspond to the different states and the edges are labeled with the
@@ -455,35 +539,142 @@ actions taken in the transitions they represent along with the probability of
 taking that respective action/transition:
 
 ```{dot}
+//| label: fig-graph
+//| fig-cap: "Model Transition Graph"
 digraph {
-  // layout = fdp
   graph [nodesep=0.7,]
-  A:nw -> H [label="A\n0.2"]
-  A -> C [label="A\n0.2"]
-  A:nw -> H [label="B\n0.2"]
-  A -> C:ne [label="B\n0.2"]
-  A:n -> A:n [label="D\n0.2"]
-  H:ne -> H:e [label="A\n0.25"]
-  H -> A [label="B\n0.125"]
-  H:sw -> C [label="B\n0.125"]
-  H -> A [label="C\n0.125"]
-  H -> C [label="C\n0.125"]
-  H -> A [label="D\n0.125"]
-  H:se -> C:n [label="D\n0.125"]
-  C:s -> C:se [label="B\n0.1"]
-  C -> A:ne [label="C\n0.45"]
-  C:nw -> H:se [label="C\n0.45"]
+  A:nw -> H [label=<A<BR/>0.2<BR/>1>]
+  A -> C [label=<A<BR/>0.2<BR/>1>]
+  A:nw -> H [label=<B<BR/>0.2<BR/>1>]
+  A -> C:ne [label=<B<BR/>0.2<BR/>1>]
+  A:n -> A:n [label=<D<BR/>0.2<BR/>-1>]
+  H:ne -> H:e [label=<A<BR/>0.25<BR/>-1>]
+  H -> A [label=<B<BR/>0.125<BR/>1>]
+  H:sw -> C [label=<B<BR/>0.125<BR/>1>]
+  H -> A [label=<C<BR/>0.125<BR/>1>]
+  H -> C [label=<C<BR/>0.125<BR/>1>]
+  H -> A [label=<D<BR/>0.125<BR/>1>]
+  H:se -> C:n [label=<D<BR/>0.125<BR/>1>]
+  C:s -> C:se [label=<B<BR/>0.1<BR/>-1>]
+  C -> A:ne [label=<C<BR/>0.45<BR/>1>]
+  C:nw -> H:se [label=<C<BR/>0.45<BR/>1>]
 }
 ```
 
-The given policy is stationary as it does only depend on the user's current
-genre preference rather than their past or future ones. It is also a stochastic
-policy rather than a deterministic one as the action taken is chosen with some
-degree of randomness as indicated by the probability values on the
-edges/transitions in the graph.
+#### Probability Calculations {#sec-method}
+
+Each probability on the edges was calculated by taking the action and its
+corresponding probability given by the policy, determining whether the
+combination of the action and the state would match the user's preference or
+not, and if it did match their preference, splitting the probability into two
+equal parts and assigning it to the two other genres, while if it did match the
+user's preference, assigning the full probability to the same genre as given in
+the current state. For example, if the user asks for Action movies and there is
+a 0.4 probability that the system recommends movie A, which is an Action movie,
+then if the system does recommend A, the user would have a 50% chance of
+selecting either Horror or Comedy as the next state, so we take the 0.4
+probability, multiply it by 0.5, and assign that probability to each of the
+transitions from $A \to H$ and $A \to C$, marking which action was taken to get
+there.
+
+The given policy is stationary as it only depends on the user's current genre
+preference rather than their past or future ones. It is also a stochastic policy
+rather than a deterministic one as the action taken is chosen with some degree
+of randomness as indicated by the probability values on the edges/transitions in
+the graph.
 
 ### 6.3
 
+With the policy in [6.2] prescribed, a Markov chain (with reward) is induced
+over the MDP from [6.1]. It is defined by the tuple $\mu = (\mu_0, \mathcal{S},
+\mathcal{P}, \mathcal{R}, \gamma)$.
+
+We can simplify the transition-based graph in @fig-graph by removing the
+specification on which action is taken and summing the remaining edges which
+make the same transition. This shows how inducing the policy removes the need to
+specify $\mathcal{A}$ in the model definition: now that a specific set of
+actions is prescribed for each state, even if we don't know which exact action
+will be taken, we can describe the transition from state-to-state via a
+probability that does not depend on the exact action taken, but rather the total
+probability of moving from one state to another across all actions that lead to
+the given transition.
+
+```{dot}
+//| label: fig-graph-simplified
+//| fig-cap: "Simplified Model Transition Graph with Actions Removed"
+digraph {
+  graph [nodesep=0.7,]
+  A -> H [label=<0.4, 1>]
+  A -> C [label=<0.4, 1>]
+  A -> A [label=<0.2, -1>]
+  H -> H [label=<0.25, -1>]
+  H -> A [label=<0.375, 1>]
+  H -> C [label=<0.375, 1>]
+  C -> C [label=<0.1, -1>]
+  C -> A [label=<0.45, 1>]
+  C -> H [label=<0.45, 1>]
+}
+```
+
+Using the same helper sets and function from [6.1], we can define each element
+of the model:
+
+$\mathcal{S} = \{ s_A, s_H, s_C \}$ where each state corresponds to the user's
+desired genre, which is either Action, Horror, or Comedy, respectively.
+
+$\mu_0 = \left[  \frac{1}{3},  \frac{1}{3},  \frac{1}{3} \right]$ where the
+order of the indices is Action, Horror, Comedy.
+
+$\mathcal{P} = \mathcal{P}(s): \mathcal{S} \to \Delta
+(\mathcal{S})$ where the function can be described by the transition matrix as:
+
+$$
+\mathcal{P}(s) = \begin{bmatrix}
+0.2 & 0.4 & 0.4 \\
+0.375 & 0.25 & 0.375 \\
+0.45 & 0.45 & 0.1 \\
+\end{bmatrix}
+$$
+
+Where the rows and columns follow the same Action, Horror, Comedy order as
+usual. The values of this matrix are found in the graph in @fig-graph-simplified
+above, which were calculated as described in @sec-method.
+
+$\mathcal{R} = \mathcal{R}(s): \mathcal{S} \to [-1, 1]$
+
+Where the reward function can be defined piecewise as:
+
+$$
+\mathcal{R}(s_t) = \begin{cases}
+1 \cdot \gamma^t, \quad s_t \\
+0, \quad i \notin \mathcal{G}(j), i \in G, j \in M \\
+\end{cases}
+$$
+
+Which is to say that if the genre preference defined by the input state $s_i$
+(where $i$ is the genre in the set of genres $G$) is in the set of genres of the
+movie chosen in action $a_j$ (which is the output of the function
+$\mathcal{G}(j)$ where $j$ is the movie in the set of movies $M$), then the
+reward will be 1, which corresponds to the user submitting a Like, and if the
+desired genre is *not* in the set of genres for the movie chosen, the reward is
+-1, corrresponding to the user submitting a Dislike.
+
+$\gamma = 0.95$
+
+### 6.4
+
+```{dot}
+digraph {
+  splines=curved 
+  S0 -> S1
+  S0 -> S2
+  S1 -> S2
+  S1 -> S3
+  S2 -> S3
+  S2 -> S4
+  S3 -> S4
+}
+```
 
 <!-- ```{dot} -->
 <!-- digraph { -->

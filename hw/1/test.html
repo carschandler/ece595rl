@@ -317,7 +317,7 @@ P = \begin{bmatrix}
 <section id="section-5" class="level2">
 <h2 class="anchored" data-anchor-id="section-5">3.3</h2>
 <p>We can find this using the transition matrix raised to the <span class="math inline">\(t=2\)</span> power:</p>
-<div id="1a4eb530" class="cell" data-execution_count="1">
+<div id="1f9e652c" class="cell" data-execution_count="1">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
@@ -347,7 +347,7 @@ P = \begin{bmatrix}
 <section id="section-6" class="level2">
 <h2 class="anchored" data-anchor-id="section-6">3.4</h2>
 <p>We can calculate the steady-state distribution <span class="math inline">\(\bar{\mu}\)</span> using a similar code as above, repeatedly applying the transition matrix until some convergence threshold is met. We will set the steady-state condition to be reached when a difference of less than 1e-8 is reached for all values in the distribution:</p>
-<div id="62240f4e" class="cell" data-execution_count="2">
+<div id="70bc2474" class="cell" data-execution_count="2">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>state_distribution <span class="op">=</span> mu0</span>
@@ -371,7 +371,7 @@ P = \begin{bmatrix}
 <section id="section-7" class="level2">
 <h2 class="anchored" data-anchor-id="section-7">3.5</h2>
 <p>We first re-define our stationary distribution since the new requirement is to extend to 100 timesteps, which is further than the previous convergence condition reached. We set it to be the distribution at <span class="math inline">\(t=110\)</span> since this is past the final value required for plotting and the distribution should be effectively unchanging at this point.</p>
-<div id="b5f1ac46" class="cell" data-execution_count="3">
+<div id="17c16cda" class="cell" data-execution_count="3">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -400,12 +400,169 @@ P = \begin{bmatrix}
 <h2 class="anchored" data-anchor-id="section-8">3.6</h2>
 <p>Based on the steady-state distribution, we expect Rock to be played most often, because given any sufficiently large <span class="math inline">\(t\)</span>-value, the probability of the state being Rock is fixed and is much higher than the other two states. This makes sense given that Rock has such a high probability of transitioning to itself.</p>
 </section>
+<section id="problem-5" class="level2">
+<h2 class="anchored" data-anchor-id="problem-5">Problem 5</h2>
+<section id="section-9" class="level3">
+<h3 class="anchored" data-anchor-id="section-9">5.1</h3>
+<p>We assume that the state <span class="math inline">\((i, j)\)</span> represents the previous two states in <span class="math inline">\(X_{t-2}, X_{t-1}\)</span> order, such that a sequence <span class="math inline">\(2, 1, 2\)</span> in the second-order model can be represented by a sequence <span class="math inline">\((2, 1), (1, 2)\)</span> in the simple MC.</p>
+<p>Using the transition from <span class="math inline">\((1, 1)\)</span> to <span class="math inline">\((1, 1)\)</span> as an example, the probability of this transition is found from the given probability:</p>
+<p><span class="math display">\[
+\mathcal{P}((1,1)|(1,1)) = \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 1) = 0.8
+\]</span></p>
+<p>and we can use the complement to define the probability of <span class="math inline">\((1,1)\)</span> to <span class="math inline">\((1,2)\)</span>:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{P}((1,2)|(1,1)) &amp;= \mathcal{P}(X_t = 2 | X_{t-2} = 1, X_{t-1} = 1) \\
+&amp;= 1 - \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 1) \\
+&amp;= 0.2
+\end{aligned}
+\]</span></p>
+<p>We repeat this across all combinations:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{P}((1,1)|(1,1)) = \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 1) = 0.8
+\mathcal{P}((1,2)|(1,1)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 1, X_{t-1} = 1) = 0.2
+\mathcal{P}((2,1)|(1,2)) = \mathcal{P}(X_t = 1 | X_{t-2} = 1, X_{t-1} = 2) = 0.1
+\mathcal{P}((2,2)|(1,2)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 1, X_{t-1} = 1) = 0.9
+\mathcal{P}((1,1)|(2,1)) = \mathcal{P}(X_t = 1 | X_{t-2} = 2, X_{t-1} = 1) = 0.3
+\mathcal{P}((1,2)|(2,1)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 2, X_{t-1} = 1) = 0.7
+\mathcal{P}((2,1)|(2,2)) = \mathcal{P}(X_t = 1 | X_{t-2} = 2, X_{t-1} = 2) = 0.7
+\mathcal{P}((2,2)|(2,2)) = 1 - \mathcal{P}(X_t = 2 | X_{t-2} = 2, X_{t-1} = 2) = 0.3
+\end{aligned}
+\]</span></p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<svg width="672" height="480" viewbox="0.00 0.00 258.77 310.40" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 306.4)">
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-306.4 254.77,-306.4 254.77,4 -4,4"></polygon>
+<!-- 1 -->
+<g id="node1" class="node">
+<title>1</title>
+<ellipse fill="none" stroke="black" cx="183.31" cy="-284.4" rx="31.91" ry="18"></ellipse>
+<text text-anchor="middle" x="183.31" y="-280.2" font-family="Times,serif" font-size="14.00">(1, 1)</text>
+</g>
+<!-- 1&#45;&gt;1 -->
+<g id="edge1" class="edge">
+<title>1-&gt;1</title>
+<path fill="none" stroke="black" d="M211.81,-292.59C223.45,-293.1 233.27,-290.37 233.27,-284.4 233.27,-280.29 228.63,-277.72 221.94,-276.68"></path>
+<polygon fill="black" stroke="black" points="221.96,-273.18 211.81,-276.21 221.64,-280.17 221.96,-273.18"></polygon>
+<text text-anchor="middle" x="242.02" y="-280.2" font-family="Times,serif" font-size="14.00">0.8</text>
+</g>
+<!-- 2 -->
+<g id="node2" class="node">
+<title>2</title>
+<ellipse fill="none" stroke="black" cx="109.31" cy="-195.6" rx="31.91" ry="18"></ellipse>
+<text text-anchor="middle" x="109.31" y="-191.4" font-family="Times,serif" font-size="14.00">(1, 2)</text>
+</g>
+<!-- 1&#45;&gt;2 -->
+<g id="edge2" class="edge">
+<title>1-&gt;2</title>
+<path fill="none" stroke="black" d="M170.08,-267.88C158.79,-254.63 142.37,-235.37 129.44,-220.21"></path>
+<polygon fill="black" stroke="black" points="131.83,-217.62 122.68,-212.28 126.5,-222.16 131.83,-217.62"></polygon>
+<text text-anchor="middle" x="161.06" y="-235.8" font-family="Times,serif" font-size="14.00">0.2</text>
+</g>
+<!-- 3 -->
+<g id="node3" class="node">
+<title>3</title>
+<ellipse fill="none" stroke="black" cx="141.31" cy="-18" rx="31.91" ry="18"></ellipse>
+<text text-anchor="middle" x="141.31" y="-13.8" font-family="Times,serif" font-size="14.00">(2, 1)</text>
+</g>
+<!-- 2&#45;&gt;3 -->
+<g id="edge3" class="edge">
+<title>2-&gt;3</title>
+<path fill="none" stroke="black" d="M84.44,-184.21C46.49,-166.77 -19,-129.5 5.81,-88.8 26.51,-54.86 69.58,-36.71 101.64,-27.52"></path>
+<polygon fill="black" stroke="black" points="102.87,-30.81 111.62,-24.84 101.05,-24.05 102.87,-30.81"></polygon>
+<text text-anchor="middle" x="15.06" y="-102.6" font-family="Times,serif" font-size="14.00">0.1</text>
+</g>
+<!-- 4 -->
+<g id="node4" class="node">
+<title>4</title>
+<ellipse fill="none" stroke="black" cx="64.31" cy="-106.8" rx="31.91" ry="18"></ellipse>
+<text text-anchor="middle" x="64.31" y="-102.6" font-family="Times,serif" font-size="14.00">(2, 2)</text>
+</g>
+<!-- 2&#45;&gt;4 -->
+<g id="edge4" class="edge">
+<title>2-&gt;4</title>
+<path fill="none" stroke="black" d="M100.64,-177.86C94.06,-165.17 84.9,-147.52 77.43,-133.11"></path>
+<polygon fill="black" stroke="black" points="80.52,-131.46 72.81,-124.19 74.31,-134.68 80.52,-131.46"></polygon>
+<text text-anchor="middle" x="99.06" y="-147" font-family="Times,serif" font-size="14.00">0.9</text>
+</g>
+<!-- 3&#45;&gt;1 -->
+<g id="edge5" class="edge">
+<title>3-&gt;1</title>
+<path fill="none" stroke="black" d="M150.23,-35.41C153.1,-41.16 156.11,-47.76 158.31,-54 163.59,-68.97 163.84,-73.12 166.31,-88.8 175.67,-148.1 180.22,-218.44 182.13,-256.2"></path>
+<polygon fill="black" stroke="black" points="178.64,-256.56 182.62,-266.38 185.63,-256.23 178.64,-256.56"></polygon>
+<text text-anchor="middle" x="183.06" y="-147" font-family="Times,serif" font-size="14.00">0.3</text>
+</g>
+<!-- 3&#45;&gt;2 -->
+<g id="edge6" class="edge">
+<title>3-&gt;2</title>
+<path fill="none" stroke="black" d="M143.26,-36.09C145.18,-57.21 146.97,-94.1 140.31,-124.8 136.97,-140.19 130.06,-156.31 123.61,-169.19"></path>
+<polygon fill="black" stroke="black" points="120.36,-167.85 118.84,-178.33 126.57,-171.09 120.36,-167.85"></polygon>
+<text text-anchor="middle" x="153.06" y="-102.6" font-family="Times,serif" font-size="14.00">0.7</text>
+</g>
+<!-- 4&#45;&gt;3 -->
+<g id="edge7" class="edge">
+<title>4-&gt;3</title>
+<path fill="none" stroke="black" d="M78.08,-90.28C90.01,-76.83 107.45,-57.17 120.99,-41.91"></path>
+<polygon fill="black" stroke="black" points="123.65,-44.19 127.67,-34.38 118.41,-39.54 123.65,-44.19"></polygon>
+<text text-anchor="middle" x="118.06" y="-58.2" font-family="Times,serif" font-size="14.00">0.7</text>
+</g>
+<!-- 4&#45;&gt;4 -->
+<g id="edge8" class="edge">
+<title>4-&gt;4</title>
+<path fill="none" stroke="black" d="M92.81,-114.99C104.45,-115.5 114.27,-112.77 114.27,-106.8 114.27,-102.69 109.63,-100.12 102.94,-99.08"></path>
+<polygon fill="black" stroke="black" points="102.96,-95.58 92.81,-98.61 102.64,-102.57 102.96,-95.58"></polygon>
+<text text-anchor="middle" x="123.02" y="-102.6" font-family="Times,serif" font-size="14.00">0.3</text>
+</g>
+</g>
+</svg>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="todo-flip-order-below" class="level1">
+<h1>TODO: flip order below</h1>
+<p>To find the initial state distribution, we take the probabilities of getting all <span class="math inline">\(2 \cdot 2 = 4\)</span> possibilities of the first two states using the probabilities in the problem statement.</p>
+<p>The first-order initial distribution is:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathbb{P}_1(X_0 = 1) &amp;= 0.5 \\
+\mathbb{P}_1(X_0 = 2) &amp;= 0.5 \\
+\end{aligned}
+\]</span></p>
+<p>Where <span class="math inline">\(\mathbb{P}_1\)</span> indicates that the probability measure is acting on the first-order model’s state space.</p>
+<p>Using this, the second-order initial distribution is:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathbb{P}_2(X_0 &amp;= (1, 1)) = \mathbb{P}_1(X_1 = 1 | X_0 = 1) \mathbb{P}_1(X_0 = 1) = 0.2 \cdot 0.5 = 0.1 \\
+\mathbb{P}_2(X_0 &amp;= (1, 2)) = \mathbb{P}_1(X_1 = 1 | X_0 = 2) \mathbb{P}_1(X_0 = 2) = 0.4 \cdot 0.5 = 0.2 \\
+\mathbb{P}_2(X_0 &amp;= (2, 1)) = \mathbb{P}_1(X_1 = 2 | X_0 = 1) \mathbb{P}_1(X_0 = 1) = 0.8 \cdot 0.5 = 0.4 \\
+\mathbb{P}_2(X_0 &amp;= (2, 2)) = \mathbb{P}_1(X_1 = 2 | X_0 = 2) \mathbb{P}_1(X_0 = 2) = 0.6 \cdot 0.5 = 0.3 \\
+\end{aligned}
+\]</span></p>
+<p>Where <span class="math inline">\(\mathbb{P}_2\)</span> indicates that the probability measure is acting on the second-order model’s state space.</p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+\mu_0 = [0.1, 0.2, 0.4, 0.3]
+\]</span></p>
+<p>for the state-space</p>
+<p><span class="math display">\[
+\mathcal{S} = \{(1,1), (1,2), (2,1), (2,2)\}
+\]</span></p>
 <section id="problem-6" class="level2">
 <h2 class="anchored" data-anchor-id="problem-6">Problem 6</h2>
-<section id="section-9" class="level3">
-<h3 class="anchored" data-anchor-id="section-9">6.1</h3>
-<p>The scenario can be described as a POMDP with reward defined by the tuple <span class="math inline">\(\mu =
-(\mu_0, \mathcal{S}, \mathcal{O}, \mathcal{Z}, \mathcal{A}, \mathcal{P},
+<section id="section-10" class="level3">
+<h3 class="anchored" data-anchor-id="section-10">6.1</h3>
+<p>The scenario can be described as an MDP with reward defined by the tuple <span class="math inline">\(\mu =
+(\mu_0, \mathcal{S}, \mathcal{A}, \mathcal{P},
 \mathcal{R}, \gamma)\)</span></p>
 <p>Additionally, we define the following “helper” sets and a function to map between the movies available and the genres of those movies. We could describe all elements of the MDP without these by writing out all possible combinations, but these help to minimize the amount of writing necessary:</p>
 <p><span class="math display">\[
@@ -417,16 +574,6 @@ M = \{ A, B, C, D \} \\
 \]</span></p>
 <p><span class="math inline">\(G\)</span> is the set of genres available, <span class="math inline">\(M\)</span> is the set of movies available, and <span class="math inline">\(\mathcal{G}\)</span> describes which genres apply for a given movie.</p>
 <p><span class="math inline">\(\mathcal{S} = \{ s_A, s_H, s_C \}\)</span> where each state corresponds to the user’s desired genre, which is either Action, Horror, or Comedy, respectively.</p>
-<p><span class="math inline">\(\mathcal{O} = \{ o_L, o_D \}\)</span> where each observation corresponds to whether the user submitted a “Like” or a “Dislike” after viewing the movie, which partially reveals the underlying state: the user’s true genre preference. Instead of observing their true preference, we just observe whether the selected movie aligned with their true preference or not, as shown.</p>
-<p><span class="math inline">\(\mathcal{Z} = \mathcal{Z}(s, a): \mathcal{S} \times \mathcal{A} \to
-\Delta(\mathcal{O})\)</span></p>
-<p><span class="math display">\[
-\mathcal{O}(s, a) = \begin{cases}
-\left[ 1, 0 \right] \text{ when } (s_i, a_j) \text{ where } i \in G, i \in \mathcal{G}(j), j \in M \\
-\left[ 0, 1 \right] \text{ when } (s_i, a_j) \text{ where } i \in G, i \notin \mathcal{G}(j), j \in M \\
-\end{cases}
-\]</span></p>
-<p>In english, the observation takes a state (the user’s genre preference) and an action (which movie the system suggested), and returns an observation. The observation returned depends on whether the genre of the movie (described by the function <span class="math inline">\(\mathcal{G}\)</span>, which maps a value in the set of available movies to one or more genres which apply to that movie) aligns with the desired genre of the user. If the genre of the selected movie aligns with the user’s true preference, the observation will certainly be a “Like”, <span class="math inline">\(o_L\)</span>, and if it does not align, then it will certainly be a “Dislike”, <span class="math inline">\(o_D\)</span>.</p>
 <p><span class="math inline">\(\mu_0 = \left[  \frac{1}{3},  \frac{1}{3},  \frac{1}{3} \right]\)</span> where the order of the indices is Action, Horror, Comedy; the same as for <span class="math inline">\(\mathcal{S}\)</span>.</p>
 <p><span class="math inline">\(\mathcal{A} = \{ a_A, a_B, a_C, a_D \}\)</span> which are actions corresponding to which movie the system recommends to the user.</p>
 <p><span class="math inline">\(\mathcal{P} = \mathcal{P}(s, a): \mathcal{S} \times \mathcal{A} \to \Delta
@@ -442,177 +589,410 @@ M = \{ A, B, C, D \} \\
 \end{cases}
 \]</span></p>
 <p>When the user’s genre preference is not one of the genres of the movie chosen by the previous action, the user’s genre preference remains the same with probability 1. If one of the movie’s genres is the user’s preference, then the next genre preference will be one of the other two genres with equal probability (0.5) for each genre.</p>
-<p><span class="math inline">\(\mathcal{R} = \mathcal{R}(s, a): \mathcal{S} \times \mathcal{A} \to r \in [-1, 1]\)</span></p>
-<p>No additional information has been given about the reward aside from its bounds.</p>
+<p><span class="math inline">\(\mathcal{R} = \mathcal{R}(s, a): \mathcal{S} \times \mathcal{A} \to [-1, 1]\)</span></p>
+<p>Where the reward function can be defined piecewise as:</p>
+<p><span class="math display">\[
+\mathcal{R}(s_i, a_j) = \begin{cases}
+1, \quad i \in \mathcal{G}(j), i \in G, j \in M \\
+-1, \quad i \notin \mathcal{G}(j), i \in G, j \in M \\
+\end{cases}
+\]</span></p>
+<p>Which is to say that if the genre preference defined by the input state <span class="math inline">\(s_i\)</span> (where <span class="math inline">\(i\)</span> is the genre in the set of genres <span class="math inline">\(G\)</span>) is in the set of genres of the movie chosen in action <span class="math inline">\(a_j\)</span> (which is the output of the function <span class="math inline">\(\mathcal{G}(j)\)</span> where <span class="math inline">\(j\)</span> is the movie in the set of movies <span class="math inline">\(M\)</span>), then the reward will be 1, which corresponds to the user submitting a Like, and if the desired genre is <em>not</em> in the set of genres for the movie chosen, the reward is -1, corrresponding to the user submitting a Dislike.</p>
 <p><span class="math inline">\(\gamma = 0.95\)</span></p>
 </section>
-<section id="section-10" class="level3">
-<h3 class="anchored" data-anchor-id="section-10">6.2</h3>
-<!-- ```{dot} -->
-<!-- digraph { -->
-<!--   A -> H [label="a_A, 0.4*0.5 = 0.2"] -->
-<!--   A -> C [label="a_A, 0.4*0.5 = 0.2"] -->
-<!--   A -> H [label="a_B, 0.4*0.5 = 0.2"] -->
-<!--   A -> C [label="a_B, 0.4*0.5 = 0.2"] -->
-<!--   A -> A [label="a_D, 0.2"] -->
-<!--   H -> H [label="a_A, 0.25"] -->
-<!--   H -> A [label="a_B, 0.25*0.5=0.125"] -->
-<!--   H -> C [label="a_B, 0.25*0.5=0.125"] -->
-<!--   H -> A [label="a_C, 0.25*0.5=0.125"] -->
-<!--   H -> C [label="a_C, 0.25*0.5=0.125"] -->
-<!--   H -> A [label="a_D, 0.25*0.5=0.125"] -->
-<!--   H -> C [label="a_D, 0.25*0.5=0.125"] -->
-<!--   C -> C [label="a_B=0.1"] -->
-<!--   C -> A [label="a_C=0.9*0.5=0.45"] -->
-<!--   C -> H [label="a_C=0.9*0.5=0.45"] -->
-<!-- } -->
-<!-- ``` -->
+<section id="section-11" class="level3">
+<h3 class="anchored" data-anchor-id="section-11">6.2</h3>
 <p>The transition-based graph of the recommendation strategy is shown below where the nodes correspond to the different states and the edges are labeled with the actions taken in the transitions they represent along with the probability of taking that respective action/transition:</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-graph" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-graph-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<svg width="672" height="480" viewbox="0.00 0.00 621.35 414.66" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 410.66)">
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-410.66 617.35,-410.66 617.35,4 -4,4"></polygon>
+<!-- A -->
+<g id="node1" class="node">
+<title>A</title>
+<ellipse fill="none" stroke="black" cx="292.85" cy="-304.26" rx="27" ry="18"></ellipse>
+<text text-anchor="middle" x="292.85" y="-300.06" font-family="Times,serif" font-size="14.00">A</text>
+</g>
+<!-- A&#45;&gt;A -->
+<g id="edge5" class="edge">
+<title>A:n-&gt;A:n</title>
+<path fill="none" stroke="black" d="M292.85,-322.26C317.85,-333.59 317.85,-356.26 292.85,-356.26 271.37,-356.26 268.34,-339.52 283.79,-327.62"></path>
+<polygon fill="black" stroke="black" points="286.02,-330.36 292.85,-322.26 282.46,-324.33 286.02,-330.36"></polygon>
+<text text-anchor="start" x="287.8" y="-394.06" font-family="Times,serif" font-size="14.00">D</text>
+<text text-anchor="start" x="284.1" y="-377.26" font-family="Times,serif" font-size="14.00">0.2</text>
+<text text-anchor="start" x="287.02" y="-360.46" font-family="Times,serif" font-size="14.00">-1</text>
+</g>
+<!-- H -->
+<g id="node2" class="node">
+<title>H</title>
+<ellipse fill="none" stroke="black" cx="162.85" cy="-167.46" rx="27" ry="18"></ellipse>
+<text text-anchor="middle" x="162.85" y="-163.26" font-family="Times,serif" font-size="14.00">H</text>
+</g>
+<!-- A&#45;&gt;H -->
+<g id="edge1" class="edge">
+<title>A:nw-&gt;H</title>
+<path fill="none" stroke="black" d="M277.85,-320.26C256.33,-341.78 29.34,-284.85 10.35,-261.06 -3.62,-243.55 -3.21,-228.48 10.35,-210.66 24.35,-192.25 85.89,-179.81 126.38,-173.44"></path>
+<polygon fill="black" stroke="black" points="127.07,-176.87 136.43,-171.91 126.02,-169.95 127.07,-176.87"></polygon>
+<text text-anchor="start" x="14.55" y="-248.46" font-family="Times,serif" font-size="14.00">A</text>
+<text text-anchor="start" x="10.85" y="-231.66" font-family="Times,serif" font-size="14.00">0.2</text>
+<text text-anchor="start" x="16.1" y="-214.86" font-family="Times,serif" font-size="14.00">1</text>
+</g>
+<!-- A&#45;&gt;H -->
+<g id="edge3" class="edge">
+<title>A:nw-&gt;H</title>
+<path fill="none" stroke="black" d="M277.85,-320.26C274.86,-323.24 120.56,-311.98 83.35,-261.06 70.13,-242.97 71.81,-229.85 83.35,-210.66 93.11,-194.42 111.45,-184.1 128.06,-177.73"></path>
+<polygon fill="black" stroke="black" points="129.27,-181.02 137.56,-174.43 126.96,-174.41 129.27,-181.02"></polygon>
+<text text-anchor="start" x="87.93" y="-248.46" font-family="Times,serif" font-size="14.00">B</text>
+<text text-anchor="start" x="83.85" y="-231.66" font-family="Times,serif" font-size="14.00">0.2</text>
+<text text-anchor="start" x="89.1" y="-214.86" font-family="Times,serif" font-size="14.00">1</text>
+</g>
+<!-- C -->
+<g id="node3" class="node">
+<title>C</title>
+<ellipse fill="none" stroke="black" cx="336.85" cy="-30.66" rx="27" ry="18"></ellipse>
+<text text-anchor="middle" x="336.85" y="-26.46" font-family="Times,serif" font-size="14.00">C</text>
+</g>
+<!-- A&#45;&gt;C -->
+<g id="edge2" class="edge">
+<title>A-&gt;C</title>
+<path fill="none" stroke="black" d="M311.95,-291C322.05,-283.54 333.79,-273.12 340.85,-261.06 372.23,-207.41 363.37,-186.07 369.85,-124.26 372.19,-101.98 377.15,-95.03 369.85,-73.86 367.35,-66.6 363.04,-59.64 358.33,-53.54"></path>
+<polygon fill="black" stroke="black" points="360.94,-51.19 351.82,-45.8 355.58,-55.7 360.94,-51.19"></polygon>
+<text text-anchor="start" x="371.55" y="-180.06" font-family="Times,serif" font-size="14.00">A</text>
+<text text-anchor="start" x="367.85" y="-163.26" font-family="Times,serif" font-size="14.00">0.2</text>
+<text text-anchor="start" x="373.1" y="-146.46" font-family="Times,serif" font-size="14.00">1</text>
+</g>
+<!-- A&#45;&gt;C -->
+<g id="edge4" class="edge">
+<title>A-&gt;C:ne</title>
+<path fill="none" stroke="black" d="M319.88,-303.15C380.76,-302.27 525.7,-296.43 555.85,-261.06 609.82,-197.74 610.66,-136.45 555.85,-73.86 497.95,-7.72 422.68,-103.3 359.49,-53.47"></path>
+<polygon fill="black" stroke="black" points="361.64,-50.7 351.85,-46.66 356.98,-55.92 361.64,-50.7"></polygon>
+<text text-anchor="start" x="599.93" y="-180.06" font-family="Times,serif" font-size="14.00">B</text>
+<text text-anchor="start" x="595.85" y="-163.26" font-family="Times,serif" font-size="14.00">0.2</text>
+<text text-anchor="start" x="601.1" y="-146.46" font-family="Times,serif" font-size="14.00">1</text>
+</g>
+<!-- H&#45;&gt;A -->
+<g id="edge7" class="edge">
+<title>H-&gt;A</title>
+<path fill="none" stroke="black" d="M155.77,-184.97C148.39,-205.01 139.99,-238.88 156.35,-261.06 178.9,-291.64 223.34,-300.73 255.4,-303.1"></path>
+<polygon fill="black" stroke="black" points="255.57,-306.62 265.74,-303.67 255.95,-299.63 255.57,-306.62"></polygon>
+<text text-anchor="start" x="167.93" y="-248.46" font-family="Times,serif" font-size="14.00">B</text>
+<text text-anchor="start" x="156.85" y="-231.66" font-family="Times,serif" font-size="14.00">0.125</text>
+<text text-anchor="start" x="169.1" y="-214.86" font-family="Times,serif" font-size="14.00">1</text>
+</g>
+<!-- H&#45;&gt;A -->
+<g id="edge9" class="edge">
+<title>H-&gt;A</title>
+<path fill="none" stroke="black" d="M175.02,-183.83C190.25,-202.72 217.47,-235.42 243.35,-261.06 251.05,-268.69 259.94,-276.53 268.04,-283.35"></path>
+<polygon fill="black" stroke="black" points="265.87,-286.1 275.8,-289.79 270.34,-280.71 265.87,-286.1"></polygon>
+<text text-anchor="start" x="253.93" y="-248.46" font-family="Times,serif" font-size="14.00">C</text>
+<text text-anchor="start" x="242.85" y="-231.66" font-family="Times,serif" font-size="14.00">0.125</text>
+<text text-anchor="start" x="255.1" y="-214.86" font-family="Times,serif" font-size="14.00">1</text>
+</g>
+<!-- H&#45;&gt;A -->
+<g id="edge11" class="edge">
+<title>H-&gt;A</title>
+<path fill="none" stroke="black" d="M189.75,-169.92C217.7,-172.99 260.43,-182.36 282.85,-210.66 297.32,-228.92 298.67,-255.96 297.08,-276.11"></path>
+<polygon fill="black" stroke="black" points="293.59,-275.91 296,-286.22 300.55,-276.65 293.59,-275.91"></polygon>
+<text text-anchor="start" x="307.55" y="-248.46" font-family="Times,serif" font-size="14.00">D</text>
+<text text-anchor="start" x="296.85" y="-231.66" font-family="Times,serif" font-size="14.00">0.125</text>
+<text text-anchor="start" x="309.1" y="-214.86" font-family="Times,serif" font-size="14.00">1</text>
+</g>
+<!-- H&#45;&gt;H -->
+<g id="edge6" class="edge">
+<title>H:ne-&gt;H:e</title>
+<path fill="none" stroke="black" d="M177.85,-182.46C203.52,-199.46 239.85,-199.46 239.85,-174.96 239.85,-154.09 215.68,-151 198.21,-161.03"></path>
+<polygon fill="black" stroke="black" points="195.65,-158.59 189.85,-167.46 199.91,-164.14 195.65,-158.59"></polygon>
+<text text-anchor="start" x="247.05" y="-180.06" font-family="Times,serif" font-size="14.00">A</text>
+<text text-anchor="start" x="239.85" y="-163.26" font-family="Times,serif" font-size="14.00">0.25</text>
+<text text-anchor="start" x="246.27" y="-146.46" font-family="Times,serif" font-size="14.00">-1</text>
+</g>
+<!-- H&#45;&gt;C -->
+<g id="edge8" class="edge">
+<title>H:sw-&gt;C</title>
+<path fill="none" stroke="black" d="M147.85,-151.46C123.81,-127.41 95.65,-152.25 76.35,-124.26 63.64,-105.81 61.83,-90.91 76.35,-73.86 104.55,-40.72 234.29,-33.53 299.38,-32.02"></path>
+<polygon fill="black" stroke="black" points="299.7,-35.51 309.63,-31.81 299.56,-28.51 299.7,-35.51"></polygon>
+<text text-anchor="start" x="87.93" y="-111.66" font-family="Times,serif" font-size="14.00">B</text>
+<text text-anchor="start" x="76.85" y="-94.86" font-family="Times,serif" font-size="14.00">0.125</text>
+<text text-anchor="start" x="89.1" y="-78.06" font-family="Times,serif" font-size="14.00">1</text>
+</g>
+<!-- H&#45;&gt;C -->
+<g id="edge10" class="edge">
+<title>H-&gt;C</title>
+<path fill="none" stroke="black" d="M174.94,-151C193.3,-127.81 227.71,-85.49 243.35,-73.86 261.52,-60.34 284.71,-49.84 303.44,-42.69"></path>
+<polygon fill="black" stroke="black" points="304.87,-45.9 313.06,-39.17 302.47,-39.33 304.87,-45.9"></polygon>
+<text text-anchor="start" x="253.93" y="-111.66" font-family="Times,serif" font-size="14.00">C</text>
+<text text-anchor="start" x="242.85" y="-94.86" font-family="Times,serif" font-size="14.00">0.125</text>
+<text text-anchor="start" x="255.1" y="-78.06" font-family="Times,serif" font-size="14.00">1</text>
+</g>
+<!-- H&#45;&gt;C -->
+<g id="edge12" class="edge">
+<title>H:se-&gt;C:n</title>
+<path fill="none" stroke="black" d="M177.85,-151.46C211.94,-117.37 243.03,-151.43 282.85,-124.26 297.38,-114.34 326.82,-81.49 334.81,-59.46"></path>
+<polygon fill="black" stroke="black" points="338.24,-60.16 336.85,-49.66 331.38,-58.73 338.24,-60.16"></polygon>
+<text text-anchor="start" x="337.55" y="-111.66" font-family="Times,serif" font-size="14.00">D</text>
+<text text-anchor="start" x="326.85" y="-94.86" font-family="Times,serif" font-size="14.00">0.125</text>
+<text text-anchor="start" x="339.1" y="-78.06" font-family="Times,serif" font-size="14.00">1</text>
+</g>
+<!-- C&#45;&gt;A -->
+<g id="edge14" class="edge">
+<title>C-&gt;A:ne</title>
+<path fill="none" stroke="black" d="M361.24,-38.82C377.88,-45.13 398.69,-56.13 408.85,-73.86 419.99,-93.29 410.47,-101.92 408.85,-124.26 404.39,-185.54 418.72,-207.36 388.85,-261.06 369.48,-295.88 335.5,-316.99 318,-320.99"></path>
+<polygon fill="black" stroke="black" points="318.08,-317.49 307.85,-320.26 317.57,-324.47 318.08,-317.49"></polygon>
+<text text-anchor="start" x="415.43" y="-180.06" font-family="Times,serif" font-size="14.00">C</text>
+<text text-anchor="start" x="407.85" y="-163.26" font-family="Times,serif" font-size="14.00">0.45</text>
+<text text-anchor="start" x="416.6" y="-146.46" font-family="Times,serif" font-size="14.00">1</text>
+</g>
+<!-- C&#45;&gt;H -->
+<g id="edge15" class="edge">
+<title>C:nw-&gt;H:se</title>
+<path fill="none" stroke="black" d="M321.85,-46.66C270.38,-98.13 207.35,-18.28 160.35,-73.86 145.89,-90.96 154.03,-102.77 160.35,-124.26 162.76,-132.44 172.06,-136.92 177.09,-141.32"></path>
+<polygon fill="black" stroke="black" points="173.61,-141.75 177.85,-151.46 180.59,-141.22 173.61,-141.75"></polygon>
+<text text-anchor="start" x="168.43" y="-111.66" font-family="Times,serif" font-size="14.00">C</text>
+<text text-anchor="start" x="160.85" y="-94.86" font-family="Times,serif" font-size="14.00">0.45</text>
+<text text-anchor="start" x="169.6" y="-78.06" font-family="Times,serif" font-size="14.00">1</text>
+</g>
+<!-- C&#45;&gt;C -->
+<g id="edge13" class="edge">
+<title>C:s-&gt;C:se</title>
+<path fill="none" stroke="black" d="M336.85,-12.66C362.52,4.34 413.85,4.34 413.85,-14.16 413.85,-30.63 385.03,-32.43 360.59,-20.62"></path>
+<polygon fill="black" stroke="black" points="362.27,-17.55 351.85,-15.66 358.82,-23.64 362.27,-17.55"></polygon>
+<text text-anchor="start" x="417.93" y="-43.26" font-family="Times,serif" font-size="14.00">B</text>
+<text text-anchor="start" x="413.85" y="-26.46" font-family="Times,serif" font-size="14.00">0.1</text>
+<text text-anchor="start" x="416.77" y="-9.66" font-family="Times,serif" font-size="14.00">-1</text>
+</g>
+</g>
+</svg>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-graph-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Model Transition Graph
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="sec-method" class="level4">
+<h4 class="anchored" data-anchor-id="sec-method">Probability Calculations</h4>
+<p>Each probability on the edges was calculated by taking the action and its corresponding probability given by the policy, determining whether the combination of the action and the state would match the user’s preference or not, and if it did match their preference, splitting the probability into two equal parts and assigning it to the two other genres, while if it did match the user’s preference, assigning the full probability to the same genre as given in the current state. For example, if the user asks for Action movies and there is a 0.4 probability that the system recommends movie A, which is an Action movie, then if the system does recommend A, the user would have a 50% chance of selecting either Horror or Comedy as the next state, so we take the 0.4 probability, multiply it by 0.5, and assign that probability to each of the transitions from <span class="math inline">\(A \to H\)</span> and <span class="math inline">\(A \to C\)</span>, marking which action was taken to get there.</p>
+<p>The given policy is stationary as it only depends on the user’s current genre preference rather than their past or future ones. It is also a stochastic policy rather than a deterministic one as the action taken is chosen with some degree of randomness as indicated by the probability values on the edges/transitions in the graph.</p>
+</section>
+</section>
+<section id="section-12" class="level3">
+<h3 class="anchored" data-anchor-id="section-12">6.3</h3>
+<p>With the policy in <a href="#section-11">6.2</a> prescribed, a Markov chain (with reward) is induced over the MDP from <a href="#section-10">6.1</a>. It is defined by the tuple <span class="math inline">\(\mu = (\mu_0, \mathcal{S},
+\mathcal{P}, \mathcal{R}, \gamma)\)</span>.</p>
+<p>We can simplify the transition-based graph in <a href="#fig-graph" class="quarto-xref">Figure&nbsp;1</a> by removing the specification on which action is taken and summing the remaining edges which make the same transition. This shows how inducing the policy removes the need to specify <span class="math inline">\(\mathcal{A}\)</span> in the model definition: now that a specific set of actions is prescribed for each state, even if we don’t know which exact action will be taken, we can describe the transition from state-to-state via a probability that does not depend on the exact action taken, but rather the total probability of moving from one state to another across all actions that lead to the given transition.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div id="fig-graph-simplified" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-graph-simplified-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div>
+<svg width="672" height="480" viewbox="0.00 0.00 297.16 221.60" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 217.6)">
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-217.6 293.16,-217.6 293.16,4 -4,4"></polygon>
+<!-- A -->
+<g id="node1" class="node">
+<title>A</title>
+<ellipse fill="none" stroke="black" cx="170" cy="-195.6" rx="27" ry="18"></ellipse>
+<text text-anchor="middle" x="170" y="-191.4" font-family="Times,serif" font-size="14.00">A</text>
+</g>
+<!-- A&#45;&gt;A -->
+<g id="edge3" class="edge">
+<title>A-&gt;A</title>
+<path fill="none" stroke="black" d="M195.24,-202.16C219.9,-205.78 247,-203.59 247,-195.6 247,-188.7 226.8,-186.13 205.41,-187.88"></path>
+<polygon fill="black" stroke="black" points="204.78,-184.43 195.24,-189.04 205.57,-191.39 204.78,-184.43"></polygon>
+<text text-anchor="start" x="247" y="-191.4" font-family="Times,serif" font-size="14.00">0.2, -1</text>
+</g>
+<!-- H -->
+<g id="node2" class="node">
+<title>H</title>
+<ellipse fill="none" stroke="black" cx="27" cy="-106.8" rx="27" ry="18"></ellipse>
+<text text-anchor="middle" x="27" y="-102.6" font-family="Times,serif" font-size="14.00">H</text>
+</g>
+<!-- A&#45;&gt;H -->
+<g id="edge1" class="edge">
+<title>A-&gt;H</title>
+<path fill="none" stroke="black" d="M143,-195.17C113.16,-194.25 65.73,-187.99 38.5,-159.6 32.18,-153.01 29.02,-143.75 27.54,-134.87"></path>
+<polygon fill="black" stroke="black" points="31.01,-134.4 26.47,-124.82 24.05,-135.14 31.01,-134.4"></polygon>
+<text text-anchor="start" x="39" y="-147" font-family="Times,serif" font-size="14.00">0.4, 1</text>
+</g>
+<!-- C -->
+<g id="node3" class="node">
+<title>C</title>
+<ellipse fill="none" stroke="black" cx="176" cy="-18" rx="27" ry="18"></ellipse>
+<text text-anchor="middle" x="176" y="-13.8" font-family="Times,serif" font-size="14.00">C</text>
+</g>
+<!-- A&#45;&gt;C -->
+<g id="edge2" class="edge">
+<title>A-&gt;C</title>
+<path fill="none" stroke="black" d="M170.59,-177.44C171.63,-147.02 173.8,-83.38 175.05,-46.68"></path>
+<polygon fill="black" stroke="black" points="178.57,-46.34 175.41,-36.23 171.57,-46.1 178.57,-46.34"></polygon>
+<text text-anchor="start" x="174" y="-102.6" font-family="Times,serif" font-size="14.00">0.4, 1</text>
+</g>
+<!-- H&#45;&gt;A -->
+<g id="edge5" class="edge">
+<title>H-&gt;A</title>
+<path fill="none" stroke="black" d="M46.44,-119.6C71.14,-134.59 113.94,-160.57 142.12,-177.68"></path>
+<polygon fill="black" stroke="black" points="140.35,-180.7 150.71,-182.89 143.98,-174.71 140.35,-180.7"></polygon>
+<text text-anchor="start" x="112" y="-147" font-family="Times,serif" font-size="14.00">0.375, 1</text>
+</g>
+<!-- H&#45;&gt;H -->
+<g id="edge4" class="edge">
+<title>H-&gt;H</title>
+<path fill="none" stroke="black" d="M52.24,-113.36C76.9,-116.98 104,-114.79 104,-106.8 104,-99.9 83.8,-97.33 62.41,-99.08"></path>
+<polygon fill="black" stroke="black" points="61.78,-95.63 52.24,-100.24 62.57,-102.59 61.78,-95.63"></polygon>
+<text text-anchor="start" x="104" y="-102.6" font-family="Times,serif" font-size="14.00">0.25, -1</text>
+</g>
+<!-- H&#45;&gt;C -->
+<g id="edge6" class="edge">
+<title>H-&gt;C</title>
+<path fill="none" stroke="black" d="M24.54,-88.39C23.98,-77.25 25.3,-63.21 33.5,-54 47.4,-38.39 102.01,-28.41 139.45,-23.26"></path>
+<polygon fill="black" stroke="black" points="140.05,-26.71 149.5,-21.93 139.13,-19.77 140.05,-26.71"></polygon>
+<text text-anchor="start" x="34" y="-58.2" font-family="Times,serif" font-size="14.00">0.375, 1</text>
+</g>
+<!-- C&#45;&gt;A -->
+<g id="edge8" class="edge">
+<title>C-&gt;A</title>
+<path fill="none" stroke="black" d="M194.13,-31.68C201.21,-37.62 208.65,-45.3 213,-54 227.1,-82.19 220.12,-93.44 217,-124.8 215.44,-140.5 217.91,-145.95 210,-159.6 206.6,-165.47 201.85,-170.85 196.82,-175.55"></path>
+<polygon fill="black" stroke="black" points="194.18,-173.19 188.81,-182.32 198.7,-178.53 194.18,-173.19"></polygon>
+<text text-anchor="start" x="222" y="-102.6" font-family="Times,serif" font-size="14.00">0.45, 1</text>
+</g>
+<!-- C&#45;&gt;H -->
+<g id="edge9" class="edge">
+<title>C-&gt;H</title>
+<path fill="none" stroke="black" d="M156.13,-30.57C130.38,-45.58 85.27,-71.85 55.77,-89.04"></path>
+<polygon fill="black" stroke="black" points="53.66,-86.22 46.79,-94.27 57.19,-92.26 53.66,-86.22"></polygon>
+<text text-anchor="start" x="115" y="-58.2" font-family="Times,serif" font-size="14.00">0.45, 1</text>
+</g>
+<!-- C&#45;&gt;C -->
+<g id="edge7" class="edge">
+<title>C-&gt;C</title>
+<path fill="none" stroke="black" d="M201.24,-24.56C225.9,-28.18 253,-25.99 253,-18 253,-11.1 232.8,-8.53 211.41,-10.28"></path>
+<polygon fill="black" stroke="black" points="210.78,-6.83 201.24,-11.44 211.57,-13.79 210.78,-6.83"></polygon>
+<text text-anchor="start" x="253" y="-13.8" font-family="Times,serif" font-size="14.00">0.1, -1</text>
+</g>
+</g>
+</svg>
+</div>
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-graph-simplified-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Simplified Model Transition Graph with Actions Removed
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Using the same helper sets and function from <a href="#section-10">6.1</a>, we can define each element of the model:</p>
+<p><span class="math inline">\(\mathcal{S} = \{ s_A, s_H, s_C \}\)</span> where each state corresponds to the user’s desired genre, which is either Action, Horror, or Comedy, respectively.</p>
+<p><span class="math inline">\(\mu_0 = \left[  \frac{1}{3},  \frac{1}{3},  \frac{1}{3} \right]\)</span> where the order of the indices is Action, Horror, Comedy.</p>
+<p><span class="math inline">\(\mathcal{P} = \mathcal{P}(s): \mathcal{S} \to \Delta
+(\mathcal{S})\)</span> where the function can be described by the transition matrix as:</p>
+<p><span class="math display">\[
+\mathcal{P}(s) = \begin{bmatrix}
+0.2 &amp; 0.4 &amp; 0.4 \\
+0.375 &amp; 0.25 &amp; 0.375 \\
+0.45 &amp; 0.45 &amp; 0.1 \\
+\end{bmatrix}
+\]</span></p>
+<p>Where the rows and columns follow the same Action, Horror, Comedy order as usual. The values of this matrix are found in the graph in <a href="#fig-graph-simplified" class="quarto-xref">Figure&nbsp;2</a> above, which were calculated as described in <a href="#sec-method" class="quarto-xref">Section&nbsp;2.1.2.1</a>.</p>
+<p><span class="math inline">\(\mathcal{R} = \mathcal{R}(s): \mathcal{S} \to [-1, 1]\)</span></p>
+<p>Where the reward function can be defined piecewise as:</p>
+<p><span class="math display">\[
+\mathcal{R}(s_t) = \begin{cases}
+1 \cdot \gamma^t, \quad s_t \\
+0, \quad i \notin \mathcal{G}(j), i \in G, j \in M \\
+\end{cases}
+\]</span></p>
+<p>Which is to say that if the genre preference defined by the input state <span class="math inline">\(s_i\)</span> (where <span class="math inline">\(i\)</span> is the genre in the set of genres <span class="math inline">\(G\)</span>) is in the set of genres of the movie chosen in action <span class="math inline">\(a_j\)</span> (which is the output of the function <span class="math inline">\(\mathcal{G}(j)\)</span> where <span class="math inline">\(j\)</span> is the movie in the set of movies <span class="math inline">\(M\)</span>), then the reward will be 1, which corresponds to the user submitting a Like, and if the desired genre is <em>not</em> in the set of genres for the movie chosen, the reward is -1, corrresponding to the user submitting a Dislike.</p>
+<p><span class="math inline">\(\gamma = 0.95\)</span></p>
+</section>
+<section id="section-13" class="level3">
+<h3 class="anchored" data-anchor-id="section-13">6.4</h3>
 <div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
 <p></p><figure class="figure"><p></p>
 <div>
-<svg width="672" height="480" viewbox="0.00 0.00 608.05 324.46" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 320.46)">
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-320.46 604.05,-320.46 604.05,4 -4,4"></polygon>
-<!-- A -->
+<svg width="672" height="480" viewbox="0.00 0.00 117.00 332.00" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 328)">
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-328 113,-328 113,4 -4,4"></polygon>
+<!-- S0 -->
 <g id="node1" class="node">
-<title>A</title>
-<ellipse fill="none" stroke="black" cx="289.55" cy="-238.86" rx="27" ry="18"></ellipse>
-<text text-anchor="middle" x="289.55" y="-234.66" font-family="Times,serif" font-size="14.00">A</text>
+<title>S0</title>
+<ellipse fill="none" stroke="black" cx="54" cy="-306" rx="27" ry="18"></ellipse>
+<text text-anchor="middle" x="54" y="-301.8" font-family="Times,serif" font-size="14.00">S0</text>
 </g>
-<!-- A&#45;&gt;A -->
-<g id="edge5" class="edge">
-<title>A:n-&gt;A:n</title>
-<path fill="none" stroke="black" d="M289.55,-256.86C314.55,-265.52 314.55,-282.86 289.55,-282.86 268.26,-282.86 265.1,-270.29 280.07,-261.2"></path>
-<polygon fill="black" stroke="black" points="281.92,-264.21 289.55,-256.86 279,-257.84 281.92,-264.21"></polygon>
-<text text-anchor="middle" x="289.55" y="-303.86" font-family="Times,serif" font-size="14.00">D</text>
-<text text-anchor="middle" x="289.55" y="-287.06" font-family="Times,serif" font-size="14.00">0.2</text>
-</g>
-<!-- H -->
+<!-- S1 -->
 <g id="node2" class="node">
-<title>H</title>
-<ellipse fill="none" stroke="black" cx="159.55" cy="-133.26" rx="27" ry="18"></ellipse>
-<text text-anchor="middle" x="159.55" y="-129.06" font-family="Times,serif" font-size="14.00">H</text>
+<title>S1</title>
+<ellipse fill="none" stroke="black" cx="82" cy="-234" rx="27" ry="18"></ellipse>
+<text text-anchor="middle" x="82" y="-229.8" font-family="Times,serif" font-size="14.00">S1</text>
 </g>
-<!-- A&#45;&gt;H -->
+<!-- S0&#45;&gt;S1 -->
 <g id="edge1" class="edge">
-<title>A:nw-&gt;H</title>
-<path fill="none" stroke="black" d="M274.55,-254.86C253.14,-276.27 26.25,-226.27 7.05,-202.86 -2.42,-191.31 -2.25,-180.94 7.05,-169.26 21.26,-151.42 82.42,-141.93 122.84,-137.5"></path>
-<polygon fill="black" stroke="black" points="123.29,-140.97 132.88,-136.46 122.57,-134.01 123.29,-140.97"></polygon>
-<text text-anchor="middle" x="16.3" y="-190.26" font-family="Times,serif" font-size="14.00">A</text>
-<text text-anchor="middle" x="16.3" y="-173.46" font-family="Times,serif" font-size="14.00">0.2</text>
+<title>S0-&gt;S1</title>
+<path fill="none" stroke="black" d="M65.71,-289.44C69.37,-282.93 71.79,-275.76 75.29,-261.94"></path>
+<polygon fill="black" stroke="black" points="78.79,-262.39 77.77,-251.84 71.99,-260.72 78.79,-262.39"></polygon>
 </g>
-<!-- A&#45;&gt;H -->
-<g id="edge3" class="edge">
-<title>A:nw-&gt;H</title>
-<path fill="none" stroke="black" d="M274.55,-254.86C271.67,-257.74 117.41,-252.09 80.05,-202.86 71.02,-190.96 71.89,-181.76 80.05,-169.26 89.74,-154.4 107.3,-145.81 123.46,-140.86"></path>
-<polygon fill="black" stroke="black" points="124.51,-144.2 133.26,-138.23 122.69,-137.44 124.51,-144.2"></polygon>
-<text text-anchor="middle" x="89.3" y="-190.26" font-family="Times,serif" font-size="14.00">B</text>
-<text text-anchor="middle" x="89.3" y="-173.46" font-family="Times,serif" font-size="14.00">0.2</text>
-</g>
-<!-- C -->
+<!-- S2 -->
 <g id="node3" class="node">
-<title>C</title>
-<ellipse fill="none" stroke="black" cx="333.55" cy="-27.66" rx="27" ry="18"></ellipse>
-<text text-anchor="middle" x="333.55" y="-23.46" font-family="Times,serif" font-size="14.00">C</text>
+<title>S2</title>
+<ellipse fill="none" stroke="black" cx="27" cy="-162" rx="27" ry="18"></ellipse>
+<text text-anchor="middle" x="27" y="-157.8" font-family="Times,serif" font-size="14.00">S2</text>
 </g>
-<!-- A&#45;&gt;C -->
+<!-- S0&#45;&gt;S2 -->
 <g id="edge2" class="edge">
-<title>A-&gt;C</title>
-<path fill="none" stroke="black" d="M309.85,-226.5C318.89,-220.53 328.95,-212.44 335.55,-202.86 363.29,-162.57 359.59,-145.67 366.55,-97.26 368.68,-82.47 372.06,-77.54 366.55,-63.66 364.47,-58.42 361.19,-53.51 357.49,-49.12"></path>
-<polygon fill="black" stroke="black" points="359.98,-46.65 350.55,-41.82 354.91,-51.48 359.98,-46.65"></polygon>
-<text text-anchor="middle" x="372.3" y="-137.46" font-family="Times,serif" font-size="14.00">A</text>
-<text text-anchor="middle" x="372.3" y="-120.66" font-family="Times,serif" font-size="14.00">0.2</text>
+<title>S0-&gt;S2</title>
+<path fill="none" stroke="black" d="M46.35,-288.35C36.15,-263.76 34.09,-250.51 29.24,-190.29"></path>
+<polygon fill="black" stroke="black" points="32.72,-189.91 28.43,-180.22 25.74,-190.46 32.72,-189.91"></polygon>
 </g>
-<!-- A&#45;&gt;C -->
+<!-- S1&#45;&gt;S2 -->
+<g id="edge3" class="edge">
+<title>S1-&gt;S2</title>
+<path fill="none" stroke="black" d="M63.34,-220.92C55.25,-214.05 50.01,-206.28 40.54,-188.36"></path>
+<polygon fill="black" stroke="black" points="43.58,-186.63 35.86,-179.38 37.37,-189.86 43.58,-186.63"></polygon>
+</g>
+<!-- S3 -->
+<g id="node4" class="node">
+<title>S3</title>
+<ellipse fill="none" stroke="black" cx="82" cy="-90" rx="27" ry="18"></ellipse>
+<text text-anchor="middle" x="82" y="-85.8" font-family="Times,serif" font-size="14.00">S3</text>
+</g>
+<!-- S1&#45;&gt;S3 -->
 <g id="edge4" class="edge">
-<title>A-&gt;C:ne</title>
-<path fill="none" stroke="black" d="M316.98,-238.53C378.03,-239.39 522.13,-237.6 552.55,-202.86 593.31,-156.31 594.11,-109.49 552.55,-63.66 524.1,-32.28 400.07,-69.8 356.88,-49.35"></path>
-<polygon fill="black" stroke="black" points="358.78,-46.4 348.55,-43.66 354.84,-52.19 358.78,-46.4"></polygon>
-<text text-anchor="middle" x="591.3" y="-137.46" font-family="Times,serif" font-size="14.00">B</text>
-<text text-anchor="middle" x="591.3" y="-120.66" font-family="Times,serif" font-size="14.00">0.2</text>
+<title>S1-&gt;S3</title>
+<path fill="none" stroke="black" d="M88.93,-216.59C107.17,-170.13 108.4,-158.72 92.63,-117.01"></path>
+<polygon fill="black" stroke="black" points="95.88,-115.7 89.01,-107.63 89.35,-118.22 95.88,-115.7"></polygon>
 </g>
-<!-- H&#45;&gt;A -->
-<g id="edge7" class="edge">
-<title>H-&gt;A</title>
-<path fill="none" stroke="black" d="M152.11,-150.73C146.53,-165.86 141.61,-188.11 153.05,-202.86 165.2,-218.51 216.64,-228.37 252.77,-233.5"></path>
-<polygon fill="black" stroke="black" points="252.59,-237.01 262.97,-234.88 253.53,-230.07 252.59,-237.01"></polygon>
-<text text-anchor="middle" x="169.3" y="-190.26" font-family="Times,serif" font-size="14.00">B</text>
-<text text-anchor="middle" x="169.3" y="-173.46" font-family="Times,serif" font-size="14.00">0.125</text>
+<!-- S2&#45;&gt;S3 -->
+<g id="edge5" class="edge">
+<title>S2-&gt;S3</title>
+<path fill="none" stroke="black" d="M35.88,-144.59C44.85,-127.15 50.24,-117.51 55.97,-110.55"></path>
+<polygon fill="black" stroke="black" points="58.59,-112.89 63.09,-103.29 53.59,-107.98 58.59,-112.89"></polygon>
 </g>
-<!-- H&#45;&gt;A -->
-<g id="edge9" class="edge">
-<title>H-&gt;A</title>
-<path fill="none" stroke="black" d="M174.94,-148.09C190.89,-162.26 216.71,-184.72 240.05,-202.86 247.22,-208.43 255.18,-214.22 262.58,-219.45"></path>
-<polygon fill="black" stroke="black" points="260.72,-222.42 270.93,-225.28 264.73,-216.68 260.72,-222.42"></polygon>
-<text text-anchor="middle" x="255.3" y="-190.26" font-family="Times,serif" font-size="14.00">C</text>
-<text text-anchor="middle" x="255.3" y="-173.46" font-family="Times,serif" font-size="14.00">0.125</text>
+<!-- S4 -->
+<g id="node5" class="node">
+<title>S4</title>
+<ellipse fill="none" stroke="black" cx="54" cy="-18" rx="27" ry="18"></ellipse>
+<text text-anchor="middle" x="54" y="-13.8" font-family="Times,serif" font-size="14.00">S4</text>
 </g>
-<!-- H&#45;&gt;A -->
-<g id="edge11" class="edge">
-<title>H-&gt;A</title>
-<path fill="none" stroke="black" d="M186.62,-134.2C214.29,-135.72 256.41,-142.65 279.55,-169.26 289.31,-180.47 291.98,-196.84 292.13,-210.77"></path>
-<polygon fill="black" stroke="black" points="288.63,-210.72 291.83,-220.82 295.62,-210.93 288.63,-210.72"></polygon>
-<text text-anchor="middle" x="307.3" y="-190.26" font-family="Times,serif" font-size="14.00">D</text>
-<text text-anchor="middle" x="307.3" y="-173.46" font-family="Times,serif" font-size="14.00">0.125</text>
-</g>
-<!-- H&#45;&gt;H -->
+<!-- S2&#45;&gt;S4 -->
 <g id="edge6" class="edge">
-<title>H:ne-&gt;H:e</title>
-<path fill="none" stroke="black" d="M174.55,-148.26C200.22,-161.26 236.55,-161.26 236.55,-140.76 236.55,-123.46 212.82,-120.76 195.39,-128.14"></path>
-<polygon fill="black" stroke="black" points="193.46,-125.22 186.55,-133.26 196.96,-131.28 193.46,-125.22"></polygon>
-<text text-anchor="middle" x="248.8" y="-137.46" font-family="Times,serif" font-size="14.00">A</text>
-<text text-anchor="middle" x="248.8" y="-120.66" font-family="Times,serif" font-size="14.00">0.25</text>
+<title>S2-&gt;S4</title>
+<path fill="none" stroke="black" d="M28.42,-143.99C33.22,-83.33 35.12,-65.67 42.79,-44.71"></path>
+<polygon fill="black" stroke="black" points="46.05,-45.98 46.45,-35.39 39.54,-43.41 46.05,-45.98"></polygon>
 </g>
-<!-- H&#45;&gt;C -->
-<g id="edge8" class="edge">
-<title>H:sw-&gt;C</title>
-<path fill="none" stroke="black" d="M144.55,-117.26C121.22,-93.92 92.99,-123.54 73.05,-97.26 64.02,-85.36 63.22,-74.9 73.05,-63.66 101.58,-31.04 231.16,-27.55 296.15,-27.93"></path>
-<polygon fill="black" stroke="black" points="296.34,-31.43 306.37,-28.02 296.41,-24.43 296.34,-31.43"></polygon>
-<text text-anchor="middle" x="89.3" y="-84.66" font-family="Times,serif" font-size="14.00">B</text>
-<text text-anchor="middle" x="89.3" y="-67.86" font-family="Times,serif" font-size="14.00">0.125</text>
-</g>
-<!-- H&#45;&gt;C -->
-<g id="edge10" class="edge">
-<title>H-&gt;C</title>
-<path fill="none" stroke="black" d="M173.49,-117.68C188.67,-102.5 214.26,-78.84 240.05,-63.66 258.58,-52.75 281.1,-44.2 299.4,-38.28"></path>
-<polygon fill="black" stroke="black" points="300.57,-41.58 309.08,-35.26 298.49,-34.89 300.57,-41.58"></polygon>
-<text text-anchor="middle" x="255.3" y="-84.66" font-family="Times,serif" font-size="14.00">C</text>
-<text text-anchor="middle" x="255.3" y="-67.86" font-family="Times,serif" font-size="14.00">0.125</text>
-</g>
-<!-- H&#45;&gt;C -->
-<g id="edge12" class="edge">
-<title>H:se-&gt;C:n</title>
-<path fill="none" stroke="black" d="M174.55,-117.26C208.14,-83.66 237.31,-119 279.55,-97.26 291.66,-91.02 320.24,-71.46 330.12,-55.47"></path>
-<polygon fill="black" stroke="black" points="333.55,-56.25 333.55,-45.66 326.95,-53.94 333.55,-56.25"></polygon>
-<text text-anchor="middle" x="339.3" y="-84.66" font-family="Times,serif" font-size="14.00">D</text>
-<text text-anchor="middle" x="339.3" y="-67.86" font-family="Times,serif" font-size="14.00">0.125</text>
-</g>
-<!-- C&#45;&gt;A -->
-<g id="edge14" class="edge">
-<title>C-&gt;A:ne</title>
-<path fill="none" stroke="black" d="M359.21,-33.85C375.54,-38.63 395.45,-47.52 405.55,-63.66 413.47,-76.32 407.15,-82.41 405.55,-97.26 400.41,-145.01 408.21,-162.25 382.55,-202.86 345.77,-261.04 326.03,-267.77 312.8,-261.13"></path>
-<polygon fill="black" stroke="black" points="314.63,-258.12 304.55,-254.86 310.39,-263.69 314.63,-258.12"></polygon>
-<text text-anchor="middle" x="415.8" y="-137.46" font-family="Times,serif" font-size="14.00">C</text>
-<text text-anchor="middle" x="415.8" y="-120.66" font-family="Times,serif" font-size="14.00">0.45</text>
-</g>
-<!-- C&#45;&gt;H -->
-<g id="edge15" class="edge">
-<title>C:nw-&gt;H:se</title>
-<path fill="none" stroke="black" d="M318.55,-43.66C268.03,-94.17 206.32,-10.09 159.05,-63.66 149.17,-74.85 154.22,-83.13 159.05,-97.26 160.81,-102.41 166.37,-105.4 170.73,-108.01"></path>
-<polygon fill="black" stroke="black" points="167.5,-109.35 174.55,-117.26 173.97,-106.68 167.5,-109.35"></polygon>
-<text text-anchor="middle" x="170.8" y="-84.66" font-family="Times,serif" font-size="14.00">C</text>
-<text text-anchor="middle" x="170.8" y="-67.86" font-family="Times,serif" font-size="14.00">0.45</text>
-</g>
-<!-- C&#45;&gt;C -->
-<g id="edge13" class="edge">
-<title>C:s-&gt;C:se</title>
-<path fill="none" stroke="black" d="M333.55,-9.66C359.22,3.34 410.55,3.34 410.55,-11.16 410.55,-23.96 382.23,-25.46 357.94,-16.69"></path>
-<polygon fill="black" stroke="black" points="359.12,-13.39 348.55,-12.66 356.36,-19.82 359.12,-13.39"></polygon>
-<text text-anchor="middle" x="419.3" y="-31.86" font-family="Times,serif" font-size="14.00">B</text>
-<text text-anchor="middle" x="419.3" y="-15.06" font-family="Times,serif" font-size="14.00">0.1</text>
+<!-- S3&#45;&gt;S4 -->
+<g id="edge7" class="edge">
+<title>S3-&gt;S4</title>
+<path fill="none" stroke="black" d="M77.76,-72.1C74.55,-58.73 72.32,-50.28 69.94,-43.84"></path>
+<polygon fill="black" stroke="black" points="72.96,-42.02 65.61,-34.38 66.6,-44.93 72.96,-42.02"></polygon>
 </g>
 </g>
 </svg>
@@ -621,10 +1001,6 @@ M = \{ A, B, C, D \} \\
 </div>
 </div>
 </div>
-<p>The given policy is stationary as it does only depend on the user’s current genre preference rather than their past or future ones. It is also a stochastic policy rather than a deterministic one as the action taken is chosen with some degree of randomness as indicated by the probability values on the edges/transitions in the graph.</p>
-</section>
-<section id="section-11" class="level3">
-<h3 class="anchored" data-anchor-id="section-11">6.3</h3>
 <!-- ```{dot} -->
 <!-- digraph { -->
 <!--   A -> B [label=""] -->
