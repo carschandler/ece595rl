@@ -20,6 +20,7 @@
         default = pkgs.mkShell {
           buildInputs = [
             pkgs.quarto
+            pkgs.texliveFull
           ];
         };
       });
