@@ -2,8 +2,8 @@
 title: "ECE59500RL HW1"
 author: "Robert (Cars) Chandler -- chandl71@purdue.edu"
 format:
-  html:
-    code-fold: false
+  pdf:
+    toc: true
 jupyter: python3
 ---
 
@@ -230,9 +230,9 @@ to specify $\mathcal{A}$ from the model, so we are left with:
 
 $$
 \begin{aligned}
-\mathbb{E}_R\left[ R_t | S_t = s \right] &= \mathbb{E}_\mathcal{A} \left[ \mathbb{E}_R
+\mathbb{E}_R\left[ R_t | S_t = s \right] &= \mathbb{E}_{\mathcal{A}} \left[ \mathbb{E}_R
 \left[ R_t |  A_t = a, S_t = s \right] | S_t = s \right] \\
-&= \mathbb{E}_\mathcal{A} \left[ \bar{R}(s, a) | S_t = s \right] \\
+&= \mathbb{E}_{\mathcal{A}} \left[ \bar{R}(s, a) | S_t = s \right] \\
 &= \sum_{a \in \mathcal{A}} \pi(a|s) \bar{R}(s, a) \\
 \end{aligned}
 $$
