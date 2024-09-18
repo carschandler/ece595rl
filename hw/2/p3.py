@@ -48,6 +48,7 @@ def reward(s, a):
 
 def opt_value(value_current, n_timesteps=1):
     value_next = None
+    optimal_actions = dict(b="", c="")
 
     for _ in range(n_timesteps):
         if value_next is not None:
@@ -66,10 +67,11 @@ def opt_value(value_current, n_timesteps=1):
                 print(f"  return = {ret}")
                 if value_next[s] is None or ret > value_next[s]:
                     value_next[s] = ret
+                    optimal_actions[s] = a
 
         print()
 
-    return value_next
+    return value_next, optimal_actions
 
 
 print(opt_value(dict(b=10, c=5)))
