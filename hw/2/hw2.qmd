@@ -2,10 +2,51 @@
 title: "ECE59500RL HW2"
 author: "Robert (Cars) Chandler — chandl71@purdue.edu"
 format:
-  pdf:
-    toc: true
+  pdf
 jupyter: python3
 ---
 
 ## Problem 1
+
+## Problem 2
+
+## Problem 3
+
+## Problem 4
+
+First, we need to assign labels to the states, which are the different spaces on the board. We will use a zero-indexed $x$-$y$ coordinate system to refer to the different states $s_{xy} \in \mathcal{S}$, with the origin at the bottom left square, $s_{0,0}$. Moving horizontally will increase the $x$-component and vertically the $y$-component, so that our state space is 
+
+$$
+\mathcal{S} =\{s_{ij} : i, j \in \mathbb{N}_{0}, \quad i,j \le 5 \}
+$$
+
+Note that although we are using two "dimensions" to identify each state, we still treat it as a one-dimensional vector, so that we have one row for each $s \in \mathcal{S}$ in $\vec{v}$, $P^{\pi}$, and so forth.
+### 4.1.a
+The policy can be evaluated analytically using the following equation:
+
+$$
+\vec{v}^{\pi} = (I - \gamma P^{\pi})^{-1} \vec{R}^{\pi}
+$$
+
+We have $\gamma = 0.95$ from the problem statement. $P^{\pi}$ and $\vec{R}^{\pi}$ each need to be evaluated by going over each state in $\mathcal{S}$ and using the information given to us to evaluate them. Beginning with $\vec{R}^{\pi}$:
+
+$$
+\vec{R}^{\pi} = \begin{bmatrix}
+R(s_{1,1}, \pi(s_{1,1}) \\
+R(s_{1,2}, \pi(s_{1,2}) \\
+\cdots \\
+R(s_{4,4}, \pi(s_{4,4}))
+\end{bmatrix}_{|\mathcal{S}| \times 1}
+$$
+
+
+<!-- ```{dot} -->
+<!-- digraph { -->
+<!--   layout=neato -->
+<!--   "(0,0)" [pos=(0,0)] -->
+<!--   A -> B -->
+<!-- } -->
+<!-- ``` -->
+
+
 
