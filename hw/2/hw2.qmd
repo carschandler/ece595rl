@@ -1,0 +1,11 @@
+---
+title: "ECE59500RL HW2"
+author: "Robert (Cars) Chandler — chandl71@purdue.edu"
+format:
+  pdf:
+    toc: true
+jupyter: python3
+---
+
+## Problem 1
+
