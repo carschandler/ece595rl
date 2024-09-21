@@ -289,19 +289,27 @@ go.Figure(
 
 ## 4.2
 
-We can use use the following theorem to obtain the number of iterations
-required: for an accuracy level of $\varepsilon$ in estimating the optimal value
-function, we can run the value iteration algorithm for $T$ iterations such that:
+We can use use the following theorem to determine when we have completed a
+sufficient number of iterations:
 
 $$
-T \ge \frac{\log \left( \frac{\Vert \vec{v}_{0} - \vec{v}^{*}\Vert_{\infty} }{\varepsilon} \right)}{\log \frac{1}{\gamma}}
+v^*(s) - v^{\pi_T}(s) \le \frac{2 \gamma^{T + 1}}{1 - \gamma} \Vert v_o - v^*
+\Vert_{\infty}, \quad \forall s \in \mathcal{S}
 $$
 
-which ensures that $\Vert v_T - v^* \Vert_{\infty} \le \varepsilon$
+We desire an accuracy of $\varepsilon = 0.01$, which means that we want $|v^*(s) -
+v^{\pi_T}| \le 0.01$ for all states. Therefore, if we can get the right hand
+side of the equation above to be less than or equal to $0.01$, then we have
+achieved our desired accuracy level.
+
+*However*, we do not know $v^*$, which is required to evaluate this equation.
+Indeed, this is the quantity we are trying to obtain. Instead, we can use the
+estimate for $v^*$ that our algorithm will compute on each iteration, which is
+converging to $v^*$, and use it instead. This will give us a bound on our error.
 
 ```{python}
 v_0 = np.zeros(width**2)
 
-n_timesteps = np.log(np.max(v_0 - ))
+# n_timesteps = np.log(np.max(v_0 - ))
 
 ```
