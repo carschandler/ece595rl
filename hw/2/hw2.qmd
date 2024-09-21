@@ -43,7 +43,7 @@ The policy can be evaluated analytically using the following equation:
 
 $$
 \vec{v}^{\pi} = (I - \gamma P^{\pi})^{-1} \vec{R}^{\pi}
-$$
+$$ {#eq-analytical-soln}
 
 We have $\gamma = 0.95$ from the problem statement. $P^{\pi}$ and
 $\vec{R}^{\pi}$ each need to be evaluated by going over each state in
@@ -99,7 +99,13 @@ def i_1d(x, y):
 
 
 def is_blocked(x, y):
-    return x < 0 or y < 0 or x >= width or y >= width or board[x, y] == Space.MOUNTAIN
+    return (
+        x < 0
+        or y < 0
+        or x >= width
+        or y >= width
+        or board[x, y] == Space.MOUNTAIN
+    )
 
 
 for x, y in itertools.product(range(5), range(5)):
@@ -125,12 +131,17 @@ for i in range(width**2):
     for j in np.argwhere(p[i]).flatten():
         y2, x2 = np.unravel_index(j, [width, width])
         state_text.append(
-            rf"P^{{\pi}}(s_{{ {x2}, {y2} }} | s_{{ {x1}, {y1} }}, \pi(s_{{ {x1},"
+            rf"P^{{\pi}}(s_{{ {x2}, {y2} }} | s_{{ {x1}, {y1} }}, \pi(s_{{"
+            rf" {x1},"
             rf" {y1} }}) = \text{{{a}}}) &= {p[i, j]:g} \\"
         )
     state_text.append(r"\\")
 
 state_text = "\n".join(state_text)
+
+
+def vecfmt(v):
+    return Markdown(", ".join([f"{e:g}" for e in v]))
 ```
 
 The resulting state transition probabilities are listed as follows:
@@ -165,5 +176,132 @@ r[i_1d(*np.argwhere(board == Space.TREASURE).squeeze())] = 1
 ```
 
 $$
-\vec{R}^{\pi} = \left[ `{python} Markdown(", ".join(r.astype(str)))` \right]^T
+\vec{R}^{\pi} = \left[ `{python} vecfmt(r)` \right]^T
 $$
+
+So, now we can substitute in our values into @{eq-analytical-soln} and solve:
+
+```{python}
+gamma = 0.95
+v = np.linalg.inv(np.identity(width**2) - gamma * p) @ r
+value_text = []
+for i, val in enumerate(v):
+    y, x = np.unravel_index(i, [width, width])
+    value_text.append(rf"v^{{\pi}}(s_{{ {x},{y} }}) &= {val:g} \\")
+
+value_text = "\n".join(value_text)
+```
+
+\begingroup
+\allowdisplaybreaks
+\begin{align*}
+`{python} Markdown(value_text)`
+\end{align*}
+\endgroup
+
+### 4.1.b
+
+Let $\vec{v}_0 = \mathbf{0}$. Then for each step in the iteration,
+
+$$
+\vec{v}_{t+1} = \vec{R}^{\pi} + \gamma P^{\pi} \vec{v}_{t}
+$$
+
+To determine $T$, the number of iterations we need to make in order to obtain
+$\Vert v_T - v^\pi \Vert_{\infty} \le 0.01$, we can use the following theorem:
+
+$$
+T \ge \frac{\log \left( \frac{\Vert \vec{v}_{0} - \vec{v}^{\pi}\Vert_{\infty} }{\varepsilon} \right)}{\log \frac{1}{\gamma}}
+$$
+
+Which we can solve using Python, and then perform $T$ iterations by implementing
+the equation above:
+
+```{python}
+epsilon = 0.01
+v0 = np.zeros(width**2)
+n_timesteps = int(
+    np.ceil(np.log(np.max(v0 - v) / epsilon) / np.log(1 / gamma))
+)
+
+v_t = v0
+v_history = [v0]
+for t in range(n_timesteps):
+    v_t = r + gamma * p @ v_t
+    v_history.append(v_t)
+
+v_history = np.array(v_history)
+
+value_text_iter = []
+for i, val in enumerate(v):
+    y, x = np.unravel_index(i, [width, width])
+    value_text_iter.append(
+        rf"v_{{T = {n_timesteps}}} (s_{{ {x},{y} }}) &= {val:g} \\"
+    )
+
+value_text_iter = "\n".join(value_text_iter)
+```
+
+We perform $T = `{python} n_timesteps`$ iterations, and our final $v_T$ is:
+
+\begingroup
+\allowdisplaybreaks
+\begin{align*}
+`{python} Markdown(value_text_iter)`
+\end{align*}
+\endgroup
+
+We can verify that our desired conditon holds:
+
+```{python}
+max_error = np.max(v_t - v)
+```
+
+So,
+
+$$
+\Vert v_T - v^\pi \Vert_{\infty} = `{python} Markdown(f"{max_error:0.6f}")` \le 0.01
+$$
+
+And if we were to have performed just one less iteration, this value would
+be above the desired $\varepsilon = 0.01$.
+
+### 4.1.c
+
+We kept track of the full history of $v_t$, so we can calculate the error for
+each timestep and plot it:
+
+```{python}
+import plotly.graph_objects as go
+import plotly.io as pio
+
+pio.renderers.default = "png"
+pio.kaleido.scope.default_scale = 2
+
+error_history = np.max(v_history - v, axis=1)
+go.Figure(
+    data=[go.Scatter(y=error_history, mode="lines")],
+    layout=dict(
+        xaxis_title="$t$", yaxis_title=r"$\Vert v_t - v^\pi \Vert_{\infty}$"
+    ),
+)
+```
+
+## 4.2
+
+We can use use the following theorem to obtain the number of iterations
+required: for an accuracy level of $\varepsilon$ in estimating the optimal value
+function, we can run the value iteration algorithm for $T$ iterations such that:
+
+$$
+T \ge \frac{\log \left( \frac{\Vert \vec{v}_{0} - \vec{v}^{*}\Vert_{\infty} }{\varepsilon} \right)}{\log \frac{1}{\gamma}}
+$$
+
+which ensures that $\Vert v_T - v^* \Vert_{\infty} \le \varepsilon$
+
+```{python}
+v_0 = np.zeros(width**2)
+
+n_timesteps = np.log(np.max(v_0 - ))
+
+```
