@@ -14,9 +14,11 @@ jupyter: python3
 
 ## Problem 4
 
+# TODO: check all max vs inf norm
+
 First, we need to assign labels to the states, which are the different spaces on
 the board. We will use a zero-indexed $x$-$y$ coordinate system to refer to the
-different states $s_{xy} \in \mathcal{S}$, with the origin at the bottom left
+different states $s_{x,y} \in \mathcal{S}$, with the origin at the bottom left
 square, $s_{0,0}$. Moving horizontally will increase the $x$-component and
 vertically the $y$-component, so that our state space is 
 
@@ -27,10 +29,11 @@ $$
 ::: {.callout-note}
 ### Note
 
-Although we are using two "dimensions" to identify each state, we
-still treat it as a one-dimensional vector, so that we have one row for each $s
+Although we are using two "dimensions" to identify each state, we still treat
+our state-space as a one-dimensional vector, so that we have one row for each $s
 \in \mathcal{S}$ in $\vec{v}$, $P^{\pi}$, and so forth. The order of the states
-for this vector will always be in row-major order:
+for this vector will always be in row-major order using the same $x$-$y$
+coordinate system described above:
 
 $$
 (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (0, 1), (1, 1), ..., (3, 4), (4, 4)
@@ -58,28 +61,35 @@ We can use Python to encode the logic described in the problem statement to
 programatically calculate $P^{\pi}$ for each state transition:
 
 ```{python}
-from enum import Enum
+from enum import Enum, StrEnum, auto
 import numpy as np
 import itertools
 from IPython.display import Markdown
 
 
-class Space(Enum):
-    LIGHTNING = -1
-    NORMAL = 0
-    MOUNTAIN = 1
-    TREASURE = 2
+class BoardSpace(StrEnum):
+    NORMAL = "N"
+    MOUNTAIN = "M"
+    LIGHTNING = "L"
+    TREASURE = "T"
+
+
+class Action(StrEnum):
+    UP = "U"
+    RIGHT = "R"
+    DOWN = "D"
+    LEFT = "L"
 
 
 width = 5
 
-board = np.full([width, width], Space.NORMAL)
+board = np.full([width, width], BoardSpace.NORMAL)
 
-board[2, 1] = Space.MOUNTAIN
-board[3, 1] = Space.MOUNTAIN
-board[1, 3] = Space.MOUNTAIN
-board[2, 3] = Space.LIGHTNING
-board[4, 4] = Space.TREASURE
+board[2, 1] = BoardSpace.MOUNTAIN
+board[3, 1] = BoardSpace.MOUNTAIN
+board[1, 3] = BoardSpace.MOUNTAIN
+board[2, 3] = BoardSpace.LIGHTNING
+board[4, 4] = BoardSpace.TREASURE
 
 policy = np.array(
     [
@@ -90,8 +100,6 @@ policy = np.array(
         list("RRRRU"),
     ]
 ).T
-
-p = np.zeros([25, 25])
 
 
 def i_1d(x, y):
@@ -104,25 +112,52 @@ def is_blocked(x, y):
         or y < 0
         or x >= width
         or y >= width
-        or board[x, y] == Space.MOUNTAIN
+        or board[x, y] == BoardSpace.MOUNTAIN
     )
 
 
-for x, y in itertools.product(range(5), range(5)):
-    i_cur_1d = i_1d(x, y)
+def get_trans_prob(x: int, y: int, a: Action):
+    if x < 0 or x >= width or y < 0 or y >= width:
+        raise RuntimeError("Invalid coordinates")
 
-    if board[x, y] != Space.NORMAL:
-        p[i_cur_1d, i_cur_1d] = 1
-        continue
+    if a not in Action:
+        raise RuntimeError("Invalid action type")
 
-    for a, (i2, j2) in zip(
-        list("LRUD"), [[x - 1, y], [x + 1, y], [x, y + 1], [x, y - 1]]
-    ):
-        prob = 0.85 if a == policy[x, y] else 0.05
-        if is_blocked(i2, j2):
-            p[i_cur_1d, i_cur_1d] += prob
+    p_vec = np.zeros(width**2)
+    i_state_1d = i_1d(x, y)
+
+    if board[x, y] != BoardSpace.NORMAL:
+        p_vec[i_state_1d] = 1
+        return p_vec
+
+    direction_coordinates = {
+        Action.LEFT: [x - 1, y],
+        Action.RIGHT: [x + 1, y],
+        Action.UP: [x, y + 1],
+        Action.DOWN: [x, y - 1],
+    }
+
+    for direction, (x_next, y_next) in direction_coordinates.items():
+        prob = 0.85 if direction == a else 0.05
+        if is_blocked(x_next, y_next):
+            p_vec[i_state_1d] += prob
         else:
-            p[i_cur_1d, i_1d(i2, j2)] += prob
+            p_vec[i_1d(x_next, y_next)] += prob
+
+    if p_vec.sum() != 1:
+        raise RuntimeError("Probability vector did not add to 1")
+
+    return p_vec
+
+
+# (0, 0), (1, 0), (2, 0) ... (3, 4), (4, 4)
+each_state = [(x, y) for y in range(5) for x in range(5)]
+
+p = np.zeros([width**2, width**2])
+
+for x, y in each_state:
+    i = i_1d(x, y)
+    p[i] = get_trans_prob(x, y, policy[x, y])
 
 state_text = []
 for i in range(width**2):
@@ -171,8 +206,8 @@ nonzero elements:
 
 ```{python}
 r = np.zeros(width * width, dtype=int)
-r[i_1d(*np.argwhere(board == Space.LIGHTNING).squeeze())] = -1
-r[i_1d(*np.argwhere(board == Space.TREASURE).squeeze())] = 1
+r[i_1d(*np.argwhere(board == BoardSpace.LIGHTNING).squeeze())] = -1
+r[i_1d(*np.argwhere(board == BoardSpace.TREASURE).squeeze())] = 1
 ```
 
 $$
@@ -212,21 +247,55 @@ $\Vert v_T - v^\pi \Vert_{\infty} \le 0.01$, we can use the following theorem:
 
 $$
 T \ge \frac{\log \left( \frac{\Vert \vec{v}_{0} - \vec{v}^{\pi}\Vert_{\infty} }{\varepsilon} \right)}{\log \frac{1}{\gamma}}
+$$ {#eq-end-criterion}
+
+*However*, we cannot use the analytical solution of $v^{\pi}$, so we need to
+form some kind of bound on it instead and use that. We know that
+
+$$
+v^{\pi}(s) = \mathbb{E} \left[
+\sum_{t=0}^{\infty} \gamma^t R(s_t, a_t) | s_0 = s \right], \quad \forall s \in
+\mathcal{S}
 $$
 
-Which we can solve using Python, and then perform $T$ iterations by implementing
-the equation above:
+by definition, and we know that our reward function is bounded on the interval
+$[-1, 1]$. Therefore, we can say that $|R(s, a)| \le 1$ so that
+
+$$
+\Vert v^{\pi} \Vert_{\infty} \le 1 \cdot \sum_{t=0}^{\infty} \gamma^t = \frac{1}{1 - \gamma}
+$$
+
+And since $v_0 = \mathbf{0}$, we can say that 
+
+$$
+\Vert \vec{v}_{0} -
+\vec{v}^{\pi}\Vert_{\infty} \le \Vert v^{\pi} \Vert_{\infty} \le \frac{1}{1 - \gamma}
+$$
+
+So, finally:
+
+$$
+\frac{\log \left( \frac{1}{\varepsilon(1 - \gamma)} \right)}{\log \frac{1}{\gamma}} 
+$$
+
+will give us a conservative estimate of $T$ which is more than (or equal to) the
+number of iterations actually required to obtain our desired error.
+
+We can evaluate this result using Python, and then perform $T$ iterations by
+implementing the iteration algorithm above.
 
 ```{python}
+from numpy.linalg import norm
+
 epsilon = 0.01
 v0 = np.zeros(width**2)
-n_timesteps = int(
-    np.ceil(np.log(np.max(v0 - v) / epsilon) / np.log(1 / gamma))
+n_iterations = int(
+    np.ceil(np.log(1 / (epsilon * (1 - gamma))) / np.log(1 / gamma))
 )
 
 v_t = v0
 v_history = [v0]
-for t in range(n_timesteps):
+for t in range(n_iterations):
     v_t = r + gamma * p @ v_t
     v_history.append(v_t)
 
@@ -236,13 +305,13 @@ value_text_iter = []
 for i, val in enumerate(v):
     y, x = np.unravel_index(i, [width, width])
     value_text_iter.append(
-        rf"v_{{T = {n_timesteps}}} (s_{{ {x},{y} }}) &= {val:g} \\"
+        rf"v_{{T = {n_iterations}}} (s_{{ {x},{y} }}) &= {val:g} \\"
     )
 
 value_text_iter = "\n".join(value_text_iter)
 ```
 
-We perform $T = `{python} n_timesteps`$ iterations, and our final $v_T$ is:
+We perform $T = `{python} n_iterations`$ iterations, and our final $v_T$ is:
 
 \begingroup
 \allowdisplaybreaks
@@ -254,17 +323,12 @@ We perform $T = `{python} n_timesteps`$ iterations, and our final $v_T$ is:
 We can verify that our desired conditon holds:
 
 ```{python}
-max_error = np.max(v_t - v)
+max_error = norm(v_t - v, ord=np.inf)
 ```
-
-So,
 
 $$
 \Vert v_T - v^\pi \Vert_{\infty} = `{python} Markdown(f"{max_error:0.6f}")` \le 0.01
 $$
-
-And if we were to have performed just one less iteration, this value would
-be above the desired $\varepsilon = 0.01$.
 
 ### 4.1.c
 
@@ -278,7 +342,7 @@ import plotly.io as pio
 pio.renderers.default = "png"
 pio.kaleido.scope.default_scale = 2
 
-error_history = np.max(v_history - v, axis=1)
+error_history = norm(v_history - v, ord=np.inf, axis=1)
 go.Figure(
     data=[go.Scatter(y=error_history, mode="lines")],
     layout=dict(
@@ -289,27 +353,116 @@ go.Figure(
 
 ## 4.2
 
-We can use use the following theorem to determine when we have completed a
+To perform value iteration, we initialize $\vec{v}_0 = \mathbf{0}$ and then for
+each iteration which increases $t$ by one, we perform the operation:
+
+$$
+v_{t+1}(s) = \max_{a \in \mathcal{A}} \left[ R(s,a) + \gamma \mathbb{E}_{s' \sim
+P(\cdot | s,a)} [v_t(s')] \right], \quad \forall s \in \mathcal{S}
+$$
+
+However, since our 
+
+We can use the following theorem to determine when we have completed a
 sufficient number of iterations:
 
 $$
-v^*(s) - v^{\pi_T}(s) \le \frac{2 \gamma^{T + 1}}{1 - \gamma} \Vert v_o - v^*
-\Vert_{\infty}, \quad \forall s \in \mathcal{S}
+T \ge \frac{\log \left( \frac{\Vert \vec{v}_{0} - \vec{v}^{*}\Vert_{\infty} }{\varepsilon} \right)}{\log \frac{1}{\gamma}}
 $$
 
-We desire an accuracy of $\varepsilon = 0.01$, which means that we want $|v^*(s) -
-v^{\pi_T}| \le 0.01$ for all states. Therefore, if we can get the right hand
-side of the equation above to be less than or equal to $0.01$, then we have
-achieved our desired accuracy level.
+This is the same as @{eq-end-criterion} but with $v^*$ instead of $v^{\pi}$. We
+can use the same logic as before to bound $T$ since the only difference is that
+$v^*$ now considers all possible policies, but all the value functions for all
+policies can still be bound by the reward function as before, such that:
 
-*However*, we do not know $v^*$, which is required to evaluate this equation.
-Indeed, this is the quantity we are trying to obtain. Instead, we can use the
-estimate for $v^*$ that our algorithm will compute on each iteration, which is
-converging to $v^*$, and use it instead. This will give us a bound on our error.
+$$
+\Vert v^{*} \Vert_{\infty} \le 1 \cdot \sum_{t=0}^{\infty} \gamma^t = \frac{1}{1 - \gamma}
+$$
+
+Therefore, we can use the same $T = `{python} n_iterations`$ as before.
 
 ```{python}
-v_0 = np.zeros(width**2)
+v0 = np.zeros(width**2)
 
-# n_timesteps = np.log(np.max(v_0 - ))
+v_t = v0
 
+epsilon = 0.01
+
+n_iterations = int(
+    np.ceil(np.log(1 / (epsilon * (1 - gamma))) / np.log(1 / gamma))
+)
+
+for t in range(n_iterations):
+    v_t = np.array(
+        [
+            np.max(
+                [
+                    r[i_1d(x, y)]
+                    + gamma * np.sum(get_trans_prob(x, y, a) * v_t)
+                    for a in Action
+                ]
+            )
+            for x, y in each_state
+        ]
+    )
 ```
+
+Now, with $\vec{v}_T$ determined, we need to find the policy corresponding to
+this value function, which is:
+
+$$
+\pi_T(s) = \arg \max_{a \in \mathcal{A}} [R(s,a) + \gamma \mathbb{E}_{s' \sim
+P(\cdot | s,a)} [v_T(s')], \quad \forall s \in \mathcal{S}
+$$
+
+```{python}
+policy_opt = np.full_like(policy, "")
+
+actions_list = list(Action)
+
+for x, y in each_state:
+    i_max = np.argmax(
+        [
+            r[i_1d(x, y)] + gamma * np.sum(get_trans_prob(x, y, a) * v_t)
+            for a in actions_list
+        ]
+    )
+
+    policy_opt[x, y] = actions_list[i_max].value
+
+# Account for different coordinate systems between numpy and our board
+print(np.flipud(policy_opt.T))
+```
+
+The learned policy is printed above and its representation corresponds
+one-to-one with the shape and orientation of the original board given in the
+problem statement.
+
+Lastly, we can calculate the value function for this policy by re-calculating
+our $P$ matrix and then using the analytical solution:
+
+```{python}
+p_opt = np.array(
+    [get_trans_prob(x, y, policy_opt[x, y]) for x, y in each_state],
+)
+
+v_opt = np.linalg.inv(np.identity(width**2) - gamma * p_opt) @ r
+
+value_text = []
+for val, (x, y) in zip(v_opt, each_state):
+    value_text.append(rf"v^{{\pi_T}}(s_{{ {x},{y} }}) &= {val:g} \\")
+
+value_text = "\n".join(value_text)
+```
+
+The $v^{\pi_T}(s)$ is shown for each state below:
+
+\begingroup
+\allowdisplaybreaks
+\begin{align*}
+`{python} Markdown(value_text)`
+\end{align*}
+\endgroup
+
+
+## 4.3
