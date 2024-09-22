@@ -29,6 +29,8 @@
 #
 # ## Problem 4
 #
+# # TODO: check all max vs inf norm
+#
 # First, we need to assign labels to the states, which are the different spaces on
 # the board. We will use a zero-indexed $x$-$y$ coordinate system to refer to the
 # different states $s_{x,y} \in \mathcal{S}$, with the origin at the bottom left
@@ -390,7 +392,7 @@ go.Figure(
 # \Vert v^{*} \Vert_{\infty} \le 1 \cdot \sum_{t=0}^{\infty} \gamma^t = \frac{1}{1 - \gamma}
 # $$
 #
-# Therefore, we can use the same $T$ as before.
+# Therefore, we can use the same $T = `{python} n_iterations`$ as before.
 
 # +
 v0 = np.zeros(width**2)
@@ -403,7 +405,9 @@ n_iterations = int(
     np.ceil(np.log(1 / (epsilon * (1 - gamma))) / np.log(1 / gamma))
 )
 
-for t in range(n_iterations):
+# FIXME
+# for t in range(n_iterations):
+for t in range(10000):
     v_t = np.array(
         [
             np.max(
@@ -416,8 +420,6 @@ for t in range(n_iterations):
             for x, y in each_state
         ]
     )
-
-print(v_t)
 # -
 
 # Now, with $\vec{v}_T$ determined, we need to find the policy corresponding to
@@ -468,9 +470,96 @@ for val, (x, y) in zip(v_opt, each_state):
 value_text = "\n".join(value_text)
 # -
 
+# The $v^{\pi_T}(s)$ is shown for each state below:
+#
 # \begingroup
 # \allowdisplaybreaks
 # \begin{align*}
 # `{python} Markdown(value_text)`
 # \end{align*}
 # \endgroup
+#
+#
+# ## 4.3
+#
+# To begin our policy iteration algorithm, we initialize the policy with a uniform
+# random distribution over $\mathcal{A}$:
+
+# +
+seed = 1298319824791827491284982174
+rng = np.random.default_rng(seed)
+
+int_to_action = np.vectorize(lambda i: actions_list[i])
+
+policy_0 = int_to_action(rng.integers(low=0, high=4, size=(width, width)))
+
+print(policy_0)
+
+
+# -
+
+# The policy is shown above using the original board shape and orientation.
+#
+# Now, for each iteration, we evaluate $\pi_t$ by computing $v^{\pi_t}$ and then
+# we improve the policy by updating its action for each state so that it yields
+# the maximum return according to:
+#
+# $$
+# \pi_{t + 1}(s) = \arg \max_{a \in \mathcal{A}} [R(s,a) + \gamma \mathbb{E}_{s' \sim
+# P(\cdot | s,a)} [v^{\pi_t}(s')], \quad \forall s \in \mathcal{S}
+# $$
+#
+# To determine how many iterations are necessary, we use the following theorem:
+#
+# $$
+# \lVert v^{\pi_T} - v^* \rVert_{\infty} \le \gamma^T \lVert v^{\pi_0} - v^*
+# \rVert_{\infty}
+# $$
+#
+# We can substitute our desired accuracy $\varepsilon$ in and solve for $T$:
+#
+# $$
+# T \ge \frac{\log \left( \frac{\varepsilon}{\lVert v^{\pi_0} - v^*
+# \rVert_{\infty}} \right)}{\log (\gamma)}
+# $$
+#
+# Using the same logic as before, we can bound $v^*$ by:
+#
+# $$
+# \Vert v^{*} \Vert_{\infty} \le 1 \cdot \sum_{t=0}^{\infty} \gamma^t = \frac{1}{1 - \gamma}
+# $$
+#
+
+# +
+def evaluate_policy(policy):
+    p_policy = np.array(
+        [get_trans_prob(x, y, policy[x, y]) for x, y in each_state],
+    )
+
+    v_policy = np.linalg.inv(np.identity(width**2) - gamma * p_policy) @ r
+
+    return v_policy
+
+
+def improve_policy(policy, v_policy):
+    for x, y in each_state:
+        i_max = np.argmax(
+            [
+                r[i_1d(x, y)]
+                + gamma * np.sum(get_trans_prob(x, y, a) * v_policy)
+                for a in actions_list
+            ]
+        )
+        policy[x, y] = actions_list[i_max]
+
+
+policy_t = policy_0
+
+v_policy_0 = evaluate_policy(policy_0)
+
+for i in range(100):
+    v_policy_t = evaluate_policy(policy_t)
+
+    improve_policy(policy_t, v_policy_t)
+
+print(np.flipud(policy_opt.T))
