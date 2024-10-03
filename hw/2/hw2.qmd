@@ -55,8 +55,8 @@ This is true because each element in the vector resulting from $P^{\pi}
 \mathbf{x}$ will be some linear combination of the components of $\mathbf{x}$
 where the scalars are at least $0$ and at most $1$ and sum to $1$. So, the
 greatest magnitude possible from this operation occurs in the case where a row
-of $P^{\pi}$ has a $1$ that aligns with the maximum magnitude of $x$ and is zero
-everywhere else.
+of $P^{\pi}$ has a $1$ that aligns with the maximum magnitude of $\mathbf{x}$
+and is zero everywhere else.
 
 Now, we have proven that the LHS is less than or equal to $\lVert \mathbf{x}
 \rVert_{\infty}$ and that the RHS is greater than $\lVert \mathbf{x}
@@ -64,7 +64,7 @@ Now, we have proven that the LHS is less than or equal to $\lVert \mathbf{x}
 this is impossible. Therefore, it is impossible that $\lambda > 1$ for a
 row-stochastic matrix.
 
-So if $\lambda < 1$ for all eigenvalues of $P^{\pi}$, then $1 - \gamma \lambda >
+So if $\lambda \le 1$ for all eigenvalues of $P^{\pi}$, then $1 - \gamma \lambda >
 0$, because $0 < \gamma < 1$. Therefore, all eigenvalues of $I - \gamma P^{\pi}$
 are nonzero, which means that $I - \gamma P^{\pi}$ must also be invertible.
 
@@ -76,16 +76,94 @@ $$
 \begin{aligned}
 v^{\pi}(s) &= \mathbb{E}_{a \sim \pi(s)} \left[ R(s,a) + \gamma \mathbb{E}_{s'
 \sim P(\cdot | s,a)} \left[ v^{\pi}(s') \right] \right] \\
-&= \sum_{a \in \mathcal{A}} \mathbb{P}(a | s) \left[ R(s,a) + \gamma \sum_{s' \in \mathcal{S}} \left[ \mathbb{P}(s' | a,s) v^{\pi}(s') \right] \right] \\
+&= \sum_{a \in \mathcal{A}} \left[ \mathbb{P}(a | s) \left( R(s,a) + \gamma \sum_{s' \in \mathcal{S}} \left[ \mathbb{P}(s' | a,s) v^{\pi}(s') \right] \right) \right] \\
+&= \sum_{a \in \mathcal{A}} \left[ \mathbb{P}(a | s)  R(s,a) \right] + \gamma \sum_{s' \in \mathcal{S}} \left[  v^{\pi}(s') \sum_{a \in \mathcal{A}} \left[ \mathbb{P}(a | s) \mathbb{P}(s' | a,s) \right] \right] \\
 \end{aligned}
 $$
 
-Which we can write in matrix form. Let $\pi_{|\mathcal{S}| \times
-|\mathcal{A}|}$ be a matrix such that each element $\pi_{i,j} = \mathbb{P}(a_j |
-s_i)$ is the probability of applying action $a_j \in \mathcal{A}$ given the current
-state $s_i \in \mathcal{S}$.
+We can define some new variables under the policy $\pi$:
 
-For each $s \in \mathcal{S}$, 
+$$
+R^{\pi}(s)  = \sum_{a \in \mathcal{A}} \left[ \mathbb{P}(a | s)  R(s,a) \right]
+$$
+
+$$
+P^{\pi}(s, s') = \sum_{a \in \mathcal{A}} \left[ \mathbb{P}(a | s) \mathbb{P}(s' | a,s) \right]
+$$
+
+These are just like before, except they are now a weighted average across all
+possible actions. We could define a function $\pi(a, s) = \mathbb{P}(a | s)$ and
+substitute this into the equations above as well.
+
+So we have
+
+$$
+v^{\pi}(s) = R^{\pi}(s) + \gamma \sum_{s' \in \mathcal{S}} \left[  P^{\pi}(s, s') v^{\pi}(s') \right]
+$$
+
+where $P^{\pi}(s, s') = \mathbb{P}(s' | s)$.
+
+We can form matrices to represent these across all states:
+
+$$
+\vec{v}^{\pi} = [v^\pi(s_1) \ ... \  v^{\pi}(s_n)]^T
+$$
+
+$$
+\vec{R}^{\pi} = [R^\pi(s_1) \ ... \  R^{\pi}(s_n)]^T
+$$
+
+$$
+P^{\pi} = \begin{bmatrix}
+P^\pi(s_1, s_1') & ... & P^{\pi}(s_1, s_n') \\
+\vdots & \ddots & \vdots \\
+P^{\pi}(s_n, s_1') & ... & P^{\pi}(s_n, s_n') \\
+\end{bmatrix}
+$$
+
+Which allows us to write the equation in matrix form as 
+
+$$
+\begin{aligned}
+\vec{v}^{\pi} &= \vec{R}^{\pi} + \gamma P^{\pi} \vec{v}^{\pi} \\
+\vec{v}^{\pi} - \gamma P^{\pi} \vec{v}^{\pi} &= \vec{R}^{\pi} \\
+(I - \gamma P^{\pi}) \vec{v}^{\pi} &= \vec{R}^{\pi} \\
+\vec{v}^{\pi}&= (I - \gamma P^{\pi})^{-1} \vec{R}^{\pi} \\
+\end{aligned}
+$$
+
+### 1.3
+
+Since the reward is stochastic now, we need to start with the definition of the
+value function and derive a modified Bellman consistency equation:
+
+$$
+\begin{aligned}
+v^{\pi}(s) &= \mathbb{E}_{\pi, P, R}\left[\sum_{t=0}^{\infty} \gamma^t R(s_t, a_t) | s_0 = s \right] \\
+&= \mathbb{E}_{\pi, P, R} \left[ R(s_0, a_0) + \sum_{t=1}^{\infty} \gamma^t R(s_t, a_t) | s_0 = s \right] \\
+&= \sum_{a \sim \pi} \left[ \pi(a | s) \sum_{s', r} \left[ p(s', r | s, a) \left( r(s, a) + \gamma v^{\pi}(s') \right) \right] \right], \quad \forall s \in \mathcal{S} \\
+&= \sum_{a \sim \pi} \left[ \pi(a | s) \mathbb{E}_r \left[ r(s, a) + \mathbb{E}_{s'} \left[ \gamma v^{\pi}(s') \right] \right] \right], \quad \forall s \in \mathcal{S} \\
+\end{aligned}
+$$
+
+Our $R^{\pi}(s)$ is now defined as:
+
+$$
+R^{\pi}(s) = \sum_{a \in \mathcal{A}, r \in \mathcal{R}} \left[ \mathbb{P}(a | s) \mathbb{P}(r | a,s) r \right]
+$$
+
+Where $r$ is the value of the current reward in the summation. So, we sum over
+all possible actions as well as all possible rewards and take into account the
+probability of each action and reward as defined by the stochastic reward
+function $R$ and stochastic policy $\pi$ to give us an expectation across all
+possible action and reward combinations for a given state.
+
+From here, we can use the same logic from [1.2] to form our matrices, and the
+final result is still:
+
+$$
+\vec{v}^{\pi} = (I - \gamma P^{\pi})^{-1} \vec{R}^{\pi}
+$$
 
 ## Problem 2
 
@@ -102,9 +180,6 @@ It is true that
 
 $$
 g_1(x) \le | g_1(x) - g_2(x) | + g_2(x)
-$$$$
-\left| \max_{x \in X} g_1(x) - max_{x \in X} g_2(x) \right| \le \max_{x \in X}
-\left| g_1(x) - g_2(x) \right|
 $$
 
 Since if $g_1(x) \ge g_2(x)$, equality holds above, and if $g_1(x) \le g_2(x)$,
@@ -133,8 +208,8 @@ $$
 \begin{gathered}
 g_2(x) \le | g_1(x) - g_2(x) | + g_1(x) \\
 ...\\
-\max_{x \in X} g_2(x) - \max_{x \in X} g_1(x) \le \max_{x \in X}(| g_1(x) - g_2(x) |) 
-\begin{gathered}
+\max_{x \in X} g_2(x) - \max_{x \in X} g_1(x) \le \max_{x \in X}(| g_1(x) - g_2(x) |)
+\end{gathered}
 $$
 
 And with the inequality proven for both orders of subtraction, we can combine
@@ -142,48 +217,63 @@ the two conclusions by bringng in absolute value to the LHS:
 
 $$
 \left| \max_{x \in X} g_1(x) - \max_{x \in X} g_2(x) \right|
-\le \max_{x \in X} \left| g_1(x) - g_2(x) \right|
+\le \max_{x \in X} \left| g_1(x) - g_2(x) \right| \quad \blacksquare
 $$
 
+### 2.2
 
-Consider the case where $g_2(x) = g_1(x) + c$, such that $g_2$ is a perfect
-shift above $g_1$. In this case,
-
-$$
-\left| \max_{x \in X} g_1(x) - \max_{x \in X} g_2(x) \right|
-= \left| \max_{x \in X} g_1(x) - \max_{x \in X} (g_1(x) + c) \right|
-= c
-$$
-
-and
+We wish to prove that
 
 $$
-\left| \max_{x \in X} g_1(x) - \max_{x \in X} g_2(x) \right|
-= \left| c_1 - c_2 \right|
-= \max_{x \in X} \left| g_1(x) - g_2(x) \right|
+\max_{x \in X, y \in Y} f(x, g(y)) \ge \max_{x \in X} f(x, \max_{y \in Y} g(y))
 $$
 
-In any other case, either $\exists x \in X: g_1(x) < 
+for two scalar-valued functions $f : X \times Z \to \mathbb{R}$ and $g : Y \to Z
+\subseteq \mathbb{R}$.
 
-So the inequality holds. Now consider a second point $x_2$ is added to the
-domain. It is not possible for
-
-$$
-\max_{x \in X} \left| g_1(x) - g_2(x) \right|
-$$
-
-to decrease when the second point is added, because the previous points are not
-changing, and we already have the maximum value. At most, it could stay the same
-as before, and if it does stay the same, then this means that at most, each
-value $g_1(x_2)$ and $g_2(x_2)$ both increased by the same amount from the previous
-values. In that case, $\max g_1(x)$ and $\max g_2(x)$ also increased by the same
-values, 
+By definition,
 
 $$
-\left| \max_{x \in X} g_1(x) - max_{x \in X} g_2(x) \right|
+\max_{x \in X, y \in Y} f(x, g(y)) \ge f(x', g(y')), \quad \forall x' \in X, y' \in Y
 $$
 
+Define $y^*$ as:
 
+$$
+g(y^*) = \max_{y \in Y} g(y)
+$$
+
+So 
+
+$$
+\max_{x \in X} f(x, \max_{y \in Y} g(y))
+= \max_{x \in X} f(x, g(y^*))
+$$
+
+Now define $x^*$ as:
+
+$$
+f(x^*, y^*) = \max_{x \in X} f(x, g(y^*))
+$$
+
+But $x^* \in X$ and $y^* \in Y$ are just elements in their respective spaces,
+and we have already declared that
+
+$$
+\max_{x \in X, y \in Y} f(x, g(y)) \ge f(x', g(y')), \quad \forall x' \in X, y' \in Y
+$$
+
+for all elements in these spaces. So, if we just consider $x^*$ as some $x' \in
+X$ and the same for $y^*$, then:
+
+$$
+\max_{x \in X, y \in Y} f(x, g(y)) \ge f(x^*, g(y^*)) = \max_{x \in X} f(x, \max_{y \in Y} g(y)) \quad \blacksquare
+$$
+
+Intuitively, the operator on the LHS sweeps a 2D plane in its search for the
+maximum, while the RHS first sweeps a 1D line $Y$ and then sweeps a single line
+of the 2D plane in search for the maximum, so naturally there are more maxima
+that the LHS may find in comparison.
 
 ## Problem 3
 
@@ -265,7 +355,7 @@ def opt_value(v_current: NDArray, n_iterations=1):
     return v_t, r_t, v_expected_t, optimal_actions
 
 
-v_opt, r_opt, v_expected_opt, optimal_actions = opt_value(
+v_opt_valiter_policy, r_opt, v_expected_opt, optimal_actions = opt_value(
     v_current=np.array([10, 5])
 )
 ```
@@ -287,8 +377,11 @@ $$
 P(\cdot | s,a)} [v^{\pi_8}(s')], \quad \forall s \in \mathcal{S}
 $$
 
+Our Python implementation already keeps track of the action corresponding to the
+optimal values in the `optimal_actions` output:
+
 ```{python}
-v_opt, r_opt, v_expected_opt, optimal_actions = opt_value(
+v_opt_valiter_policy, r_opt, v_expected_opt, optimal_actions = opt_value(
     v_current=np.array([5, 15])
 )
 ```
@@ -588,7 +681,7 @@ for t in range(n_iterations):
 v_history = np.array(v_history)
 
 value_text_iter = []
-for i, val in enumerate(v):
+for i, val in enumerate(v_t):
     y, x = np.unravel_index(i, [width, width])
     value_text_iter.append(
         rf"v_{{T = {n_iterations}}} (s_{{ {x},{y} }}) &= {val:g} \\"
@@ -647,8 +740,6 @@ v_{t+1}(s) = \max_{a \in \mathcal{A}} \left[ R(s,a) + \gamma \mathbb{E}_{s' \sim
 P(\cdot | s,a)} [v_t(s')] \right], \quad \forall s \in \mathcal{S}
 $$
 
-However, since our 
-
 We can use the following theorem to determine when we have completed a
 sufficient number of iterations:
 
@@ -691,6 +782,8 @@ for t in range(n_iterations):
             for x, y in each_state
         ]
     )
+
+v_valiter = v_t
 ```
 
 Now, with $\vec{v}_T$ determined, we need to find the policy corresponding to
@@ -709,7 +802,8 @@ actions_list = list(Action)
 for x, y in each_state:
     i_max = np.argmax(
         [
-            r[i_1d(x, y)] + gamma * np.sum(get_trans_prob(x, y, a) * v_t)
+            r[i_1d(x, y)]
+            + gamma * np.sum(get_trans_prob(x, y, a) * v_valiter)
             for a in actions_list
         ]
     )
@@ -724,6 +818,16 @@ The learned policy is printed above and its representation corresponds
 one-to-one with the shape and orientation of the original board given in the
 problem statement.
 
+::: {.callout-note}
+
+#### Note
+
+The actions prescribed by this policy do not have any meaning for the special
+spaces where the user cannot move. The actions for these spaces are UP simply
+because that was the first action in the enumeration of actions.
+
+:::
+
 Lastly, we can calculate the value function for this policy by re-calculating
 our $P$ matrix and then using the analytical solution:
 
@@ -732,10 +836,12 @@ p_opt = np.array(
     [get_trans_prob(x, y, policy_opt[x, y]) for x, y in each_state],
 )
 
-v_opt = np.linalg.inv(np.identity(width**2) - gamma * p_opt) @ r
+v_opt_valiter_policy = (
+    np.linalg.inv(np.identity(width**2) - gamma * p_opt) @ r
+)
 
 value_text = []
-for val, (x, y) in zip(v_opt, each_state):
+for val, (x, y) in zip(v_opt_valiter_policy, each_state):
     value_text.append(rf"v^{{\pi_T}}(s_{{ {x},{y} }}) &= {val:g} \\")
 
 value_text = "\n".join(value_text)
