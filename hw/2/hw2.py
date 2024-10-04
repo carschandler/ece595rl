@@ -70,8 +70,8 @@
 # \mathbf{x}$ will be some linear combination of the components of $\mathbf{x}$
 # where the scalars are at least $0$ and at most $1$ and sum to $1$. So, the
 # greatest magnitude possible from this operation occurs in the case where a row
-# of $P^{\pi}$ has a $1$ that aligns with the maximum magnitude of $x$ and is zero
-# everywhere else.
+# of $P^{\pi}$ has a $1$ that aligns with the maximum magnitude of $\mathbf{x}$
+# and is zero everywhere else.
 #
 # Now, we have proven that the LHS is less than or equal to $\lVert \mathbf{x}
 # \rVert_{\infty}$ and that the RHS is greater than $\lVert \mathbf{x}
@@ -79,7 +79,7 @@
 # this is impossible. Therefore, it is impossible that $\lambda > 1$ for a
 # row-stochastic matrix.
 #
-# So if $\lambda < 1$ for all eigenvalues of $P^{\pi}$, then $1 - \gamma \lambda >
+# So if $\lambda \le 1$ for all eigenvalues of $P^{\pi}$, then $1 - \gamma \lambda >
 # 0$, because $0 < \gamma < 1$. Therefore, all eigenvalues of $I - \gamma P^{\pi}$
 # are nonzero, which means that $I - \gamma P^{\pi}$ must also be invertible.
 #
@@ -287,7 +287,8 @@
 #
 # Intuitively, the operator on the LHS sweeps a 2D plane in its search for the
 # maximum, while the RHS first sweeps a 1D line $Y$ and then sweeps a single line
-# of the 2D plane in search for the maximum.
+# of the 2D plane in search for the maximum, so naturally there are more maxima
+# that the LHS may find in comparison.
 #
 # ## Problem 3
 #
@@ -390,6 +391,9 @@ v_opt_valiter_policy, r_opt, v_expected_opt, optimal_actions = opt_value(
 # \pi_{9}(s) = \arg \max_{a \in \mathcal{A}} [R(s,a) + \gamma \mathbb{E}_{s' \sim
 # P(\cdot | s,a)} [v^{\pi_8}(s')], \quad \forall s \in \mathcal{S}
 # $$
+#
+# Our Python implementation already keeps track of the action corresponding to the
+# optimal values in the `optimal_actions` output:
 
 v_opt_valiter_policy, r_opt, v_expected_opt, optimal_actions = opt_value(
     v_current=np.array([5, 15])
@@ -690,7 +694,7 @@ for t in range(n_iterations):
 v_history = np.array(v_history)
 
 value_text_iter = []
-for i, val in enumerate(v):
+for i, val in enumerate(v_t):
     y, x = np.unravel_index(i, [width, width])
     value_text_iter.append(
         rf"v_{{T = {n_iterations}}} (s_{{ {x},{y} }}) &= {val:g} \\"
@@ -747,8 +751,6 @@ go.Figure(
 # P(\cdot | s,a)} [v_t(s')] \right], \quad \forall s \in \mathcal{S}
 # $$
 #
-# However, since our 
-#
 # We can use the following theorem to determine when we have completed a
 # sufficient number of iterations:
 #
@@ -793,21 +795,6 @@ for t in range(n_iterations):
     )
 
 v_valiter = v_t
-v_true = v_t.copy()
-
-for _ in range(1000):
-    v_true = np.array(
-        [
-            np.max(
-                [
-                    r[i_1d(x, y)]
-                    + gamma * np.sum(get_trans_prob(x, y, a) * v_true)
-                    for a in Action
-                ]
-            )
-            for x, y in each_state
-        ]
-    )
 # -
 
 # Now, with $\vec{v}_T$ determined, we need to find the policy corresponding to
@@ -841,6 +828,16 @@ print(np.flipud(policy_opt.T))
 # The learned policy is printed above and its representation corresponds
 # one-to-one with the shape and orientation of the original board given in the
 # problem statement.
+#
+# ::: {.callout-note}
+#
+# #### Note
+#
+# The actions prescribed by this policy do not have any meaning for the special
+# spaces where the user cannot move. The actions for these spaces are UP simply
+# because that was the first action in the enumeration of actions.
+#
+# :::
 #
 # Lastly, we can calculate the value function for this policy by re-calculating
 # our $P$ matrix and then using the analytical solution:
