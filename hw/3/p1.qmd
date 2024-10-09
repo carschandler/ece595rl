@@ -203,9 +203,11 @@ $$
 \end{aligned}
 $$
 
-This is the first part of the piecewise equation.
-
-#### TODO: is there more to do here?
+This is the first part of the piecewise equation, and this value is undefined
+if the denominator is zero, so we can just assign an arbitrary policy anywhere
+this is the case. An optimal, stationary, stochastic policy will comply with
+this construction because of the relationship between the occupancy measures and
+the policy function proven in [1.2].
 
 ### 1.6
 It is given that
@@ -222,11 +224,18 @@ V^{\pi}(\mu_{0}) &= \mathbb{E}_{S \sim \mu_{0}}\left[ V^{\pi}(S) \right]  = \sum
 V^{\pi}(\mu_{0}) &= \sum_{s \in \mathcal{S}} \mu_{0}(s) \mathbb{E} \left[  \sum_{t=0}^{\infty} \gamma^t R(s_t, a_t) | s_0 = s \right] \\
 V^{\pi}(\mu_{0}) &= \sum_{s \in \mathcal{S}} \mathbb{P}(s_{0} = s) \sum_{a \in \mathcal{A}} \sum_{s \in \mathcal{S}} \left[ \mathbb{P}(s_{0} = s | s_{0} = s) \mathbb{P}(A_{0} = a | s_{0} = s) \sum_{t=0}^{\infty} \gamma^t R(s_t, a_t) \right] \\
 V^{\pi}(\mu_{0}) &= \sum_{s \in \mathcal{S}} \mathbb{P}(s_{0} = s) \sum_{a \in \mathcal{A}} \sum_{s \in \mathcal{S}} \left[ 1 \cdot \pi(a|s) \sum_{t=0}^{\infty} \gamma^t R(s_t, a_t) | s_0 = s \right] \\
+V^{\pi}(\mu_{0}) &= \sum_{s \in \mathcal{S}} \sum_{a \in \mathcal{A}} \nu_{\mu_0}^\pi(s,a)R(s,a) \\
 \end{aligned}
 $$
 
-$$
-v^{\pi}(s) = \mathbb{E} \left[
-\sum_{t=0}^{\infty} \gamma^t R(s_t, a_t) | s_0 = s \right], \quad \forall s \in
-\mathcal{S}
-$$
+### 1.7
+
+The role of the objective function in the Dual LP for policy optimization is to
+maximize the sum of the product of the state-action occupancy measure across all
+states and actions, but we just showed above that this sum is equal to the value
+function. So, **the objective function maximizes the value function across all
+valid states and actions**. The constraint on this function is exactly the same
+equation we proved in [1.1], and it serves to restrain the state-action
+occupancy measure to valid values based on its definition in terms of the state
+transition probabilities and the initial state distribution. Combining these
+two, we can find an optimal policy.

@@ -150,18 +150,26 @@ $$
 Now, we need to supply some values for the desired deviation between the sample
 mean and its expected value, as well as the probability with which we want to be
 within that bound. We can choose a probability of $0.95$ and a $\varepsilon$ of
-$0.01$, and solve for $|\mathcal{T}|$, the number of sample trajectories
-required to achieve this goal:
+$0.01$, and solve for $N^s$, the number of sample trajectories required to
+achieve this goal. The probability is stated such that it is the probability
+that the absolute difference is *not* within $\varepsilon$, so we need to use
+$1-0.95$ on the LHS of the inequality:
 
 $$
 \begin{aligned}
-1 &\le 2 \exp \left( \frac{-2 \cdot 0.01^2 |\mathcal{T}|}{\left( \frac{2}{1-0.95} \right)^2} \right) \\
-0.5 &\le \exp \left( \frac{ -0.0002 }{1600} |\mathcal{T}| \right) \\
-8 \cdot 10^6 \ln 0.5 &\ge |\mathcal{T}|
-|\mathcal{T}| &\ge 8 \cdot 10^6 \ln 0.5 &\ge 
+1-0.95 &\le 2 \exp \left( - \frac{0.01^2 N^s}{2 \left( \frac{1}{1-0.95} \right)^2} \right) \\
+\frac{0.05}{2} &\le \exp \left( - \frac{ 0.0001 }{800} N^s \right) \\
+N^s &\ge - 8 \cdot 10^6 \ln \left(\frac{0.05}{2}\right) \\
+N^s &\ge `{python} Markdown(f"{(np.log(0.05 / 2) * 2 * (1 / 0.05)**2 / (-0.01**2)):.5e}")`
 \end{aligned}
 $$
 
+Unfortunately, it appears that this upper bound is *extremely* conservative in
+this case, and we don't have the computational power to perform this many
+iterations. Luckily, through experimentation, it is shown that the value
+function converges long before then, and we choose $5000$ iterations on each
+initial state since the max difference between iterations tails to nearly zero
+by this point, as shown in the plots later.
 
 ```{python}
 terminal_spaces = [BoardSpace.LIGHTNING, BoardSpace.TREASURE]
@@ -202,7 +210,10 @@ def sample_trajectory(initial_state, policy):
 
 
 # FIXME
-n_samples = 1
+# n_samples = 1
+n_samples = 5000
+
+vhat_mc = np.zeros([n_samples, width**2])
 
 # Initialize vhat(s), \mathcal{G}(s), N(s)
 vhat = np.zeros([width, width], dtype=float)
@@ -246,6 +257,8 @@ for i in range(n_samples):
                 vhat[*state] + (1 / num_visits[*state]) * (ret - vhat[*state])
             )
 
+    vhat_mc[i] = vhat.flatten()
+
 print(f"Number of visits at each state:")
 print(np.flipud(num_visits.T))
 print(f"\n\nValue function at each state:")
@@ -257,20 +270,25 @@ number of visits at each state.
 
 ### 4.2
 
-
-We implement the one-step TD algorithm below:
+We implement the one-step TD algorithm below. Similarly to before, we force the
+algorithm to perform the same number of iterations using each reachable state as
+the initial state, guaranteeing that each state is visited at least that number
+of times. Also similarly to before, we use $5000$ iterations since the plots
+below show convergence by this point in time.
 
 ```{python}
 # Initialize vhat
 vhat = np.zeros([width, width], dtype=float)
 
 # FIXME
-n_iterations = 1
+# n_iterations = 1
+n_iterations = 5000
 
 learning_rate = 0.1
 
 p = p_matrix(policy)
 
+vhat_td = np.zeros([n_iterations, width**2])
 
 # for i in tqdm(range(n_iterations)):
 for i in range(n_iterations):
@@ -319,5 +337,54 @@ for i in range(n_iterations):
             state = state_new.copy()
             x, y = state
 
+    vhat_td[i] = vhat.flatten()
+
 print(np.flipud(vhat.T))
+```
+
+### 4.3
+
+```{python}
+lightning_coord = np.argwhere(board == BoardSpace.LIGHTNING).squeeze()
+treasure_coord = np.argwhere(board == BoardSpace.TREASURE).squeeze()
+
+r = np.zeros(width * width + 1, dtype=int)
+r[i_1d(*lightning_coord)] = -1
+r[i_1d(*treasure_coord)] = 1
+
+p = np.vstack([p, np.zeros(25)])
+p = np.hstack([p, np.zeros(26).reshape(-1, 1)])
+p[25, :] = 0
+p[:, 25] = 0
+p[25, 25] = 1
+p[i_1d(*lightning_coord), :] = 0
+p[i_1d(*treasure_coord), :] = 0
+p[i_1d(*lightning_coord), 25] = 1
+p[i_1d(*treasure_coord), 25] = 1
+
+v = (np.linalg.inv(np.identity(width**2 + 1) - gamma * p) @ r)[:-1]
+
+
+print("Analytical value function solution:")
+with np.printoptions(precision=4):
+    print(np.flipud(v.reshape([5, 5])))
+```
+
+### 4.4
+
+```{python}
+# | fig-width: 100%
+import matplotlib.pyplot as plt
+
+v = v.reshape([5, 5]).T.flatten()
+
+mc_err = np.linalg.norm(vhat_mc - v, axis=1)
+td_err = np.linalg.norm(vhat_td - v, axis=1)
+
+fig, ax = plt.subplots()
+ax.plot(mc_err, label="MC Algorithm")
+ax.plot(td_err, label="TD Algorithm")
+ax.set_xlabel("Iteration")
+ax.set_ylabel("L2 Error")
+ax.legend()
 ```

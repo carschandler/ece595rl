@@ -1,3 +1,25 @@
+# ---
+# jupyter:
+#   jupytext:
+#     text_representation:
+#       extension: .py
+#       format_name: light
+#       format_version: '1.5'
+#       jupytext_version: 1.16.4
+#   kernelspec:
+#     display_name: Python 3 (ipykernel)
+#     language: python
+#     name: python3
+#     path: /Users/chan/school/ece595rl/.pixi/envs/default/share/jupyter/kernels/python3
+# ---
+
+# ## Problem 4
+#
+# To model the environment, we can re-use some of our code from HW2. It encodes
+# the board, the given policy, the state transition probabilities, and the reward
+# function:
+
+# +
 import itertools
 from enum import Enum, StrEnum, auto
 
@@ -29,15 +51,19 @@ board[1, 3] = BoardSpace.MOUNTAIN
 board[2, 3] = BoardSpace.LIGHTNING
 board[4, 4] = BoardSpace.TREASURE
 
-policy = np.array(
-    [
-        list("URRUU"),
-        list("UDDDU"),
-        list("UURRR"),
-        list("LULLU"),
-        list("RRRRU"),
-    ]
+policy = np.flipud(
+    np.array(
+        [
+            list("RRRRU"),
+            list("LULLU"),
+            list("UURRR"),
+            list("UDDDU"),
+            list("URRUU"),
+        ]
+    )
 ).T
+
+gamma = 0.95
 
 
 def i_1d(x, y):
@@ -91,206 +117,286 @@ def get_trans_prob(x: int, y: int, a: Action):
 # (0, 0), (1, 0), (2, 0) ... (3, 4), (4, 4)
 each_state = [(x, y) for y in range(5) for x in range(5)]
 
-p = np.zeros([width**2, width**2])
 
-for x, y in each_state:
-    i = i_1d(x, y)
-    p[i] = get_trans_prob(x, y, policy[x, y])
+def p_matrix(policy):
+    p = np.zeros([width**2, width**2])
 
-state_text = []
-for i in range(width**2):
-    y1, x1 = np.unravel_index(i, [width, width])
-    a = policy[x1, y1]
-    for j in np.argwhere(p[i]).flatten():
-        y2, x2 = np.unravel_index(j, [width, width])
-        state_text.append(
-            rf"P^{{\pi}}(s_{{ {x2}, {y2} }} | s_{{ {x1}, {y1} }}, \pi(s_{{"
-            rf" {x1},"
-            rf" {y1} }}) = \text{{{a}}}) &= {p[i, j]:g} \\"
-        )
-    state_text.append(r"\\")
+    for x, y in each_state:
+        i = i_1d(x, y)
+        p[i] = get_trans_prob(x, y, policy[x, y])
 
-state_text = "\n".join(state_text)
+    return p
+
+
+reward_fn = np.zeros(width * width, dtype=int)
+reward_fn[i_1d(*np.argwhere(board == BoardSpace.LIGHTNING).squeeze())] = -1
+reward_fn[i_1d(*np.argwhere(board == BoardSpace.TREASURE).squeeze())] = 1
 
 
 def vecfmt(v):
     return Markdown(", ".join([f"{e:g}" for e in v]))
 
 
-r = np.zeros(width * width, dtype=int)
-r[i_1d(*np.argwhere(board == BoardSpace.LIGHTNING).squeeze())] = -1
-r[i_1d(*np.argwhere(board == BoardSpace.TREASURE).squeeze())] = 1
+# -
+
+# ### 4.1
+#
+# To ensure that each state is visited often, we need to generate trajectories
+# using a wide range of initial states. We could use a uniform random distribution
+# to select our initial state for the trajectories, but in order to guarantee that
+# all states get visited at least some given number of times, we will simply loop
+# over each state (that is not a mountain) and generate the same number of
+# trajectories beginning at that state. This ensures that each state is visited at
+# least that many times.
+#
+# We attempt to determine our termination condition using the criterion derived in
+# [2.4]. We showed there that
+#
+# $$
+# \mathbb{P}\left(\left| \hat{V}^{\pi}(s) - V^{\pi}(s) \right| \ge \varepsilon'\right) \le 2 \exp \left( -\frac{ (\varepsilon')^{2}N^{s}}{2 \left( R_{max} \frac{1 - \gamma^{|\tau_i^s|+1}}{1-\gamma} \right)^{2}} \right), \quad \forall \varepsilon' \ge 0
+# $$
+#
+# We don't know how long the trajectories will be since they are random, so we can
+# assume they are infinitely long, which will give us an even more conservative
+# estimate:
+#
+# $$
+# \mathbb{P}\left(\left| \hat{V}^{\pi}(s) - V^{\pi}(s) \right| \ge \varepsilon'\right) \le 2 \exp \left( -\frac{ (\varepsilon')^{2}N^{s}}{2 \left( R_{max} \frac{1}{1-\gamma} \right)^{2}} \right), \quad \forall \varepsilon' \ge 0
+# $$
+#
+# Now, we need to supply some values for the desired deviation between the sample
+# mean and its expected value, as well as the probability with which we want to be
+# within that bound. We can choose a probability of $0.95$ and a $\varepsilon$ of
+# $0.01$, and solve for $N^s$, the number of sample trajectories required to
+# achieve this goal. The probability is stated such that it is the probability
+# that the absolute difference is *not* within $\varepsilon$, so we need to use
+# $1-0.95$ on the LHS of the inequality:
+#
+# $$
+# \begin{aligned}
+# 1-0.95 &\le 2 \exp \left( - \frac{0.01^2 N^s}{2 \left( \frac{1}{1-0.95} \right)^2} \right) \\
+# \frac{0.05}{2} &\le \exp \left( - \frac{ 0.0001 }{800} N^s \right) \\
+# N^s &\ge - 8 \cdot 10^6 \ln \left(\frac{0.05}{2}\right) \\
+# N^s &\ge `{python} Markdown(f"{(np.log(0.05 / 2) * 2 * (1 / 0.05)**2 / (-0.01**2)):.5e}")`
+# \end{aligned}
+# $$
+#
+# Unfortunately, it appears that this upper bound is *extremely* conservative in
+# this case, and we don't have the computational power to perform this many
+# iterations. Luckily, through experimentation, it is shown that the value
+# function converges long before then, and we choose $5000$ iterations on each
+# initial state since the max difference between iterations tails to nearly zero
+# by this point, as shown in the plots later.
+
+# +
+terminal_spaces = [BoardSpace.LIGHTNING, BoardSpace.TREASURE]
+
+p = p_matrix(policy)
+
+rng = np.random.default_rng(seed=42109581092395879)
 
 
-gamma = 0.95
-v = np.linalg.inv(np.identity(width**2) - gamma * p) @ r
-value_text = []
-for i, val in enumerate(v):
-    y, x = np.unravel_index(i, [width, width])
-    value_text.append(rf"v^{{\pi}}(s_{{ {x},{y} }}) &= {val:g} \\")
+def sample_trajectory(initial_state, policy):
+    states = []
+    actions = []
+    rewards = []
 
-value_text = "\n".join(value_text)
+    state = initial_state
 
-from numpy.linalg import norm
+    while True:
+        x, y = state
+        action = policy[x, y]
+        reward = reward_fn[i_1d(x, y)]
 
-epsilon = 0.01
-v0 = np.zeros(width**2)
-n_iterations = int(
-    np.ceil(np.log(1 / (epsilon * (1 - gamma))) / np.log(1 / gamma))
-)
+        states.append(state)
+        actions.append(action)
+        rewards.append(reward)
 
-v_t = v0
-v_history = [v0]
-for t in range(n_iterations):
-    v_t = r + gamma * p @ v_t
-    v_history.append(v_t)
+        if board[*state] in terminal_spaces:
+            break
 
-v_history = np.array(v_history)
-
-value_text_iter = []
-for i, val in enumerate(v_t):
-    y, x = np.unravel_index(i, [width, width])
-    value_text_iter.append(
-        rf"v_{{T = {n_iterations}}} (s_{{ {x},{y} }}) &= {val:g} \\"
-    )
-
-value_text_iter = "\n".join(value_text_iter)
-
-
-max_error = norm(v_t - v, ord=np.inf)
-
-
-import plotly.graph_objects as go
-import plotly.io as pio
-
-pio.renderers.default = "png"
-pio.kaleido.scope.default_scale = 2
-
-error_history = norm(v_history - v, ord=np.inf, axis=1)
-go.Figure(
-    data=[go.Scatter(y=error_history, mode="lines")],
-    layout=dict(
-        xaxis_title="$t$", yaxis_title=r"$\Vert v_t - v^\pi \Vert_{\infty}$"
-    ),
-)
-
-
-v0 = np.zeros(width**2)
-
-v_t = v0
-
-epsilon = 0.01
-
-n_iterations = int(
-    np.ceil(np.log(1 / (epsilon * (1 - gamma))) / np.log(1 / gamma))
-)
-
-for t in range(n_iterations):
-    v_t = np.array(
-        [
-            np.max(
-                [
-                    r[i_1d(x, y)]
-                    + gamma * np.sum(get_trans_prob(x, y, a) * v_t)
-                    for a in Action
-                ]
-            )
-            for x, y in each_state
-        ]
-    )
-
-v_valiter = v_t
-
-
-policy_opt = np.full_like(policy, "")
-
-actions_list = list(Action)
-
-for x, y in each_state:
-    i_max = np.argmax(
-        [
-            r[i_1d(x, y)]
-            + gamma * np.sum(get_trans_prob(x, y, a) * v_valiter)
-            for a in actions_list
-        ]
-    )
-
-    policy_opt[x, y] = actions_list[i_max].value
-
-print(np.flipud(policy_opt.T))
-
-
-p_opt = np.array(
-    [get_trans_prob(x, y, policy_opt[x, y]) for x, y in each_state],
-)
-
-v_opt_valiter_policy = (
-    np.linalg.inv(np.identity(width**2) - gamma * p_opt) @ r
-)
-
-value_text = []
-for val, (x, y) in zip(v_opt_valiter_policy, each_state):
-    value_text.append(rf"v^{{\pi_T}}(s_{{ {x},{y} }}) &= {val:g} \\")
-
-value_text = "\n".join(value_text)
-
-
-seed = 1298319824791827491284982176
-rng = np.random.default_rng(seed)
-
-int_to_action = np.vectorize(lambda i: actions_list[i])
-
-policy_0 = int_to_action(rng.integers(low=0, high=4, size=(width, width)))
-
-print(policy_0)
-
-
-def evaluate_policy(policy):
-    p_policy = np.array(
-        [get_trans_prob(x, y, policy[x, y]) for x, y in each_state],
-    )
-
-    v_policy = np.linalg.inv(np.identity(width**2) - gamma * p_policy) @ r
-
-    return v_policy
-
-
-def improve_policy(policy, v_policy):
-    for x, y in each_state:
-        i_max = np.argmax(
-            [
-                r[i_1d(x, y)]
-                + gamma * np.sum(get_trans_prob(x, y, a) * v_policy)
-                for a in actions_list
-            ]
+        state_1d = rng.choice(
+            np.arange(width**2), p=p[i_1d(x=state[0], y=state[1])]
         )
-        policy[x, y] = actions_list[i_max]
+
+        y, x = np.unravel_index(state_1d, [width, width])
+
+        state = np.array([x, y])
+
+    return (np.array(vals) for vals in [states, actions, rewards])
 
 
-policy_t = policy_0
+# FIXME
+n_samples = 500
+# n_samples = 5000
 
-v_policy_0 = evaluate_policy(policy_0)
+vhat_mc = np.zeros([n_samples, width**2])
 
-n_iterations = int(
-    np.ceil(
-        np.log((norm(v_policy_0, np.inf) + (1 / (1 - gamma))) / epsilon)
-        / np.log(1 / gamma)
-    )
-)
+# Initialize vhat(s), \mathcal{G}(s), N(s)
+vhat = np.zeros([width, width], dtype=float)
+returns = {state: [] for state in each_state}
+num_visits = np.zeros([width, width], dtype=int)
 
+i = 0
+
+reachable_states = [
+    state for state in each_state if board[*state] != BoardSpace.MOUNTAIN
+]
+
+# for i in tqdm(range(n_samples)):
+for i in range(n_samples):
+    for initial_state in reachable_states:
+        # Generate a sample trajectory using the policy
+        states, actions, rewards = sample_trajectory(initial_state, policy)
+
+        # If the pair in question isn't in the trajectory at all, then don't
+        # attempt to update vhat
+        for state in np.unique(states, axis=0):
+
+            # Obtain the time at which the state is first visited
+            t_s = np.argwhere(np.all(states == state, axis=1)).flatten()[0]
+
+            # Get a vector of gamma to the (t - t_s) power for the timesteps from
+            # t_s onward in order to calculate the return G
+            gammas = np.pow(gamma, np.arange(len(states) - t_s))
+
+            # Calculate G
+            ret = float(np.sum(gammas * rewards[t_s:]))
+
+            state_tuple = (int(state[0]), int(state[1]))
+
+            returns[state_tuple].append(ret)
+
+            num_visits[*state] += 1
+
+            # Incremental calculation of the sample mean
+            vhat[*state] = float(
+                vhat[*state] + (1 / num_visits[*state]) * (ret - vhat[*state])
+            )
+
+    vhat_mc[i] = vhat.flatten()
+
+print(f"Number of visits at each state:")
+print(np.flipud(num_visits.T))
+print(f"\n\nValue function at each state:")
+print(np.flipud(vhat.T))
+# -
+
+# The value function for each state on the board is shown above, as well as the
+# number of visits at each state.
+#
+# ### 4.2
+#
+# We implement the one-step TD algorithm below. Similarly to before, we force the
+# algorithm to perform the same number of iterations using each reachable state as
+# the initial state, guaranteeing that each state is visited at least that number
+# of times. Also similarly to before, we use $5000$ iterations since the plots
+# below show convergence by this point in time.
+
+# +
+# Initialize vhat
+vhat = np.zeros([width, width], dtype=float)
+
+# FIXME
+n_iterations = 500
+# n_iterations = 5000
+
+learning_rate = 0.1
+
+p = p_matrix(policy)
+
+vhat_td = np.zeros([n_iterations, width**2])
+
+# for i in tqdm(range(n_iterations)):
 for i in range(n_iterations):
-    v_policy_t = evaluate_policy(policy_t)
+    # Sample an initial state randomly
+    for state_i in reachable_states:
+        state = np.array(state_i)
+        x, y = state
+        while True:
+            # Obtain the immediate reward
+            # reward = reward_fn[i_1d(x, y)]
 
-    improve_policy(policy_t, v_policy_t)
+            if board[*state] in terminal_spaces:
+                # Take one more action and receive the reward at the terminal
+                # state. Regardless of action we will obtain the same reward for
+                # a terminal state.
+                reward = reward_fn[i_1d(x, y)]
+                v_state = vhat[x, y]
 
-policy_opt = policy_t
+                # There is no new state after the terminal state, so there
+                # should be no new value function
+                v_state_new = 0
 
-print(np.flipud(policy_opt.T))
+                vhat[x, y] = v_state + learning_rate * (
+                    reward + gamma * v_state_new - v_state
+                )
+
+                break
+
+            # Obtain the next state according to the transition function under the
+            # policy (the correct action was already chosen when the p matrix was
+            # calculated, so there is no need to explicitly get it here)
+            state_1d_new = rng.choice(np.arange(width**2), p=p[i_1d(x, y)])
+            y_new, x_new = np.unravel_index(state_1d_new, [width, width])
+            state_new = np.array([x_new, y_new])
+
+            # Collect the reward for the action taken at the current state
+            reward = reward_fn[i_1d(x, y)]
+
+            v_state = vhat[x, y]
+            v_state_new = vhat[x_new, y_new]
+
+            vhat[x, y] = v_state + learning_rate * (
+                reward + gamma * v_state_new - v_state
+            )
+
+            state = state_new.copy()
+            x, y = state
+
+    vhat_td[i] = vhat.flatten()
+
+print(np.flipud(vhat.T))
+# -
+
+# ### 4.3
+
+# +
+lightning_coord = np.argwhere(board == BoardSpace.LIGHTNING).squeeze()
+treasure_coord = np.argwhere(board == BoardSpace.TREASURE).squeeze()
+
+r = np.zeros(width * width + 1, dtype=int)
+r[i_1d(*lightning_coord)] = -1
+r[i_1d(*treasure_coord)] = 1
+
+p = np.vstack([p, np.zeros(25)])
+p = np.hstack([p, np.zeros(26).reshape(-1, 1)])
+p[25, :] = 0
+p[:, 25] = 0
+p[25, 25] = 1
+p[i_1d(*lightning_coord), :] = 0
+p[i_1d(*treasure_coord), :] = 0
+p[i_1d(*lightning_coord), 25] = 1
+p[i_1d(*treasure_coord), 25] = 1
+
+v = (np.linalg.inv(np.identity(width**2 + 1) - gamma * p) @ r)[:-1]
 
 
-v_policy_opt = evaluate_policy(policy_opt)
-value_text = []
-for val, (x, y) in zip(v_policy_opt, each_state):
-    value_text.append(rf"v^{{\pi_T}}(s_{{ {x},{y} }}) &= {val:g} \\")
+print("Analytical value function solution:")
+with np.printoptions(precision=4):
+    print(np.flipud(v.reshape([5, 5]).T))
+# -
 
-value_text = "\n".join(value_text)
+# ### 4.4
+
+# +
+import matplotlib.pyplot as plt
+
+mc_err = np.linalg.norm(vhat_mc - v, axis=1)
+td_err = np.linalg.norm(vhat_td - v, axis=1)
+
+fig, ax = plt.subplots()
+ax.plot(mc_err)
+ax.plot(td_err)
+fig.savefig("test.png")
+fig.show()
