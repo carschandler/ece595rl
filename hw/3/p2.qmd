@@ -1,0 +1,112 @@
+## Problem 2
+
+### 2.1
+
+If $\left| R(s,a) \right| \le R_{max}$ and
+
+$$
+G_{i}^{s} = \sum_{t=0}^{\left| \tau_{i}^{s} \right| } \gamma^{t}R(S^{s}_{t,i}, S^{s}_{t,i})
+$$
+
+then in the case where $R$ is greatest, i.e. $R = R_{max}$,
+
+$$
+G_{i}^{s} = \sum_{t=0}^{\left| \tau_{i}^{s} \right| } \gamma^{t} R_{max} = R_{max}\frac{1-\gamma^{|\tau_{i}^{s}|+1}}{1 - \gamma}
+$$
+
+and in the case where $R$ is least, i.e. $R=-R_{max}$,
+
+$$
+G_{i}^{s} = \sum_{t=0}^{\left| \tau_{i}^{s} \right| } - \gamma^{t} R_{max} = -R_{max}\frac{1-\gamma^{|\tau_{i}^{s}|+1}}{1 - \gamma}
+$$
+
+Therefore:
+
+$$
+-R_{max}\frac{1-\gamma^{|\tau_{i}^{s}|+1}}{1 - \gamma} \le G_{i}^{s} \le R_{max}\frac{1-\gamma^{|\tau_{i}^{s}|+1}}{1 - \gamma}
+$$
+
+*Note that $\tau_i^s$ is not a known quantity until the trajectory is sampled,
+so we could use an even more conservative bound by assuming an infinite number
+of timesteps taken in the trajectory, in which we have*:
+
+$$
+\frac{-R_{max}}{1 - \gamma} \le G_{i}^{s} \le \frac{R_{max}}{1 - \gamma}
+$$
+
+### 2.2
+
+$$
+E(s) = \sum_{i=1}^{N^{s}}G_{i}^{s}
+$$
+
+$$
+\begin{aligned}
+\mathbb{E}_{A_{t \sim \pi}, S_{t+1} \sim P}[E(s)] &= \mathbb{E}_{A_{t \sim \pi}, S_{t+1} \sim P} \left[ \sum_{i=1}^{N^{s}} G_{i}^{s} \right] \\
+&= \sum_{i=1}^{N^{s}} \mathbb{E}_{A_{t \sim \pi}, S_{t+1} \sim P} \left[  G_{i}^{s} \right] \\
+&= \sum_{i=1}^{N^{s}} V^{\pi}(s) \\
+\end{aligned}
+$$
+
+### 2.3
+
+Since we were able to bound $G_{i}^{s}$ on both sides, and since $E(s) = \sum_{i=1}^{N^{s}}G_{i}^{s}$ is a sum of that bound variable, we can apply Hoeffding's inequality to bound the probability that $E(s)$ deviates from its expected value:
+
+$$
+\mathbb{P}\left( \left| E(s) - \mathbb{E}[E(s)] \right| \ge \varepsilon \right) \le 2 \exp \left( -\frac{2\varepsilon^{2}}{\sum_{i=1}^{N^{s}} \left( 2R_{max} \frac{1 - \gamma^{|\tau_i^s|+1}}{1-\gamma} \right)^{2} } \right) = 2 \exp \left( -\frac{\varepsilon^{2}}{\sum_{i=1}^{N^{s}} 2\left( R_{max} \frac{1 - \gamma^{|\tau_i^s|+1}}{1-\gamma} \right)^{2} } \right)
+$$
+
+### 2.4
+We can apply the corrolary to Hoeffding's inequality which allows us to bound the arithmetic mean of the summed term:
+
+$$
+\mathbb{P}\left(\left| \bar{s}_{t} - E[\bar{s}_{t}] \ge \varepsilon  \right| \right) \le 2 \exp \left( \frac{-2 \varepsilon^{2}t}{(b_{i} - a_{i})^{2}} \right), \quad \forall \varepsilon \ge 0
+$$
+
+If $s_{N^{s}}$ was the sum in the previous step, then 
+
+$$
+\bar{s}_{i} = \frac{1}{N^{s}}\sum_{i=1}^{N^{s}} G_{i}^{s} = \hat{V}^{\pi}(s)
+$$
+
+And then the expected value of $\bar{s}_{N^{s}}$ is:
+
+$$
+\mathbb{E} \left[ \frac{1}{N^{s}}\sum_{i=1}^{N^{s}} G_{i}^{s} \right] = \frac{1}{N^{s}}\sum_{i=1}^{N^{s}} \mathbb{E} \left[  G_{i}^{s} \right] = \frac{1}{N^{s}}\sum_{i=1}^{N^{s}} V^{\pi}(s) = \frac{1}{N^{s}} N^{s} V^{\pi}(s) = V^{\pi}(s)
+$$
+
+So we have $\bar{s}_{i}$ and $\mathbb{E}[\bar{s}_{i}]$ to use in the alternate form of Hoeffding's inequality:
+
+$$
+\mathbb{P}\left(\left| \hat{V}^{\pi}(s) - V^{\pi}(s) \right| \ge \varepsilon'\right) \le 2 \exp \left( -\frac{ 2(\varepsilon')^{2}N^{s}}{\left( 2R_{max} \frac{1 - \gamma^{|\tau_i^s|+1}}{1-\gamma} \right)^{2}} \right) = 2 \exp \left( -\frac{ (\varepsilon')^{2}N^{s}}{2 \left( R_{max} \frac{1 - \gamma^{|\tau_i^s|+1}}{1-\gamma} \right)^{2}} \right), \quad \forall \varepsilon' \ge 0
+$$
+
+### 2.5
+As $N^{s}$ decreases, the term inside the exponential in [2.4] becomes less negative, so the exponential term itself becomes greater. Therefore, the smallest $N^{s}$ will yield the largest $\mathbb{P}\left(\left| \hat{V}^{\pi}(s) - V^{\pi}(s) \right| \ge \varepsilon'\right)$. In other words, $N$ will yield the largest probability of all $N^{s}$, so we can use it to derive an upper bound on $\mathbb{P}\left( \lVert \hat{V}^{\pi} - V^{\pi} \rVert_{\infty} \ge \varepsilon'\right)$. We have already calculated the bound for the absolute difference at any given state, and the L-$\infty$ norm will give us the maximum absolute difference across all states. We do not have a way to calculate which state will yield the maximum absolute difference, so we can instead calculate the total probability that the absolute difference will be greater than $\varepsilon'$ for *any* state, which is the union of all the events, which we can bound using Boole's inequality:
+
+$$
+\mathbb{P}\left( \lVert \hat{V}^{\pi} - V^{\pi} \rVert_{\infty} \ge \varepsilon'\right) \le \mathbb{P} \left( \bigcup_{s \in \mathcal{S}} \left| \hat{V}^{\pi}(s) - V^{\pi}(s) \right| \ge \varepsilon' \right) \le \sum_{s \in \mathcal{S}} \mathbb{P}\left(\left| \hat{V}^{\pi}(s) - V^{\pi}(s) \right| \ge \varepsilon' \right)
+$$
+
+And we can bound this sum using the bound we determined in [2.4] since the sum of a bounded function must be less than or equal to the sum of its bound. We substitute $N$ in for $N^{s}$ since we already showed how it will yield the greatest value, which is desired to achieve an upper bound:
+
+$$
+\mathbb{P}\left( \lVert \hat{V}^{\pi} - V^{\pi} \rVert_{\infty} \ge \varepsilon'\right) \le \sum_{s \in \mathcal{S}} \mathbb{P}\left(\left| \hat{V}^{\pi}(s) - V^{\pi}(s) \right| \ge \varepsilon' \right) \le \sum_{i=1}^{\left| \mathcal{S} \right| } 2 \exp \left( -\frac{ (\varepsilon')^{2}N^{s}}{2 \left( R_{max} \frac{1 - \gamma^{|\tau_i^s|+1}}{1-\gamma} \right)^{2}} \right)
+$$
+
+$$
+\sum_{i=1}^{\left| \mathcal{S} \right| } 2 \exp \left( -\frac{ (\varepsilon')^{2}N^{s}}{2 \left( R_{max} \frac{1 - \gamma^{|\tau_i^s|+1}}{1-\gamma} \right)^{2}} \right)
+= 2 |\mathcal{S}| \exp \left( -\frac{ (\varepsilon')^{2}N^{s}}{2 \left( R_{max} \frac{1 - \gamma^{|\tau_i^s|+1}}{1-\gamma} \right)^{2}} \right)
+$$
+
+So finally:
+
+$$
+\mathbb{P}\left( \lVert \hat{V}^{\pi} - V^{\pi} \rVert_{\infty} \ge \varepsilon'\right) \le 
+2 |\mathcal{S}| \exp \left( -\frac{ (\varepsilon')^{2}N^{s}}{2 \left( R_{max} \frac{1 - \gamma^{|\tau_i^s|+1}}{1-\gamma} \right)^{2}} \right)
+, \quad \forall \varepsilon' > 0
+$$
+
+*Note, once again, that we could substitute $1$ in for $1 -
+\gamma^{|\tau_i^s|+1}$ to get an even more conservative bound if we want to
+eliminate $|\tau|$ from the equation.*
