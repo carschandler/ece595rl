@@ -1,0 +1,101 @@
+## Problem 3
+
+### 3.1
+
+The objective of the primal linear program is:
+
+$$
+\min_{V \in \mathbb{R}^{\left| \mathcal{S} \right| }} \sum_{s \in \mathcal{S}} \mu_{0}(s) V(s) = \min_{V \in \mathbb{R}^{\left| \mathcal{S} \right| }} \left[  0.4 V(b) + 0.6 V(c) \right]  
+$$
+
+and this objective is subject to the following constraint:
+
+$$
+V(s) \ge R(s,a) + \gamma \mathbb{E}_{s' \sim P(\cdot|s,a)} \left[ V(s') \right], \quad \forall s \in \mathcal{S}, \forall a \in \mathcal{A}
+$$
+
+We will first define this for $s=b, a=x$:
+
+$$
+\begin{aligned}
+V(b) &\ge R(b,x) + \gamma \mathbb{E}_{s' \sim P(\cdot|b,x)} \left[ V(s') \right] \\
+V(b) &\ge R(b,x) + \gamma \sum_{s' \in \mathcal{S}} P(s'|b, x) V(s') \\
+V(b) &\ge R(b,x) + \gamma \left[ P(b|b, x) V(b) + P(c|b, x) V(c) \right] \\
+V(b) &\ge R(b,x) + \gamma \left[ P(b|b, x) V(b) + P(c|b, x) V(c) \right] \\
+\end{aligned}
+$$
+
+We now show this final line for each of the four state-action combinations and substitute in our known values to yield four simultaneous constraints that must be met:
+
+$$
+\begin{aligned}
+V(b) &\ge R(b,x) + \gamma \left[ P(b|b, x) V(b) + P(c|b, x) V(c) \right] \\
+V(b) &\ge 0.5 + 0.9 \left[ 1 \cdot V(b) + 0 \cdot V(c) \right] \\
+V(b) &\ge 0.5 + 0.9 V(b) \\
+0.1V(b) &\ge 0.5 \\
+V(b) &\ge 5 \\
+\\
+V(b) &\ge R(b,y) + \gamma \left[ P(b|b, y) V(b) + P(c|b, y) V(c) \right] \\
+V(b) &\ge 0.2 + 0.9 \left[ 0.2 V(b) + 0.8 V(c) \right] \\
+V(b) &\ge 0.2 + 0.18 V(b) + 0.72 V(c) \\
+0.82V(b) &\ge 0.2 + 0.72 V(c) \\
+V(b) &\ge 0.2439 + 0.878 V(c) \\
+\\
+V(c) &\ge R(c,x) + \gamma \left[ P(b|c, x) V(b) + P(c|c, x) V(c) \right] \\
+V(c) &\ge 0.5 + 0.9 \left[ 0.1 V(b) + 0.9 V(c) \right] \\
+V(c) &\ge 0.5 + 0.09 V(b) + 0.81 V(c) \\
+0.19V(c) &\ge 0.5 + 0.09 V(b) \\
+V(c) &\ge 2.6316 + 0.47368 V(b) \\
+\\
+V(c) &\ge R(c,y) + \gamma \left[ P(b|c, y) V(b) + P(c|c, y) V(c) \right] \\
+V(c) &\ge 1 + 0.9 \left[ 0.6 V(b) + 0.4 V(c) \right] \\
+V(c) &\ge 1 + 0.54 V(b) + 0.36 V(c) \\
+0.64V(c) &\ge 1 + 0.54 V(b) \\
+V(c) &\ge 1.5625 + 0.84375 V(b) \\
+\end{aligned}
+$$
+
+### 3.2
+
+The objective of the dual linear program is:
+
+$$
+\max_{\nu\geq 0} \sum_{s \in \mathcal{S}, a \in \mathcal{A}} \nu(s, a) R(s, a) = \max_{\nu \geq 0} \left[ 0.5 \nu(b, x) + 0.2 \nu(b,y) + 0.5 \nu(c,x) + \nu(c,y) \right] 
+$$
+
+and this objective is subject to the following constraint:
+
+$$
+\sum_{a \in \mathcal{A}} \nu(s,a) = \mu_{0}(s) + \gamma \sum_{s' \in \mathcal{S}, a' \in \mathcal{A}} P(s|s',a') \nu(s',a'), \quad \forall s \in \mathcal{S}
+$$
+
+Beginning with $s=b$:
+
+$$
+\begin{aligned}
+\sum_{a \in \mathcal{A}} \nu(b,a) &= \mu_{0}(b) + \gamma \sum_{s' \in \mathcal{S}, a' \in \mathcal{A}} P(b|s',a') \nu(s',a') \\
+\nu(b,x) + \nu(b,y) &= 0.4 + 0.9 \left[ \nu(b,x) + 0.2 \nu(b,y) + 0.1 \nu(c,x) + 0.6 \nu(c,y) \right] \\
+\nu(b,x) + \nu(b,y) &= 0.4 + 0.9 \nu(b,x) + 0.18 \nu(b,y) + 0.09 \nu(c,x) + 0.54 \nu(c,y) \\
+0.1\nu(b,x) &+ 0.82\nu(b,y) - 0.09 \nu(c,x) - 0.54 \nu(c,y) = 0.4 \\
+\end{aligned}
+$$
+
+and for $s=c$:
+
+$$
+\begin{aligned}
+\sum_{a \in \mathcal{A}} \nu(c,a) &= \mu_{0}(c) + \gamma \sum_{s' \in \mathcal{S}, a' \in \mathcal{A}} P(c|s',a') \nu(s',a') \\
+\nu(c,x) + \nu(c,y) &= 0.6 + 0.9 \left[ 0 \cdot \nu(b,x) + 0.8 \nu(b,y) + 0.9 \nu(c,x) + 0.4 \nu(c,y) \right] \\
+\nu(c,x) + \nu(c,y) &= 0.6 + 0.72 \nu(b,y) + 0.81 \nu(c,x) + 0.36 \nu(c,y) \\
+0.19\nu(c,x) &+ 0.64\nu(c,y) - 0.72 \nu(b, y) = 0.6 \\
+\end{aligned}
+$$
+
+So in conclusion, the dual LP is subject to the two following constraints:
+
+$$
+\begin{aligned}
+0.1\nu(b,x) + 0.82\nu(b,y) - 0.09 \nu(c,x) - 0.54 \nu(c,y) &= 0.4 \\
+0.19\nu(c,x) + 0.64\nu(c,y) - 0.72 \nu(b, y) &= 0.6 \\
+\end{aligned}
+$$
