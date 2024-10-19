@@ -1,4 +1,5 @@
 import itertools
+from copy import deepcopy
 from enum import Enum, auto
 
 import numpy as np
@@ -52,7 +53,7 @@ nonterminal_states = [State.b, State.d]
 
 def initilize_for_each_state_action_pair(val):
     return {
-        (state, action): val
+        (state, action): deepcopy(val)
         for state, action in itertools.product(nonterminal_states, Action)
     }
 

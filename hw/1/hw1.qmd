@@ -1,6 +1,7 @@
 ---
 title: "ECE59500RL HW1"
 author: "Robert (Cars) Chandler -- chandl71@purdue.edu"
+pdf-engine: pdflatex
 format:
   pdf:
     toc: true
