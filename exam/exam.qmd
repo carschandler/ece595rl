@@ -1,0 +1,25 @@
+---
+title: "ECE59500RL Exam"
+author: "Robert (Cars) Chandler — chandl71@purdue.edu"
+# latex-tinytex: false
+# pdf-engine: pdflatex
+format:
+  pdf:
+    monofont: "CommitMono Nerd Font"
+    mathspec: true
+execute: 
+  freeze: auto
+jupyter: python3
+---
+
+{{< include p1.qmd >}}
+
+{{< include p2.qmd >}}
+
+{{< include p3.qmd >}}
+
+{{< include p4.qmd >}}
+
+{{< include p5.qmd >}}
+
+{{< include p6.qmd >}}
