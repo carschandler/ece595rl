@@ -3,5 +3,6 @@
 *.egg-info
 .direnv
 **_files/
-lecture_notes
+lectures
 resources
+solutions
