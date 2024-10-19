@@ -23,6 +23,11 @@
             pkgs.texliveFull
           ];
         };
+        tex = pkgs.mkShell {
+          buildInputs = [
+            pkgs.texliveFull
+          ];
+        };
       });
     };
 }

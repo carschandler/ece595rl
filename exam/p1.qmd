@@ -91,7 +91,7 @@ distribution
 
 ### 1.4
 
-# TODO: what else can we do with this?
+#### TODO: what else can we do with this?
 
 Initializing our chain at $\alpha\mu_{0}^{1} + (1- \alpha) \mu_{0}^{2}$ will cause $\mu_{t}$ to converge to
 

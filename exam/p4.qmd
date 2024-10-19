@@ -1,0 +1,90 @@
+## Problem 4
+
+### 4.1
+
+The return for each trajectory is calculated as:
+
+$$
+\sum_{t=0}^T \gamma^t R(S_t, A_t)
+$$
+
+We can calculate these in Python:
+
+```{python}
+{{< include p4_1.py >}}
+```
+
+The returns for each trajectory are:
+
+$$
+\begin{aligned}
+`{python} returns_latex`
+\end{aligned}
+$$
+
+### 4.2
+
+We can sum the probabilities of taking each action in $\tau_2$ at the
+corresponding states using the policy tables defined in the problem statement.
+We can recreate these tables in Python and then determine the probability of the
+trajectory by multiplying out the probability of taking each individual step and
+compare the result for each policy. We will go ahead and do this for $\tau_4$ as
+well to obtain the answer for problem 4.3.
+
+```{python}
+{{< include p4_2.py >}}
+```
+
+The probability of taking $\tau_2$ according to $\pi^t$ is
+$`{python} Markdown(f"{p_target[2]:0.4}")`$
+while the probability according to $\pi^b$ is
+$`{python} Markdown(f"{p_behavior[2]:0.4}")`$, so **$\tau_2$ is more probable
+under $\pi^b$ than under $\pi^t$**.
+
+
+### 4.3
+
+As described above, we already calculated the probabilities for $\tau_4$ in [4.2].
+
+
+The probability of taking $\tau_4$ according to $\pi^t$ is
+$`{python} Markdown(f"{p_target[4]:0.4}")`$
+while the probability according to $\pi^b$ is
+$`{python} Markdown(f"{p_behavior[4]:0.4}")`$,
+so **$\tau_4$ is equally probable
+under $\pi^b$ or $\pi^t$**.
+
+### 4.4
+
+We start with the (on-policy) evaluation of $V^{\pi^b}(c)$ of the behavior
+polic using an every-visit Monte Carlo method:
+
+```{python}
+{{< include p4_4.py >}}
+```
+
+The resulting value function for each state is:
+
+$$
+\begin{aligned}
+`{python} vhat_latex`
+\end{aligned}
+$$
+
+### 4.5
+
+We repeat the same every-visit Monte Carlo estimation of the value function, but
+this time we perform an off-policy estimate for the target policy using the
+behavior policy:
+
+```{python}
+{{< include p4_5.py >}}
+```
+
+The resulting value function for each state is:
+
+$$
+\begin{aligned}
+`{python} vhat_latex`
+\end{aligned}
+$$
