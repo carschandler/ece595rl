@@ -1,0 +1,107 @@
+## Problem 5
+
+### 5.1
+
+We follow the same logic as we did in Homework 3, but we use the following definition of the off-policy value function:
+
+$$
+\hat{V}^{\pi}(s) = \frac{1}{N^{s}} \sum_{i=1}^{N^{s}} w_{i}^{s} G_{i}^{s}
+$$
+
+Where $w_{i}^{s}$ is the weight applied to the return using the sample trajectory starting at $s$:
+
+$$
+w_{i}^{s} = \prod_{t=0}^{T-1} \frac{\pi^{t}(a_{t}|s_{t})}{\pi^{b}(a_{t}|s_{t})}
+$$
+
+We are given the maximum value of the weight as $W$, and we can use this to bound $w_{i}^{s} G_{i}^{s}$:
+
+$$
+w_{i}^{s}G_{i}^{s} \le W \sum_{t=0}^{T} \gamma^{t} R_{max} = W R_{max}\frac{1-\gamma^{T+1}}{1 - \gamma}
+$$
+
+Note that in Homework 3, we assumed infinite trajectories, but we can actually use $T$ as the limit of our sum since we are told that the length of all trajectories is bounded by $T$, which will give us a tighter bound than the infinite case. Similarly for the lower bound:
+
+$$
+w_{i}^{s}G_{i}^{s} \ge W \sum_{t=0}^{T} -\gamma^{t} R_{max} = -W R_{max}\frac{1-\gamma^{T+1}}{1 - \gamma}
+$$
+
+Therefore:
+
+$$
+-WR_{max} \frac{1 - \gamma^{T + 1}}{1-\gamma} \le w_{i}^{s} G_{i}^{s} \le WR_{max} \frac{1 - \gamma^{T + 1}}{1-\gamma} 
+$$
+
+If we define $E(s)$ as
+
+$$
+E(s) = \sum_{i=1}^{N^{s}} w^{s}_{i} G^{s}_{i}
+$$
+
+Then:
+
+$$
+\begin{aligned}
+\mathbb{E}_{A_{t} \sim \pi, S_{t+1} \sim P} \left[ E(s) \right]  &= \mathbb{E}_{A_{t} \sim \pi, S_{t+1} \sim P} \left[ \sum_{i=1}^{N^{s}} w^{s}_{i} G^{s}_{i} \right] \\
+&= \sum_{i=1}^{N^{s}} \mathbb{E} \left[ w^{s}_{i} G^{s}_{i} \right] \\
+&= \sum_{i=1}^{N^{s}} V^{\pi}(s) \\
+&= N^{s} V^{\pi}(s)
+\end{aligned}
+$$
+
+Since the off-policy value function is the expected value of the weighted return.
+
+Therefore, we can bound the probability that $E(s)$ differs from its expectation using Hoeffding's inequality and our bound $w_{i}^{s}G_{i}^{s}$:
+
+$$
+\begin{aligned}
+\mathbb{P}\left( \left| E(s) - \mathbb{E}[E(s)] \right| \ge \varepsilon \right) & \le 2 \exp \left( -\frac{2\varepsilon^{2}}{\sum_{i=1}^{N^{s}} \left( 2 WR_{max} \frac{1 - \gamma^{T+1}}{1-\gamma} \right)^{2} } \right) \\
+\mathbb{P}\left( \left| E(s) - \mathbb{E}[E(s)] \right| \ge \varepsilon \right) &\le 2 \exp \left( -\frac{(1-\gamma)^{2} \varepsilon^{2}}{ 2 N^{s} \left(WR_{max} (1 - \gamma^{T+1}) \right)^{2} } \right) \\
+\end{aligned}
+$$
+
+And since $\hat{V}^{\pi}(s) = \frac{1}{N^{s}} E(s)$:
+
+$$
+\begin{aligned}
+\mathbb{P}\left( \left| \hat{V}^{\pi}(s) - V^{\pi}(s) \right| \ge \varepsilon' \right) &\le 2 \exp \left( - \frac{ N^{s} (1-\gamma)^{2} \varepsilon^{2}}{ 2 \left(WR_{max} (1 - \gamma^{T+1}) \right)^{2} } \right),\ \forall \varepsilon' > 0 \\
+\end{aligned}
+$$
+
+### 5.2
+
+We start with a realization that the L1 norm is simply a sum of absolute differences:
+
+$$
+\begin{aligned}
+\lVert \hat{\mathbf{V}}^{\pi} - \mathbf{V}^{\pi} \rVert_{1} &= \sum_{s \in \mathcal{S}} \lvert \hat{V}^{\pi}(s) - {V}^{\pi}(s) \rvert  \\
+\end{aligned}
+$$
+
+and we have already bounded the probability of a single absolute difference in [5.1]. So, we would like to bound the following probability:
+
+$$
+\begin{aligned}
+\mathbb{P}\left( \lVert \hat{\mathbf{V}}^{\pi} - \mathbf{V}^{\pi} \rVert_{1} \ge \varepsilon' \right) &= \mathbb{P}\left( \sum_{s \in \mathcal{S}} \lvert \hat{V}^{\pi}(s) - {V}^{\pi}(s) \rvert \ge \varepsilon' \right) \\
+&\le \mathbb{P}\left( |\mathcal{S}| \lvert \hat{V}^{\pi}(s) - {V}^{\pi}(s) \rvert \ge \varepsilon' \right) \\
+&= \mathbb{P}\left( \lvert \hat{V}^{\pi}(s) - {V}^{\pi}(s) \rvert \ge \frac{\varepsilon'}{|\mathcal{S}| } \right) \\
+\end{aligned}
+$$
+
+Now we have a scaled version of the bound from [5.1]. If we substitute $\varepsilon'/ |\mathcal{S}|$ in for $\varepsilon'$ in the original bound, then we can calculate the final upper bound:
+
+$$
+\begin{aligned}
+\mathbb{P}\left( \left| \hat{V}^{\pi}(s) - V^{\pi}(s) \right| \ge \frac{\varepsilon'}{\lvert \mathcal{S} \rvert } \right) &\le 2 \exp \left( - \frac{ N^{s} (1-\gamma)^{2} \frac{\varepsilon}{\lvert \mathcal{S} \rvert } ^{2}}{ 2 \left(WR_{max} (1 - \gamma^{T+1}) \right)^{2} } \right),\ \forall \varepsilon' > 0 \\
+\end{aligned}
+$$
+
+So finally:
+
+$$
+\begin{aligned}
+\mathbb{P}\left( \lVert \hat{\mathbf{V}}^{\pi} - \mathbf{V}^{\pi} \rVert_{1} \ge \varepsilon' \right) &\le 2 \exp \left( - \frac{ N^{s} (1-\gamma)^{2} \varepsilon ^{2}}{ 2 \lvert \mathcal{S} \rvert^{2} \left(WR_{max} (1 - \gamma^{T+1}) \right)^{2} } \right),\ \forall \varepsilon' > 0 \\
+\end{aligned}
+$$
+
+

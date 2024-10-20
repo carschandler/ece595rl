@@ -1,11 +1,10 @@
 ---
-title: "ECE59500RL Exam"
-author: "Robert (Cars) Chandler — chandl71@purdue.edu"
-# latex-tinytex: false
-# pdf-engine: pdflatex
+title: ECE59500RL Exam
+author: Robert (Cars) Chandler — chandl71@purdue.edu
 format:
   pdf:
-    monofont: "CommitMono Nerd Font"
+    monofont: CommitMono Nerd Font
+    sansfont: Latin Modern Roman
     mathspec: true
 execute: 
   freeze: auto

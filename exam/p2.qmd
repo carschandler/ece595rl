@@ -1,0 +1,15 @@
+## Problem 2
+
+We will begin with the right side of the property and work our way back to the left side to show they are equivalent:
+
+$$
+\begin{aligned}
+\frac{1}{1-\gamma} \mathbb{E}_{S \sim \bar{\rho}^{\pi}_{\mu_{0}}} \left[ \mathbb{E}_{A \sim \pi(\cdot | S)} \left[ f(S, A) \right] \right] \\
+= \frac{1}{1-\gamma} \sum_{S \in \mathcal{S}} \left[ \bar{\rho}^{\pi}_{\mu_{0}}(S) \cdot \mathbb{E}_{A \sim \pi(\cdot | S)} \left[ f(S, A) \right] \right] \\
+= \frac{1}{1-\gamma} \sum_{S \in \mathcal{S}} \left[ (1-\gamma) \sum_{t=0}^{\infty} \gamma^{t} \mathbb{P}\left( S_{t} = S| \mu_{0}, P, \pi \right)  \cdot \mathbb{E}_{A \sim \pi(\cdot | S)} \left[ f(S, A) \right] \right] \\
+=  \left[   \mathbb{E}_{A \sim \pi(\cdot | S)} \left[ \sum_{t=0}^{\infty} \gamma^{t} \sum_{S \in \mathcal{S}}\mathbb{P}\left( S_{t} = S| \mu_{0}, P, \pi \right) f(S_{t}, A_{t}) \right] \right] \\
+= \mathbb{E}_{A \sim \pi(\cdot | S)} \left[ \sum_{t=0}^{\infty} \gamma^{t} \mathbb{E}_{\mu_{0}, P(\cdot|S_{t}, A_{t})} \left[ f(S_{t}, A_{t}) \right] \right] \\
+= \mathbb{E}_{S_{0} \sim \mu_{0}, S_{t+1} \sim P(\cdot|S_{t}, A_{t}), A \sim \pi(\cdot | S)} \left[ \sum_{t=0}^{\infty} \gamma^{t}  f(S_{t}, A_{t}) \right] && \blacksquare
+\end{aligned}
+$$
+

@@ -19,7 +19,6 @@ def weighted_return_at_t(t, traj, gammas):
             for s, a in zip(traj["states"][:-1][t:], traj["actions"][t:])
         ]
     )
-    print(traj["states"][t], traj["actions"][t], weight)
 
     return weight * return_at_t(t, traj, gammas)
 
@@ -31,5 +30,3 @@ vhat_latex = Markdown(
         [rf"V^{{\pi^b}}({s}) &\approx {v:.5f}" for s, v in vhat.items()]
     )
 )
-
-print(vhat)

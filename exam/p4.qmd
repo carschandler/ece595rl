@@ -24,7 +24,7 @@ $$
 
 ### 4.2
 
-We can sum the probabilities of taking each action in $\tau_2$ at the
+We can determine the probabilities of taking each action in $\tau_2$ at the
 corresponding states using the policy tables defined in the problem statement.
 We can recreate these tables in Python and then determine the probability of the
 trajectory by multiplying out the probability of taking each individual step and
@@ -57,7 +57,7 @@ under $\pi^b$ or $\pi^t$**.
 ### 4.4
 
 We start with the (on-policy) evaluation of $V^{\pi^b}(c)$ of the behavior
-polic using an every-visit Monte Carlo method:
+policy using an every-visit Monte Carlo method:
 
 ```{python}
 {{< include p4_4.py >}}

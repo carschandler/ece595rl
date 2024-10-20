@@ -27,7 +27,7 @@ We can solve this by finding the left eigenvectors of the $\mathbf{P}$ matrix:
 {{< include p1_2.py >}}
 ```
 
-The vectors above represeent the stationary distributions of the Markov chain.
+The vectors above represent the stationary distributions of the Markov chain.
 We have proven that they are indeed stationary distributions by proving that
 they all sum to $1$ and that $\boldsymbol{\bar{\mu}} \mathbf{P} =
 \boldsymbol{\bar{\mu}}$ for each vector.
@@ -90,8 +90,6 @@ stationary distribution, we have proven that it is itself a stationary
 distribution
 
 ### 1.4
-
-#### TODO: what else can we do with this?
 
 Initializing our chain at $\alpha\mu_{0}^{1} + (1- \alpha) \mu_{0}^{2}$ will cause $\mu_{t}$ to converge to
 

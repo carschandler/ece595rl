@@ -43,5 +43,3 @@ vhat_latex = Markdown(
         [rf"V^{{\pi^b}}({s}) &\approx {v:.5f}" for s, v in vhat.items()]
     )
 )
-
-print(vhat)

@@ -1,0 +1,73 @@
+## Problem 6
+
+### 6.1
+
+We will estimate the true state transitions using with the frequency of the
+transitions observed in these samples. We take the number of titmes a particular
+state is observed when starting at a given state-action pair and divide it by
+the total number of samples at that pair to get a probability estimate:
+
+$$
+\begin{aligned}
+P(b|b,x) \approx 0.7 , &\quad P(c|b,x) \approx 0.3 \\
+P(b|b,y) \approx 0.2 , &\quad P(c|b,y) \approx 0.8 \\
+P(b|c,x) \approx 0.1 , &\quad P(c|c,x) \approx 0.9 \\
+P(b|c,y) \approx 0.8 , &\quad P(c|c,y) \approx 0.2 \\
+\end{aligned}
+$$
+
+### 6.2
+
+The L1-differences are:
+
+$$
+\begin{aligned}
+\Vert \hat{P}(\cdot|b,x) - P(\cdot|b,x) \Vert_1
+&= \vert \hat{P}(b|b,x) - P(b|b,x) \vert + \vert \hat{P}(c|b,x) - P(c|b,x) \vert \\
+&= \vert 0.7 - 0.8 \vert + \vert 0.3 - 0.2 \vert = 0.1 + 0.1 \\
+&= 0.2 \\
+\\
+\Vert \hat{P}(\cdot|b,y) - P(\cdot|b,y) \Vert_1
+&= \vert \hat{P}(b|b,y) - P(b|b,y) \vert + \vert \hat{P}(c|b,y) - P(c|b,y) \vert \\
+&= \vert 0.2 - 0.1 \vert + \vert 0.8 - 0.9 \vert = 0.1 + 0.1 \\
+&= 0.2 \\
+\\
+\Vert \hat{P}(\cdot|c,x) - P(\cdot|c,x) \Vert_1
+&= \vert \hat{P}(b|c,x) - P(b|c,x) \vert + \vert \hat{P}(c|c,x) - P(c|c,x) \vert \\
+&= \vert 0.1 - 0.05 \vert + \vert 0.9 - 0.95 \vert = 0.05 + 0.05 \\
+&= 0.1 \\
+\\
+\Vert \hat{P}(\cdot|c,y) - P(\cdot|c,y) \Vert_1
+&= \vert \hat{P}(b|c,y) - P(b|c,y) \vert + \vert \hat{P}(c|c,y) - P(c|c,y) \vert \\
+&= \vert 0.8 - 0.9 \vert + \vert 0.2 - 0.1 \vert  = 0.1 + 0.1 \\
+&= 0.2 \\
+\\
+\end{aligned}
+$$
+
+### 6.3
+
+The simulation lemma states that
+
+
+$$
+\lvert \hat{V}^{\pi}(s_{0}) - V^{\pi}(s_{0}) \rvert \le \frac{\gamma R_{max}}{\left( 1-\gamma \right) ^{2}} \mathbb{E}_{s \sim \hat{\rho}^{\pi}_{s_{0}}} \left[ \lVert \hat{P}\left(\cdot | s, \pi(s) \right) - P(\cdot | s, \pi(s)) \rVert_{1}  \right]
+$$
+
+where $R_{max} = \max_{s,a} \lvert R(s,a) \rvert$.
+
+We can evaluate this for state $s_{0} = b$ usign the policy and state occupancy measure values given in the problem statement to bound the difference between the value functions. We know $R_{max} = 1$ since it is on the interval $[0, 1]$.
+
+$$
+\begin{aligned}
+\lvert \hat{V}^{\pi}(b) - V^{\pi}(b) \rvert &\le \frac{0.9 \cdot 1}{\left( 1-0.9 \right) ^{2}} \sum_{s \in \mathcal{S}} \left[ \hat{\rho}^{\pi}_{b}(s) \cdot \lVert \hat{P}\left(\cdot | s, \pi(s) \right) - P(\cdot | s, \pi(s)) \rVert_{1}  \right] \\
+\lvert \hat{V}^{\pi}(b) - V^{\pi}(b) \rvert &\le 90 \left[ \hat{\rho}^{\pi}_{b}(b) \cdot \lVert \hat{P}\left(\cdot | b, y \right) - P(\cdot | b, y) \rVert_{1} + \hat{\rho}^{\pi}_{b}(c) \cdot \lVert \hat{P}\left(\cdot | c, x \right) - P(\cdot | c, x) \rVert_{1} \right] \\
+\lvert \hat{V}^{\pi}(b) - V^{\pi}(b) \rvert &\le 90 \left[ 1.5 \cdot 0.2 + 8.5 \cdot 0.1 \right] \\
+\lvert \hat{V}^{\pi}(b) - V^{\pi}(b) \rvert &\le 103.5
+\end{aligned}
+$$
+
+### 6.4
+
+We should allocate the most samples to pair $(c, x)$ if our goal is to lower the upper bound from the simulation lemma, because this is the pair that has the higher coefficient multiplied against its L1 error, $\Vert \hat{P}(\cdot|c,x) - P(\cdot|c,x) \Vert_1$. This is because $\rho_{b}^{\pi}(c) = 8.5 > 1.5 = \rho_{b}^{\pi}(b)$, so $c$ is the action with the greater weight in the bound, and the policy dictates that $\pi(c)=x$, so it is the action that will be evaluated with $c$ in the L1 error term. By prioritizing this pair, we will decrease our L1 error for the pair since we will approach the true probability as our number of samples increases. So, driving down the L1 error with the greater weight is the best way to drive down the upper bound above.
+

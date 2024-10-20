@@ -14,7 +14,7 @@ $$
 V(s) \ge R(s,a) + \gamma \mathbb{E}_{s' \sim P(\cdot|s,a)} \left[ V(s') \right], \quad \forall s \in \mathcal{S}, \forall a \in \mathcal{A}
 $$
 
-We will first define this for $s=b, a=x$:
+We can expand this constraint using our known values. We will first define it for $s=b, a=x$:
 
 $$
 \begin{aligned}
@@ -25,7 +25,7 @@ V(b) &\ge R(b,x) + \gamma \left[ P(b|b, x) V(b) + P(c|b, x) V(c) \right] \\
 \end{aligned}
 $$
 
-We now show this final line for each of the four state-action combinations and substitute in our known values to yield four simultaneous constraints that must be met:
+We can now carry this final line through for each of the four state-action combinations and substitute in our known values to yield four simultaneous constraints that must be met:
 
 $$
 \begin{aligned}
@@ -54,6 +54,9 @@ V(c) &\ge 1 + 0.54 V(b) + 0.36 V(c) \\
 V(c) &\ge 1.5625 + 0.84375 V(b) \\
 \end{aligned}
 $$
+
+So the last lines of the four sections above are the final four constraints that
+must be upheld.
 
 ### 3.2
 
