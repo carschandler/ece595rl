@@ -1,3 +1,5 @@
+import itertools
+
 import numpy as np
 import xarray as xr
 from IPython.display import Markdown
@@ -22,10 +24,9 @@ trans_fn = xr.DataArray(
     ),
 )
 
-# TODO verify below
-# Probability of transitioning to each state across all state-action
-# combinations should be 1
-assert np.allclose(1, trans_fn.sum(axis="next_state"))
+# For any current state-action pair, the sum of transition probabilities to all
+# next states should sum to 1
+assert np.allclose(1, trans_fn.sum(dim="next_state"))
 
 reward_fn = xr.DataArray(
     np.zeros([3, 2]),
@@ -35,6 +36,44 @@ reward_fn.loc[dict(state=3, action="h")] = 1
 
 gamma = 0.95
 
+target_policy = xr.DataArray(
+    data=np.array([[0.9, 0.1], [0.9, 0.1], [0.1, 0.9]]),
+    coords=dict(state=state_space, action=action_space),
+)
+
+assert np.allclose(1, target_policy.sum(dim="action"))
+
+
+behavior_policy = xr.DataArray(
+    data=np.array([[0.85, 0.15], [0.88, 0.12], [0.1, 0.9]]),
+    coords=dict(state=state_space, action=action_space),
+)
+
+assert np.allclose(1, behavior_policy.sum(dim="action"))
+
+trans_fn_target = np.reshape(
+    [
+        np.dot(
+            trans_fn.sel(current_state=s, next_state=sn),
+            target_policy.sel(state=s),
+        )
+        for s, sn in itertools.product(state_space, state_space)
+    ],
+    (3, 3),
+)
+
+trans_fn_behavior = np.reshape(
+    [
+        np.dot(
+            trans_fn.sel(current_state=s, next_state=sn),
+            behavior_policy.sel(state=s),
+        )
+        for s, sn in itertools.product(state_space, state_space)
+    ],
+    (3, 3),
+)
+
+
 # gammas = gamma ** np.arange(5)
 #
 # returns = [np.sum(traj["rewards"] * gammas) for traj in trajectories]
@@ -42,31 +81,6 @@ gamma = 0.95
 # returns_latex = Markdown(
 #     r"\\".join([f"G_{i+1} &= {ret:0.4f}" for i, ret in enumerate(returns)])
 # )
-#
-# policy_t = xr.DataArray(
-#     data=np.array(
-#         [
-#             [0.1, 0.1, 0.8],
-#             [0.05, 0.2, 0.75],
-#             [0.25, 0.5, 0.25],
-#             [0.9, 0.02, 0.08],
-#         ]
-#     ),
-#     coords=dict(state=list("bcde"), action=list("xyz")),
-# )
-#
-# policy_b = xr.DataArray(
-#     data=np.array(
-#         [
-#             [0.5, 0.1, 0.4],
-#             [0.05, 0.2, 0.75],
-#             [0.5, 0.2, 0.3],
-#             [0.9, 0.02, 0.08],
-#         ]
-#     ),
-#     coords=dict(state=list("bcde"), action=list("xyz")),
-# )
-#
 #
 # # Double-check that our probabilities for a given state all sum to one
 # assert np.allclose(policy_t.sum(dim="action"), 1)
