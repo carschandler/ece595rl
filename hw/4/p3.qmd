@@ -1,0 +1,139 @@
+## Problem 3
+
+### 3.1
+
+We can formulate the tabular representation with a linear combination where each $\theta_{l}$ in $\boldsymbol{\theta}$ is simply the value $Q(s,a)$ for the corresponding index of that state-action pair and each $\boldsymbol{\phi}(s,a) : \mathcal{S} \times \mathcal{A} \to \mathbb{R}^{k}$ is a function returning a vector where each element in the vector is the indicator function supported where $S=s, A=a$:
+
+$$
+\phi_{l}(s,a) = \mathbf{1}_{S=s,A=a}(S,A)
+$$
+
+So, $\boldsymbol{\phi}(s,a)$ is just a vector with $1$ at the index corresponding to the pair $(s,a)$ in the argument and $0$ everywhere else. The order of the indices in each vector must match in terms of which state-action pair they represent.
+
+So, our class of linear functions $\mathcal{Q}$ is made up of functions that look like this:
+
+$$
+Q_{\theta}(s,a) = \begin{bmatrix}
+Q(S_{1}, A_{1}) & Q(S_{2}, A_{2}) & \dots  & Q(S_{\lvert \mathcal{S} \rvert }, A_{\lvert \mathcal{A} \rvert }) \\
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{1}_{S=S_{1}, A=A_{1}}(S,A) \\
+\mathbf{1}_{S=S_{2}, A=A_{1}}(S,A) \\
+\dots \\
+\mathbf{1}_{S=S_{\lvert \mathcal{S} \rvert }, A=A_{\lvert \mathcal{A} \rvert }}(S,A) \\
+\end{bmatrix}
+$$
+
+So we have $|\mathcal{S}| |\mathcal{A}|$ features and weights. 
+
+For example, if we have $\mathcal{S} = \{ S_{1}, S_{2} \}$ and $\mathcal{A} = \{  A_{1}, A_{2} \}$, then at $(S_{1}, A_{1})$, the linear function looks like this:
+
+$$
+Q_{\theta}(S_{1},A_{1}) = \begin{bmatrix}
+Q(S_{1}, A_{1}) & Q(S_{2}, A_{1}) & Q(S_{1}, A_{2}) & Q(S_{2}, A_{2}) \\
+\end{bmatrix}
+\begin{bmatrix}
+1 \\
+0 \\
+0 \\
+0
+\end{bmatrix}
+$$
+
+and we have $\lvert \mathcal{S} \rvert \lvert \mathcal{A} \rvert = 2 \cdot 2 = 4$ features/weights in each vector.
+
+### 3.2
+
+This is similar to the previous problem, but now that the value functions are grouped together into subsets of the state-action space, we can group those together in the formula, reducing the number of features and weights.
+
+Now, instead of each weight being $Q(s,a)$ for a single state-action combination, it will be the value of $Q(s,a)$ which is common to all of the states and actions $(s,a) \in \mathcal{S}_{i} \times \mathcal{A}_{i}$. Let
+
+$$
+Q_{ij} = Q(s,a), \quad (s,a) \in \mathcal{S}_{i} \times \mathcal{A}_{i}
+$$
+
+be this common value, for simplification of notation. Each of these should be multiplied by a feature function which is an indicator function supported at all points where $S \in \mathcal{S}_{i}, A \in \mathcal{A}_{j}$:
+
+$$
+\phi_{l}(s,a) = \mathbf{1}_{S \in \mathcal{S}_{i}, A \in \mathcal{A}_{j}}(S,A)
+$$
+
+So, $\mathcal{Q}$ is comprised of functions that look like:
+
+$$
+Q_{\theta}(s,a) = \begin{bmatrix}
+Q_{11} & Q_{21} & \dots  & Q_{nm} \\
+\end{bmatrix}
+\begin{bmatrix}
+\mathbf{1}_{S \in \mathcal{S}_{1}, A \in \mathcal{A}_{1}}(S,A) \\
+\mathbf{1}_{S \in \mathcal{S}_{2}, A \in \mathcal{A}_{1}}(S,A) \\
+\dots \\
+\mathbf{1}_{S \in \mathcal{S}_{n}, A \in \mathcal{A}_{m}}(S,A) \\
+\end{bmatrix}
+$$
+
+So we have $nm$ features and weights.
+
+For example, if we have $\mathcal{S} = \{ S_{1}, S_{2}, S_{3}, S_{4} \}$ and $\mathcal{A} = \{ A_{1} \}$, but we can partition $\mathcal{S}$ into $\mathcal{S}_{1} = \{ S_{1}, S_{2} \}$ and $\mathcal{S}_{2} = \{  S_{3}, S_{4} \}$ (and $\mathcal{A}_{1}$ is a trivial partition of $\mathcal{A}$) due to the fact that $Q(S_{1}, A_{1}) = Q(S_{2}, A_{1}) = Q_{11}$ and $Q(S_{3}, A_{1}) = Q(S_{4}, A_{1}) = Q_{21}$, then we can represent $Q$ by $Q_{\theta}$, which for $s \in \mathcal{S}_{1} = \{ S_{1}, S_{2} \}, a=A_{1}$ looks like this:
+
+$$
+Q_{\theta}(s \in \mathcal{S}_{1},a = A_{1}) = \begin{bmatrix}
+Q_{11} & Q_{21} \\
+\end{bmatrix}
+\begin{bmatrix}
+1 \\
+0 \\
+\end{bmatrix}
+$$
+
+So even though we have $\lvert \mathcal{S} \rvert \lvert \mathcal{A} \rvert = 4$ combinations of states and actions, we have reduced the number of features to $nm = 2 \cdot 1 = 2$ since we could group together the ones with like values.
+
+### 3.3
+
+If we take the minimization goal and rewrite $Q$ in terms of its parameterized form
+
+$$
+\hat{Q}^{\pi}(s,a) = \arg\min_{\boldsymbol{\theta} \in \mathbb{R}^{k}} \sum_{i=1}^{N}\left( \boldsymbol{\theta}^{T} \boldsymbol{\phi}(s^{i},a^{i}) - y^{i} \right) ^{2}
+$$
+
+then this is an ordinary least-squares problem of the form
+
+$$
+\mathbf{y} = \boldsymbol{\Phi} \boldsymbol{\theta} + \boldsymbol{\varepsilon}
+$$
+
+where $\mathbf{y}$ is an $N\times 1$ column vector of all the observations $y^{i}$, $\boldsymbol{\Phi}$ is an $N \times k$ design matrix comprised of a concatenation of row vectors obtained from transposing the column vector returned by each $\boldsymbol{\phi}(x^{i}) = \boldsymbol{\phi}(s^{i}, a^{i})$ from the observed state-action pairs
+
+$$
+\boldsymbol{\Phi} = \begin{bmatrix}
+\boldsymbol{\phi}(S_{1}, A_{1})^{T} \\
+\boldsymbol{\phi}(S_{2}, A_{2})^{T} \\
+\dots  \\
+\boldsymbol{\phi}(S_{N}, A_{N})^{T} \\
+\end{bmatrix}
+$$
+
+and $\boldsymbol{\theta}$ is a $k \times 1$ column vector comprised of the weights that we learn in order to minimize the error $\boldsymbol{\varepsilon}$.
+
+It is well known for this form that the solution for the weight vector that yields the least squares error is
+
+$$
+\hat{\boldsymbol{\theta}} = \left( \boldsymbol{\Phi}^{T}\boldsymbol{\Phi} \right)^{-1} \boldsymbol{\Phi}^{T} \mathbf{y}
+$$
+
+*Note: we can safely assume that $\boldsymbol{\Phi}^{T}\boldsymbol{\Phi}$ has an inverse because we are told that*
+
+$$
+\sum_{i=1}^{N} \boldsymbol{\phi}(s^{i},a^{i}) \boldsymbol{\phi}(s^{i}, a^{i})^{T}
+$$
+
+*forms an invertible matrix, and this is equivalent to $\boldsymbol{\Phi}^{T}\boldsymbol{\Phi}$.*
+
+From  which we can calculate $\hat{Q}^{\pi}(s,a)$ as the dot product of the learned weight vector and the feature vector for $(s,a)$:
+
+$$
+\hat{{Q}}^{\pi}(s,a) = \boldsymbol{\phi}(s,a)^{T} \hat{\boldsymbol{\theta}} = 
+\boldsymbol{\phi}(s,a)^{T} \left( \boldsymbol{\Phi}^{T}\boldsymbol{\Phi} \right)^{-1} \boldsymbol{\Phi}^{T} \mathbf{y}
+$$
+
+

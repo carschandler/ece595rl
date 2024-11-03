@@ -2,14 +2,15 @@ import itertools
 
 import numpy as np
 import xarray as xr
+from IPython.display import Markdown
 
 state_space = [1, 2, 3]
 action_space = list("gh")
 
 # Define a multidimensional array containing probabilities of transitions from
-# one state-action pair to another. This is just like a regular numpy array but with labeled "coordinates"
-# and axes which make it easy for us to index it for a given state and/or
-# action.
+# one state-action pair to another. This is just like a regular numpy array but
+# with labeled "coordinates" and axes which make it easy for us to index it for
+# a given state and/or action.
 trans_fn = xr.DataArray(
     data=np.array(
         [
@@ -73,4 +74,16 @@ value_fn = {
     )
     @ expected_reward_fn[key].to_numpy()
     for key in expected_trans_fn
+}
+
+value_latex = {
+    key: Markdown(
+        r"\\".join(
+            [
+                rf"V^{{\pi^{key[0]}}}({s}) = {v:.5f}"
+                for s, v in zip(list("123"), v)
+            ]
+        )
+    )
+    for key, v in value_fn.items()
 }

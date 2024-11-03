@@ -1,0 +1,32 @@
+## Problem 5
+
+### 5.1
+
+We calculate the value function using the given values for $Q^{\pi'}$ by taking
+the expectation of $Q$ across the action distribution according to $\pi'$.
+
+```{python}
+{{< include p5_1.py >}}
+```
+
+$$
+\begin{aligned}
+`{python} value_prime_latex`
+\end{aligned}
+$$
+
+### 5.2
+
+Using the performance difference lemma
+
+$$
+V^{\pi}(S_0) - V^{\pi'}(S_0) = \frac{1}{1 - \gamma} \mathbb{E}_{s \sim \bar{\rho}^{\pi}_{S_0}} \left[ \mathbb{E}_{a \sim \pi(\cdot | s)} \left[ Q^{\pi'}(s,a) - V^{\pi'}(s) \right] \right]
+$$
+
+```{python}
+{{< include p5_2.py >}}
+```
+
+$$
+V^{\pi}(1) - V^{\pi'}(1) = `{python} performance_difference_latex`
+$$

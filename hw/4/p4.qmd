@@ -1,0 +1,82 @@
+## Problem 4
+
+$$
+\begin{aligned}
+Q^{\pi}(s,a) &= \mathbb{E}_{A_{t} \sim \pi, S_{t+1} \sim P(\cdot | S_{t}, A_{t}), T \sim \text{Geo}(1-\gamma)} \left[ \sum_{t=0}^{T} R(S_{t}, A_{t}) | S_{0} = s, A_{0} = a \right] \\
+&= \mathbb{E}_{A_{t} \sim \pi, S_{t+1} \sim P(\cdot | S_{t}, A_{t})} \sum_{k=0}^{\infty} \left[ \left( 1-(1-\gamma) \right)^{k}(1-\gamma) \left[ \sum_{t=0}^{k} R(S_{t}, A_{t}) | S_{0} = s, A_{0} = a \right] \right] \\
+&= \mathbb{E}_{A_{t} \sim \pi, S_{t+1} \sim P(\cdot | S_{t}, A_{t})}  \left[ \sum_{k=0}^{\infty} \gamma^{k} \sum_{t=0}^{k} (1-\gamma) R(S_{t}, A_{t}) | S_{0} = s, A_{0} = a \right] \\
+\end{aligned}
+$$
+
+If we expand out the double summation, we observe a pattern in the terms:
+
+$$
+\begin{aligned}
+\sum_{k=0}^{\infty} \gamma^{k} \sum_{t=0}^{k} (1-\gamma)R(S_{t}, A_{t})
+\end{aligned}
+$$
+
+For $k = 0$, we just have
+
+$$
+R(S_{0}, A_{0}) - \gamma R(S_{0}, A_{0})
+$$
+
+For $k=1$, we have
+
+$$
+\begin{aligned}
+& \gamma R(S_{0}, A_{0}) - \gamma^{2} R(S_{0}, A_{0}) \\
++ &\gamma R(S_{1}, A_{1}) - \gamma^{2}R(S_{1}, A_{1})
+\end{aligned}
+$$
+
+such that the first term cancels with the last term of the previous iteration of $k$...
+
+For $k = 2$, we have
+
+$$
+\begin{aligned}
+& \gamma^{2} R(S_{0}, A_{0}) - \gamma^{3} R(S_{0}, A_{0}) \\
++ &\gamma^{2} R(S_{1}, A_{1}) - \gamma^{3}R(S_{1}, A_{1}) \\
++ &\gamma^{2} R(S_{2}, A_{2}) - \gamma^{3}R(S_{2}, A_{2}) \\
+\end{aligned}
+$$
+
+such that the first two positive terms cancel with the two negative terms of the previous iteration of $k$...
+
+For $k=3$, we have
+
+$$
+\begin{aligned}
+& \gamma^{3} R(S_{0}, A_{0}) -  \gamma^{4}R(S_{0}, A_{0}) \\
++ &\gamma^{3} R(S_{1}, A_{1}) - \gamma^{4}R(S_{1}, A_{1}) \\
++ &\gamma^{3} R(S_{2}, A_{2}) - \gamma^{4}R(S_{2}, A_{2}) \\
++ &\gamma^{3} R(S_{3}, A_{3}) - \gamma^{4}R(S_{3}, A_{3}) \\
+\end{aligned}
+$$
+
+such that the first three positive terms cancel with the three negative terms of the previous iteration of $k$...
+
+This pattern continues infinitely as $k \to \infty$ such that all the terms except for the first one in each iteration of $k$ cancel with each other. That is:
+
+
+$$
+\begin{aligned}
+\sum_{k=0}^{\infty} \gamma^{k} \sum_{t=0}^{k} (1-\gamma)R(S_{t}, A_{t}) \\
+= R(S_{0},A_{0}) + \gamma R(S_{1},A_{1}) + \gamma^{2}R(S_{2}, A_{2}) + \dots \\
+= \sum_{t=0}^{\infty} \gamma^{t}R(S_{t}, A_{t})
+\end{aligned}
+$$
+
+Substituting this into the equation where we left off before expanding the summation, we are left with:
+
+$$
+\begin{aligned}
+Q^{\pi}(s,a) &= \mathbb{E}_{A_{t} \sim \pi, S_{t+1} \sim P(\cdot | S_{t}, A_{t}), T \sim \text{Geo}(1-\gamma)} \left[ \sum_{t=0}^{T} R(S_{t}, A_{t}) | S_{0} = s, A_{0} = a \right] \\
+&= \mathbb{E}_{A_{t} \sim \pi, S_{t+1} \sim P(\cdot | S_{t}, A_{t})}  \left[ \sum_{k=0}^{\infty} \gamma^{k} \sum_{t=0}^{k} (1-\gamma) R(S_{t}, A_{t}) | S_{0} = s, A_{0} = a \right] \\
+&= \mathbb{E}_{A_{t} \sim \pi, S_{t+1} \sim P(\cdot | S_{t}, A_{t})}  \left[ \sum_{t=0}^{\infty} \gamma^{t} R(S_{t}, A_{t}) | S_{0} = s, A_{0} = a \right] \\
+&=Q^{\pi}(s,a) & \blacksquare
+\end{aligned}
+$$
+

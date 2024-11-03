@@ -1,0 +1,117 @@
+## Problem 2
+
+### 2.1
+
+We evaluate the policy by using it to form an expected transition and reward
+function across all actions by choosing the values from each state according to
+the deterministic policy's action at that state:
+
+
+```{python}
+{{< include p2_1.py >}}
+```
+
+The value function is:
+
+$$
+\begin{aligned}
+`{python} value_latex`
+\end{aligned}
+$$
+
+### 2.2
+
+Assuming oracle access, we sample each state-action pair 100 times and use the
+frequency at which transitions occur to estimate the true transition function:
+
+
+```{python}
+{{< include p2_2.py >}}
+```
+
+The estimated transition function is:
+
+$$
+`{python} phat_latex`
+$$
+
+
+### 2.3
+
+We use the given formula to calculate the L1-difference for each state (`numpy`
+is able to calculate norms of arbitrary order natively).
+
+```{python}
+{{< include p2_3.py >}}
+```
+
+The L1-difference for each state is:
+
+$$
+`{python} l1_error_latex`
+$$
+
+### 2.4
+
+We use the analytical solution to calculate $\bar{\rho}^{\pi}_{\mu_0}$. Note that
+$\mu_0$ is simply $[1, 0, 0]^T$ since we know the initial state to be $s=1$
+deterministically.
+
+```{python}
+{{< include p2_4.py >}}
+```
+
+The normalized state occupancy measure for each state is:
+
+$$
+`{python} norm_state_occupancy_latex`
+$$
+
+### 2.5
+
+We calculate the simulation lemma bound according to
+
+$$
+\lvert \hat{V}^{\pi}(S_0) - V^{\pi}(S_0) \rvert \le \frac{\gamma R_{max}}{(1 - \gamma)^2} \mathbb{E}_{s \sim \bar{\rho}_{S_0}^{\pi}} \left[ \Vert \hat{P}(\cdot | s, \pi(s)) - P(\cdot | s, \pi(s)) \Vert_1 \right]
+$$
+
+```{python}
+{{< include p2_5.py >}}
+```
+
+The simulation lemma bound on the difference in value functions for policy $\pi$
+in the initial state is:
+
+$$
+\lvert \hat{V}^{\pi}(1) - V^{\pi}(1) \rvert \le
+`{python} simulation_lemma_bound_latex`
+$$
+
+### 2.6
+
+We can evaluate the policy using the analytical solution by obtaining an
+expected transition matrix using the deterministic policy.
+
+```{python}
+{{< include p2_6.py >}}
+```
+
+The estimated value function is:
+
+$$
+\begin{aligned}
+`{python} value_latex`
+\end{aligned}
+$$
+
+### 2.7
+
+```{python}
+{{< include p2_7.py >}}
+```
+
+The absolute difference in value functions at $s=1$ is:
+
+$$
+\lvert \hat{V}^{\pi}(1) - V^{\pi}(1) \rvert = `{python} value_error_latex`
+$$

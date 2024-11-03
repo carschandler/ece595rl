@@ -1,9 +1,7 @@
-import itertools
-
 import numpy as np
 import xarray as xr
-from p1_1 import action_space, gamma, reward_fn, state_space, trans_fn
-from p2_2_4 import norm_state_occupancy
+from IPython.display import Markdown
+from p1_1 import action_space, state_space
 
 policy = xr.DataArray(
     np.array(
@@ -39,32 +37,13 @@ q_prime = xr.DataArray(
     coords=dict(state=state_space, action=action_space),
 )
 
-expected_trans_fn_prime = np.reshape(
-    [
-        np.dot(
-            trans_fn.sel(current_state=s, next_state=sn),
-            policy_prime.sel(state=s),
-        )
-        for s, sn in itertools.product(state_space, state_space)
-    ],
-    (3, 3),
-)
+value_prime = (q_prime * policy_prime).sum(dim="action")
 
-expected_reward_fn_prime = (reward_fn * policy_prime).sum(dim="action")
-
-value_prime = (
-    np.linalg.inv(
-        np.identity(len(state_space)) - gamma * expected_trans_fn_prime
+value_prime_latex = Markdown(
+    r"\\".join(
+        [
+            rf"V^{{\pi}}({s}) = {v:.5f}"
+            for s, v in zip(list("123"), value_prime)
+        ]
     )
-    @ expected_reward_fn_prime.to_numpy()
 )
-
-# TODO report value
-
-expected_q = (policy * q_prime).sum(dim="action")
-
-performance_difference = (1 / (1 - gamma)) * np.sum(
-    norm_state_occupancy * (expected_q - value_prime)
-)
-
-# TODO report value

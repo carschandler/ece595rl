@@ -1,14 +1,7 @@
 import numpy as np
 import xarray as xr
-from p1_1 import (
-    action_space,
-    gamma,
-    policy,
-    reward_fn,
-    state_space,
-    trans_fn,
-    value_fn,
-)
+from IPython.display import Markdown
+from p1_1 import action_space, gamma, policy, reward_fn, state_space, trans_fn
 from p1_2 import t_effective
 
 NUM_TRAJECTORIES = 50
@@ -100,9 +93,5 @@ def mc_evaluation(vhat, returns, num_visits, return_function):
 
 mc_evaluation(vhat, returns, num_visits, return_function=weighted_return_at_t)
 
-print(f"Estimated value function at state 1: {vhat[1]}")
 
-print(
-    "Error between vhat and true value function:"
-    f" {vhat[1] - value_fn['target'][0]}"
-)
+vhat_latex = Markdown(rf"V^{{\pi^t}}(1) \approx {vhat[1]:.5f} \\")

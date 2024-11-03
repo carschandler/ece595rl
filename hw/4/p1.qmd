@@ -1,0 +1,75 @@
+## Problem 1
+
+### 1.1
+
+We can evaluate the value functions by obtaining the expected value of the
+transition function and reward function over each of the policies according to
+$\pi^t, \pi^b$, and then we can use the analytical solution
+
+$$
+\mathbf{V}^{\pi} = (\mathbf{I} - \gamma \mathbf{P}^{\pi})^{-1} \mathbf{R}
+$$
+
+
+```{python}
+{{< include p1_1.py >}}
+```
+
+The value functions are:
+
+$$
+\begin{aligned}
+`{python} value_latex["target"]` \\
+`{python} value_latex["behavior"]`
+\end{aligned}
+$$
+
+### 1.2
+
+Using the formula
+
+$$
+T = \frac{\frac{\log(R_{max})}{\varepsilon (1 - \gamma)}}{\log\left(\frac{1}{\gamma}\right)}
+$$
+
+we can calculate the number of timesteps required for an effective horizon with
+errors less than $0.1$:
+
+```{python}
+{{< include p1_2.py >}}
+```
+
+$$
+T = `{python} t_effective`
+$$
+
+### 1.3
+
+We generate 50 trajectories using the behavior policy and the effective horizon
+length and then use a Monte Carlo evaluation for the target policy with
+importance sampling.
+
+```{python}
+{{< include p1_3.py >}}
+```
+
+The resulting estimate is:
+
+$$
+\begin{aligned}
+`{python} vhat_latex`
+\end{aligned}
+$$
+
+
+### 1.4
+
+```{python}
+{{< include p1_4.py >}}
+```
+
+The error between the estimated and true value for $s = 1$ is:
+
+$$
+`{python} value_error_latex`
+$$
