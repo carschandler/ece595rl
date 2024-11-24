@@ -1,0 +1,145 @@
+## Problem 2
+
+### 2.1
+
+For $s \in \mathcal{S} \in \tau$:
+$$
+a^{*} = \arg\max_{a \in \mathcal{A}} \hat{Q}(s,a)
+$$
+
+$$
+\begin{aligned}
+a^{*}(s=b) &= x \\
+a^{*}(s=c) &= x \\
+a^{*}(s=d) &= x \\
+a^{*}(s=e) &= y \\
+\end{aligned}
+$$
+
+For $a \in \mathcal{A}$:
+$$
+\pi(a|s) = 1- \varepsilon + \frac{\varepsilon}{\left| \mathcal{A} \right|} \text{ if } a=a^{*} \text{ else } \frac{\varepsilon}{\left| \mathcal{A} \right|}
+$$
+
+$$
+\begin{aligned}
+\pi(x|b) &= 1 - 0.1 + \frac{0.1}{2} = 0.95 & \pi(y|b) &= \frac{0.1}{2} = 0.05 \\
+\pi(x|c) &= 1 - 0.1 + \frac{0.1}{2} = 0.95 & \pi(y|c) &= \frac{0.1}{2} = 0.05 \\
+\pi(x|d) &= 1 - 0.1 + \frac{0.1}{2} = 0.95 & \pi(y|d) &= \frac{0.1}{2} = 0.05 \\
+\pi(x|d) &= \frac{0.1}{2} = 0.05  & \pi(y|e) &= 1 - 0.1 + \frac{0.1}{2} = 0.95 \\
+\end{aligned}
+$$
+
+### 2.2
+
+The dataset of three points is formed by three $(x_{i}, y_{i})$ pairs where $x_{i} = (s_{i}, a_{i})$ and
+
+$$
+y_{i} = r_{i} + \gamma \max_{a' \in \mathcal{A}} \hat{Q}(s_{i+1}, a')
+$$
+
+The $x_{i}$ are trivial to form, and we can calculate the $y_{i}$ here:
+
+$$
+\begin{aligned}
+y_{t} &= r_{t} + 0.9 \max_{a' \in \mathcal{A}} \hat{Q}(s_{t+1}, a')  \\
+ &= 1 + 0.9 \cdot 0.75 \\
+ &= 1.675 \\
+\\
+y_{t+1} &= r_{t+1} + 0.9 \max_{a' \in \mathcal{A}} \hat{Q}(s_{t+2}, a')  \\
+ &= -2 + 0.9 \cdot -1.5 \\
+ &= -3.35 \\
+\\
+y_{t+2} &= r_{t+2} + 0.9 \max_{a' \in \mathcal{A}} \hat{Q}(s_{t+3}, a')  \\
+ &= -0.5 + 0.9 \cdot -1.5 \\
+ &= -1.85 \\
+\end{aligned}
+$$
+
+So the dataset is:
+
+$$
+\left\{ (x_{t} = (c, x), y_{t} = 1.675), (x_{t+1} = (e, x), y_{t+1} = -3.35), (x_{t+2} = (b, y), y_{t+2}=-1.85) \right\} 
+$$
+
+### 2.3
+
+The objective function for ERM with square loss is:
+
+$$
+\min_{f \in \mathcal{F}} \sum_{i=1}^{N} \lVert \hat{\mathbf{y}} - \mathbf{y} \rVert ^{2}
+$$
+
+FIXME: do we want to add an argmin form here as well?
+
+where $\hat{\mathbf{y}} = \boldsymbol{\theta}^{\top} \boldsymbol{\phi}(s,a)$. We can calculate $\hat{y}$ for each data point:
+
+For $x_{t} =(c, x)$:
+
+$$
+\hat{y}_{t} = \begin{bmatrix}
+\theta_{1} & \theta_{2} 
+\end{bmatrix}
+\begin{bmatrix}
+-1 \\
+1 \\
+\end{bmatrix} = \theta_{2} - \theta_{1}
+$$
+
+For $x_{t+1} = (e,x)$:
+
+$$
+\hat{y}_{t} = \begin{bmatrix}
+\theta_{1} & \theta_{2} 
+\end{bmatrix}
+\begin{bmatrix}
+0 \\
+1 \\
+\end{bmatrix} = \theta_{2}
+$$
+
+For $x_{t+2} = (b,y)$:
+
+$$
+\hat{y}_{t} = \begin{bmatrix}
+\theta_{1} & \theta_{2} 
+\end{bmatrix}
+\begin{bmatrix}
+-2 \\
+-1 \\
+\end{bmatrix} = -2\theta_{1} - \theta_{2}
+$$
+
+So using these with our values for $y$ from the dataset, the objective function becomes:
+
+$$
+\begin{aligned}
+\min_{\boldsymbol{\theta} \in \mathbb{R}^{2}} \sum_{i=1}^{N} \lVert \hat{\mathbf{y}}_{i} - \mathbf{y}_{i} \rVert ^{2} \\
+=  \min_{\boldsymbol{\theta} \in \mathbb{R}^{2}} \left[ \left( \theta_{2} - \theta_{1} - 1.675 \right) ^{2} + \left( \theta_{2} + 3.35 \right)^{2} + \left( -2\theta_{1} -\theta_{2} + 1.85 \right)^{2}  \right]  
+\end{aligned}
+$$
+
+
+### 2.4
+
+We can solve this by forming a simple design matrix from the feature vectors we
+have and then finding the least squares solution using that with the output
+vector we have from the $y_i$ values:
+
+```{python}
+import numpy as np
+from IPython.display import Markdown
+
+a = np.array([[-1, 1], [0, 1], [-2, -1]])
+b = np.array([1.675, -3.35, -1.85])
+theta, *_ = np.linalg.lstsq(a, b)
+
+t1, t2 = [Markdown(f"{theta[i]:.5f}") for i in [0, 1]]
+```
+
+$$
+\begin{aligned}
+\theta_1 &= `{python} t1` \\
+\theta_2 &= `{python} t2` \\
+\end{aligned}
+$$

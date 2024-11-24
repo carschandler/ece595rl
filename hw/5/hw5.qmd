@@ -1,0 +1,22 @@
+---
+title: ECE59500RL Homework 5
+author: Robert (Cars) Chandler — chandl71@purdue.edu
+format:
+  pdf:
+    monofont: CommitMono Nerd Font
+    sansfont: Latin Modern Roman
+    mathspec: true
+execute: 
+  freeze: auto
+jupyter: python3
+---
+
+{{< include p1.qmd >}}
+
+{{< include p2.qmd >}}
+
+{{< include p3.qmd >}}
+
+{{< include p4.qmd >}}
+
+{{< include p5.qmd >}}

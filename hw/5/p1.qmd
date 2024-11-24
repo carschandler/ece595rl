@@ -1,0 +1,76 @@
+## Problem 1
+
+### 1.1
+
+The objective function for ERM with square loss is:
+
+$$
+\min_{f \in \mathcal{F}} \sum_{i=1}^{N} \lVert \hat{y} - y \rVert ^{2}
+$$
+
+And in this case, $\hat{y} = Q_{\theta}$ which comes from a class of functions
+parameterized by the four $\theta$ values:
+
+$$
+\min_{f \in \mathcal{F}} \sum_{i=1}^{N} \lVert \left( \theta_{1} s_{i}^{2} + \theta_{2} a_{i}^{2} + \theta_{3} s_{i}a_{i} + \theta_{4} \right)  - y \rVert ^{2}
+$$
+
+We are given three iterations of data ($N=3$) which we can substitute into this
+form to give the final result of the objective function:
+
+$$
+\begin{aligned}
+&\min_{f \in \mathcal{F}} \sum_{i=1}^{N} \lVert \left( \theta_{1} s_{i}^{2} + \theta_{2} a_{i}^{2} + \theta_{3} s_{i}a_{i} + \theta_{4} \right)  - y \rVert ^{2} \\
+&\min_{f \in \mathcal{F}} \left[
+\left( \theta_{1} \cdot 1^{2} + \theta_{2} \cdot 0^{2} + \theta_{3} \cdot 1 \cdot 0 + \theta_{4} - 1 \right)^{2} + \right. \\
+& \quad \left( \theta_{1} \cdot (-2)^{2} + \theta_{2} \cdot 1^{2} + \theta_{3} \cdot -2 \cdot 1 + \theta_{4} - 0 \right)^{2} + \\
+& \quad \left. \left( \theta_{1} \cdot 1^{2} + \theta_{2} \cdot (-1)^{2} + \theta_{3} \cdot 1 \cdot -1 + \theta_{4} - 3 \right)^{2}
+\right]  \\
+&\min_{f \in \mathcal{F}} \left[
+\left( \theta_{1} + \theta_{4} - 1 \right)^{2} +
+\left( 4\theta_{1} + \theta_{2} - 2\theta_{3} + \theta_{4} \right)^{2} +
+\left( \theta_{1} + \theta_{2} - \theta_{3} + \theta_{4} - 1 \right)^{2}
+\right]  \\
+\end{aligned}
+$$
+
+### 1.2
+
+$$
+\begin{aligned}
+\pi_{t+1}(a|s) &= (1- \alpha) \pi_{t}(a|s) + \alpha \bar{\pi} (a|s) \\
+\end{aligned}
+$$
+
+We know that $\pi_{0}$ is a uniform distribution across the action space:
+
+$$
+\pi_{0}(a|s) = \left[ \frac{1}{3}, \frac{1}{3}, \frac{1}{3} \right], \quad  \forall s \in \mathcal{S}
+$$
+
+Next, we need to calculate $\bar{\pi}$ according to:
+
+$$
+\begin{aligned}
+\bar{\pi}(s) &= \arg \max_{a \in \mathcal{A}} \hat{Q}^{\pi_{t}} (s,a), \forall s \in \mathcal{S} \\
+\end{aligned}
+$$
+
+We can iterate over combinations of the relevant subset of the state-action
+space to determine which action maximizes the quantity above and then calculate
+the updated policy according to the definition above:
+
+```{python}
+{{< include p1_2.py >}}
+```
+
+So the probability distribution of action values (in the same order they appear
+in the action space definition) are:
+
+$$
+\begin{aligned}
+\pi_{1}(a | 1) &= `{python} p1_s1` \\
+\pi_{1}(a | 2) &= `{python} p1_s2` \\
+\end{aligned}
+$$
+
