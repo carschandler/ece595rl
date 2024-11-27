@@ -15,21 +15,30 @@ $$
 \min_{f \in \mathcal{F}} \sum_{i=1}^{N} \lVert \left( \theta_{1} s_{i}^{2} + \theta_{2} a_{i}^{2} + \theta_{3} s_{i}a_{i} + \theta_{4} \right)  - y \rVert ^{2}
 $$
 
+So we want to find the $Q \in \mathcal{Q}$ that yields the least squared error,
+which is equivalent to finding $\theta \in \mathbb{R}^4$, the parameterization
+of $Q \in \mathcal{Q}$ yielding the least squared error:
+
+$$
+\hat{Q}^{\pi_t} = \arg \min_{\theta \in \mathbb{R}^4} \sum_{i=1}^{N} \lVert \left( \theta_{1} s_{i}^{2} + \theta_{2} a_{i}^{2} + \theta_{3} s_{i}a_{i} + \theta_{4} \right)  - y \rVert ^{2}
+$$
+
+
 We are given three iterations of data ($N=3$) which we can substitute into this
 form to give the final result of the objective function:
 
 $$
 \begin{aligned}
-&\min_{f \in \mathcal{F}} \sum_{i=1}^{N} \lVert \left( \theta_{1} s_{i}^{2} + \theta_{2} a_{i}^{2} + \theta_{3} s_{i}a_{i} + \theta_{4} \right)  - y \rVert ^{2} \\
-&\min_{f \in \mathcal{F}} \left[
+&\arg\min_{\theta \in \mathbb{R}^4} \sum_{i=1}^{N} \lVert \left( \theta_{1} s_{i}^{2} + \theta_{2} a_{i}^{2} + \theta_{3} s_{i}a_{i} + \theta_{4} \right)  - y \rVert ^{2} \\
+&\arg\min_{\theta \in \mathbb{R}^4} \left[
 \left( \theta_{1} \cdot 1^{2} + \theta_{2} \cdot 0^{2} + \theta_{3} \cdot 1 \cdot 0 + \theta_{4} - 1 \right)^{2} + \right. \\
 & \quad \left( \theta_{1} \cdot (-2)^{2} + \theta_{2} \cdot 1^{2} + \theta_{3} \cdot -2 \cdot 1 + \theta_{4} - 0 \right)^{2} + \\
 & \quad \left. \left( \theta_{1} \cdot 1^{2} + \theta_{2} \cdot (-1)^{2} + \theta_{3} \cdot 1 \cdot -1 + \theta_{4} - 3 \right)^{2}
 \right]  \\
-&\min_{f \in \mathcal{F}} \left[
+&\arg\min_{\theta \in \mathbb{R}^4} \left[
 \left( \theta_{1} + \theta_{4} - 1 \right)^{2} +
 \left( 4\theta_{1} + \theta_{2} - 2\theta_{3} + \theta_{4} \right)^{2} +
-\left( \theta_{1} + \theta_{2} - \theta_{3} + \theta_{4} - 1 \right)^{2}
+\left( \theta_{1} + \theta_{2} - \theta_{3} + \theta_{4} - 3 \right)^{2}
 \right]  \\
 \end{aligned}
 $$

@@ -1,0 +1,37 @@
+## Problem 5
+
+### 5.1
+
+We can represent the reward function and trajectories as data structures and
+compute the discounted return for each sub-tracectory in Python:
+
+```{python}
+{{< include p5_1.py >}}
+```
+
+*Note: we also calculate the human preference probabilities at the end of this
+code, used in the next two parts.*
+
+The discounted returns for each sub-trajectory are as follows:
+
+$$
+\begin{aligned}
+`{python} return_latex`
+\end{aligned}
+$$
+
+### 5.2
+
+The values are calculated at the end of the code block in [5.1] according to the
+following equation:
+
+$$
+\mathbb{P}[a_1 > a_2 | s] = \frac{ \exp \left( r^*(s, a_1) \right) }{ \exp\left( r^*(s, a_1) \right) + \exp\left( r^*(s, a_2) \right) }
+$$
+
+According to $\hat{R}$, the probability the human chooses $\tau_1$ over $\tau_2$
+is:
+
+$$
+\mathbb{P}[\tau_1 > \tau_2 | s]
+$$

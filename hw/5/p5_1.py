@@ -1,5 +1,6 @@
 import numpy as np
 import xarray as xr
+from IPython.display import Markdown
 
 reward = xr.DataArray(
     data=np.array(
@@ -39,6 +40,10 @@ returns = np.sum(
 )
 
 r1, r2, r3 = returns
+
+return_latex = Markdown(
+    "\n".join([rf"\tau_{i+1}&: {r:0.4f} \\" for i, r in enumerate(returns)])
+)
 
 pref_1_over_2 = np.exp(r1) / np.sum([np.exp(r1), np.exp(r2)])
 pref_1_over_3 = np.exp(r1) / np.sum([np.exp(r1), np.exp(r3)])

@@ -1,0 +1,84 @@
+## Problem 4
+
+### 4.1
+
+$$
+\mathcal{L}(\pi, \beta) = \mathbb{E}_{A \sim \pi(\cdot|s)} \left[ Q^{\pi_{t}}(s, A) \right] + \lambda \mathcal{H}(\pi(\cdot|s)) - \beta \left(  \sum_{a \in \mathcal{A}} \pi (a|s) - 1 \right) 
+$$
+
+We expand each term into its respective summation and differentiate:
+
+$$
+\begin{aligned}
+\frac{ \partial \mathcal{L} }{ \partial \pi(a|s) } &= \frac{ \partial }{ \partial \pi(a|s) }\left[ \sum_{a' \in \mathcal{A}} \pi(a'|s) Q^{\pi_{t}}(s, a') - \lambda \sum_{a' \in \mathcal{A}} \pi(a'|s) \log\pi(a'|s) - \beta \left(  \sum_{a' \in \mathcal{A}} \pi (a'|s) - 1 \right)  \right] \\
+\frac{ \partial \mathcal{L} }{ \partial \pi(a|s) }&=  Q^{\pi_{t}}(s, a) - \lambda  \left( 1+ \log\pi(a|s) \right) - \beta, \quad \forall a \in \mathcal{A} \\
+\end{aligned}
+$$
+
+The differentiation can be explained as follows: the first term is a summation of policy terms across each action, and the partial derivative will only evaluate to a nonzero value when $a' = a$, at which point it differentiates to one, so we end up just getting the constant $Q$ from that summation. Similarly, the second summation only evaluates when $a'=a$, but this time we use the product rule to evaluate:
+
+$$
+\frac{ \partial }{ \partial \pi(a|s) } \pi(a|s) \log\pi(a|s) = \frac{\pi(a|s)}{\pi(a|s)} + \log\pi(a|s) \cdot 1 = 1 + \log\pi(a|s)
+$$
+
+Lastly, the final summation evaluates to $1$ when $a'=a$ and at this point, we just get the constant $\beta$ as a result of our differentiation since the subtracted $1$ is a constant eliminated by the differentiation.
+
+### 4.2
+
+The derivative with respect to $\beta$ is much simpler as every term except the last summation cancels out:
+
+$$
+\begin{aligned}
+\frac{ \partial \mathcal{L} }{ \partial \beta } &= \frac{ \partial }{ \partial \beta }\left[ \sum_{a' \in \mathcal{A}} \pi(a'|s) Q^{\pi_{t}}(s, a') + \lambda \sum_{a' \in \mathcal{A}} \pi(a'|s) \log\pi(a'|s) - \beta \left(  \sum_{a' \in \mathcal{A}} \pi (a'|s) - 1 \right)  \right] \\
+\frac{ \partial \mathcal{L} }{ \partial \pi(a|s) }&= 1 - \sum_{a' \in \mathcal{A}} \pi (a'|s) \\
+\end{aligned}
+$$
+
+### 4.3
+
+Beginning with $\frac{ \partial \mathcal{L} }{ \partial \pi(a|s) } = 0$:
+
+$$
+\begin{aligned}
+0 &=  Q^{\pi_{t}}(s, a) - \lambda  \left( 1 + \log\pi(a|s) \right) - \beta \\
+\lambda  \left( 1 + \log\pi(a|s) \right)  &=  Q^{\pi_{t}}(s, a) - \beta \\
+\log\pi(a|s) &=  \frac{Q^{\pi_{t}}(s, a) - \beta}{\lambda} - 1 \\
+\pi(a|s) &=  \exp \left( \frac{Q^{\pi_{t}}(s, a) - \beta}{\lambda} - 1 \right)  \\ 
+\end{aligned}
+$$
+
+We now look at $\frac{ \partial \mathcal{L} }{ \partial \beta } = 0$:
+
+$$
+\begin{aligned}
+0 &= 1 - \sum_{a' \in \mathcal{A}} \pi(a'|s) \\
+\sum_{a' \in \mathcal{A}} \pi(a'|s) &= 1\\
+\end{aligned}
+$$
+
+We can use this to continue solving for $\pi$ where we previously left off:
+
+$$
+\begin{aligned}
+\sum_{a' \in \mathcal{A}}\pi(a'|s) &=  \sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a) - \beta}{\lambda} - 1 \right)  \\ 
+1 &= \sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a) - \beta}{\lambda} \right) e^{-1}  \\ 
+e &= \sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a) - \beta}{\lambda} \right) \\ 
+e &= \sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a)}{\lambda} \right) e^{-\beta/\lambda} \\ 
+\exp\left( \frac{\beta}{\lambda} + 1 \right) &= \sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a)}{\lambda} \right) \\ 
+\end{aligned}
+$$
+
+Now we can substitute this back into our equation for $\pi(a|s)$:
+
+$$
+\begin{aligned}
+\pi(a|s) &=  \exp \left( \frac{Q^{\pi_{t}}(s, a)}{\lambda} \right) \exp \left( -\frac{\beta}{\lambda} - 1 \right)   \\ 
+\pi(a|s) &=  \frac{\exp \left( \frac{Q^{\pi_{t}}(s, a)}{\lambda} \right)}{\sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a')}{\lambda} \right) } \\ 
+\end{aligned}
+$$
+
+This is the final solution for the stationary point of the Lagrangian. It is the softmax policy function that we saw in [Problem 2].
+
+### 4.4
+
+TODO
