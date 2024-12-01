@@ -26,7 +26,7 @@ $$
 \pi(x|b) &= 1 - 0.1 + \frac{0.1}{2} = 0.95 & \pi(y|b) &= \frac{0.1}{2} = 0.05 \\
 \pi(x|c) &= 1 - 0.1 + \frac{0.1}{2} = 0.95 & \pi(y|c) &= \frac{0.1}{2} = 0.05 \\
 \pi(x|d) &= 1 - 0.1 + \frac{0.1}{2} = 0.95 & \pi(y|d) &= \frac{0.1}{2} = 0.05 \\
-\pi(x|d) &= \frac{0.1}{2} = 0.05  & \pi(y|e) &= 1 - 0.1 + \frac{0.1}{2} = 0.95 \\
+\pi(x|e) &= \frac{0.1}{2} = 0.05  & \pi(y|e) &= 1 - 0.1 + \frac{0.1}{2} = 0.95 \\
 \end{aligned}
 $$
 
@@ -69,8 +69,6 @@ The objective function for ERM with square loss is:
 $$
 \min_{f \in \mathcal{F}} \sum_{i=1}^{N} \lVert \hat{\mathbf{y}} - \mathbf{y} \rVert ^{2}
 $$
-
-FIXME: do we want to add an argmin form here as well?
 
 where $\hat{\mathbf{y}} = \boldsymbol{\theta}^{\top} \boldsymbol{\phi}(s,a)$. We can calculate $\hat{y}$ for each data point:
 
@@ -119,6 +117,8 @@ $$
 \end{aligned}
 $$
 
+*Note*: if we want to find the actual $\theta$ parameters, we would just replace the
+$\min$ above with an $\arg\min$.
 
 ### 2.4
 
@@ -132,9 +132,9 @@ from IPython.display import Markdown
 
 a = np.array([[-1, 1], [0, 1], [-2, -1]])
 b = np.array([1.675, -3.35, -1.85])
-theta, *_ = np.linalg.lstsq(a, b)
+thetas, *_ = np.linalg.lstsq(a, b)
 
-t1, t2 = [Markdown(f"{theta[i]:.5f}") for i in [0, 1]]
+t1, t2 = [Markdown(f"{theta:.5f}") for theta in thetas]
 ```
 
 $$

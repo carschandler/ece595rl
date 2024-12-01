@@ -11,17 +11,23 @@ We expand each term into its respective summation and differentiate:
 $$
 \begin{aligned}
 \frac{ \partial \mathcal{L} }{ \partial \pi(a|s) } &= \frac{ \partial }{ \partial \pi(a|s) }\left[ \sum_{a' \in \mathcal{A}} \pi(a'|s) Q^{\pi_{t}}(s, a') - \lambda \sum_{a' \in \mathcal{A}} \pi(a'|s) \log\pi(a'|s) - \beta \left(  \sum_{a' \in \mathcal{A}} \pi (a'|s) - 1 \right)  \right] \\
-\frac{ \partial \mathcal{L} }{ \partial \pi(a|s) }&=  Q^{\pi_{t}}(s, a) - \lambda  \left( 1+ \log\pi(a|s) \right) - \beta, \quad \forall a \in \mathcal{A} \\
 \end{aligned}
 $$
 
-The differentiation can be explained as follows: the first term is a summation of policy terms across each action, and the partial derivative will only evaluate to a nonzero value when $a' = a$, at which point it differentiates to one, so we end up just getting the constant $Q$ from that summation. Similarly, the second summation only evaluates when $a'=a$, but this time we use the product rule to evaluate:
+The differentiation can be explained as follows: the first term is a summation of policy terms across each action, and the partial derivative will only evaluate to a nonzero value when $a' = a$, at which point it differentiates to one, so we end up just getting the constant $Q$ from that summation. Similarly, the second summation only evaluates to a nonzero value when $a'=a$, but this time we use the product rule to evaluate:
 
 $$
 \frac{ \partial }{ \partial \pi(a|s) } \pi(a|s) \log\pi(a|s) = \frac{\pi(a|s)}{\pi(a|s)} + \log\pi(a|s) \cdot 1 = 1 + \log\pi(a|s)
 $$
 
 Lastly, the final summation evaluates to $1$ when $a'=a$ and at this point, we just get the constant $\beta$ as a result of our differentiation since the subtracted $1$ is a constant eliminated by the differentiation.
+
+$$
+\begin{aligned}
+\frac{ \partial \mathcal{L} }{ \partial \pi(a|s) } &= \frac{ \partial }{ \partial \pi(a|s) }\left[ \sum_{a' \in \mathcal{A}} \pi(a'|s) Q^{\pi_{t}}(s, a') - \lambda \sum_{a' \in \mathcal{A}} \pi(a'|s) \log\pi(a'|s) - \beta \left(  \sum_{a' \in \mathcal{A}} \pi (a'|s) - 1 \right)  \right] \\
+\frac{ \partial \mathcal{L} }{ \partial \pi(a|s) }&=  Q^{\pi_{t}}(s, a) - \lambda  \left( 1+ \log\pi(a|s) \right) - \beta, \quad \forall a \in \mathcal{A} \\
+\end{aligned}
+$$
 
 ### 4.2
 
@@ -30,7 +36,7 @@ The derivative with respect to $\beta$ is much simpler as every term except the 
 $$
 \begin{aligned}
 \frac{ \partial \mathcal{L} }{ \partial \beta } &= \frac{ \partial }{ \partial \beta }\left[ \sum_{a' \in \mathcal{A}} \pi(a'|s) Q^{\pi_{t}}(s, a') + \lambda \sum_{a' \in \mathcal{A}} \pi(a'|s) \log\pi(a'|s) - \beta \left(  \sum_{a' \in \mathcal{A}} \pi (a'|s) - 1 \right)  \right] \\
-\frac{ \partial \mathcal{L} }{ \partial \pi(a|s) }&= 1 - \sum_{a' \in \mathcal{A}} \pi (a'|s) \\
+\frac{ \partial \mathcal{L} }{ \partial \beta }&= 1 - \sum_{a' \in \mathcal{A}} \pi (a'|s) \\
 \end{aligned}
 $$
 
@@ -60,15 +66,16 @@ We can use this to continue solving for $\pi$ where we previously left off:
 
 $$
 \begin{aligned}
-\sum_{a' \in \mathcal{A}}\pi(a'|s) &=  \sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a) - \beta}{\lambda} - 1 \right)  \\ 
-1 &= \sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a) - \beta}{\lambda} \right) e^{-1}  \\ 
-e &= \sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a) - \beta}{\lambda} \right) \\ 
-e &= \sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a)}{\lambda} \right) e^{-\beta/\lambda} \\ 
-\exp\left( \frac{\beta}{\lambda} + 1 \right) &= \sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a)}{\lambda} \right) \\ 
+\sum_{a' \in \mathcal{A}}\pi(a'|s) &=  \sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a') - \beta}{\lambda} - 1 \right)  \\ 
+1 &= \sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a') - \beta}{\lambda} \right) e^{-1}  \\ 
+e &= \sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a') - \beta}{\lambda} \right) \\ 
+e &= \sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a')}{\lambda} \right) e^{-\beta/\lambda} \\ 
+\exp\left( \frac{\beta}{\lambda} + 1 \right) &= \sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a')}{\lambda} \right) \\ 
 \end{aligned}
 $$
 
-Now we can substitute this back into our equation for $\pi(a|s)$:
+Now we can substitute this back into our equation for $\pi(a|s)$ after splitting
+it into a product of exponentials:
 
 $$
 \begin{aligned}
@@ -77,8 +84,35 @@ $$
 \end{aligned}
 $$
 
-This is the final solution for the stationary point of the Lagrangian. It is the softmax policy function that we saw in [Problem 2].
+This is the final solution for the stationary point of the Lagrangian. It takes the same form as the softmax policy function that we saw in [Problem 3].
 
 ### 4.4
 
-TODO
+$$
+\begin{aligned}
+V^{\pi_{t+1}}(s) &= \mathbb{E}_{a \sim \pi_{t+1}(\cdot|s)} \left[ Q^{\pi_{t}}(s,a) \right] + \lambda \mathcal{H}(\pi_{t+1}(\cdot|s)) , \quad \forall s \in \mathcal{S} \\
+\end{aligned}
+$$
+
+Expanding the entropy term:
+
+$$
+\begin{aligned}
+\lambda \mathcal{H}(\pi_{t+1}(\cdot|s)) &= - \lambda \sum_{a \in \mathcal{A}} \pi_{t+1}(a|s) \log \pi_{t+1}(a|s) \\
+&=  - \lambda \sum_{a \in \mathcal{A}} \pi_{t+1}(a|s) \log  \frac{\exp \left( \frac{Q^{\pi_{t}}(s, a)}{\lambda} \right)}{\sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a')}{\lambda} \right) } \\
+&=  - \lambda \sum_{a \in \mathcal{A}} \pi_{t+1}(a|s) \left( \frac{Q^{\pi_{t}}(s, a)}{\lambda} - \log {\sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a')}{\lambda} \right) } \right) \\
+&= - \lambda \left(  \frac{\mathbb{E}_{a \sim \pi_{t+1}(\cdot|s)} \left[ Q^{\pi_{t}}(s, a) \right]}{\lambda} - \log {\sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a')}{\lambda} \right) } \right) \\
+&= -\mathbb{E}_{a \sim \pi_{t+1}(\cdot|s)} \left[ Q^{\pi_{t}}(s, a) \right] + \lambda \log {\sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a')}{\lambda} \right) } \\
+\end{aligned}
+$$
+
+Substituting this back into the original equation:
+
+$$
+\begin{aligned}
+V^{\pi_{t+1}}(s) &= \mathbb{E}_{a \sim \pi_{t+1}(\cdot|s)} \left[ Q^{\pi_{t}}(s,a) \right] + \lambda \mathcal{H}(\pi_{t+1}(\cdot|s)) , \quad \forall s \in \mathcal{S} \\
+&= \mathbb{E}_{a \sim \pi_{t+1}(\cdot|s)} \left[ Q^{\pi_{t}}(s,a) \right] + -\mathbb{E}_{a \sim \pi_{t+1}(\cdot|s)} \left[ Q^{\pi_{t}}(s, a) \right] + \lambda \log {\sum_{a' \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a')}{\lambda} \right) } , \quad \forall s \in \mathcal{S} \\
+&= \lambda \log {\sum_{a \in \mathcal{A}}\exp \left( \frac{Q^{\pi_{t}}(s, a)}{\lambda} \right) } , \quad \forall s \in \mathcal{S} \\
+\end{aligned}
+$$
+

@@ -3,7 +3,7 @@
 ### 5.1
 
 We can represent the reward function and trajectories as data structures and
-compute the discounted return for each sub-tracectory in Python:
+compute the discounted return for each sub-trajectory in Python:
 
 ```{python}
 {{< include p5_1.py >}}
@@ -26,12 +26,61 @@ The values are calculated at the end of the code block in [5.1] according to the
 following equation:
 
 $$
-\mathbb{P}[a_1 > a_2 | s] = \frac{ \exp \left( r^*(s, a_1) \right) }{ \exp\left( r^*(s, a_1) \right) + \exp\left( r^*(s, a_2) \right) }
+\mathbb{P}[\tau_1 > \tau_2 | s] = \frac{ \exp \left( r_{\tau_1} \right) }{ \exp\left( r_{\tau_1} \right) + \exp\left( r_{\tau_2} \right) }
 $$
+
+where $r_{\tau_i}$ is the cumulative discounted return for $\tau_i$ as
+calculated in [5.1].
 
 According to $\hat{R}$, the probability the human chooses $\tau_1$ over $\tau_2$
 is:
 
 $$
-\mathbb{P}[\tau_1 > \tau_2 | s]
+\mathbb{P}[\tau_1 > \tau_2 | s] = \frac{ \exp \left( `{python} Markdown(f"{r1:.4f}")` \right) }{ \exp\left( `{python} Markdown(f"{r1:.4f}")` \right) + \exp\left( `{python} Markdown(f"{r2:.4f}")`  \right) } = `{python} Markdown(f"{pref_1_over_2:.5f}")` 
 $$
+
+### 5.3
+
+Using the same formula, the probability the human chooses $\tau_1$ over $\tau_3$
+is:
+
+$$
+\mathbb{P}[\tau_1 > \tau_3 | s] = \frac{ \exp \left( `{python} Markdown(f"{r1:.4f}")` \right) }{ \exp\left( `{python} Markdown(f"{r1:.4f}")` \right) + \exp\left( `{python} Markdown(f"{r3:.4f}")`  \right) } = `{python} Markdown(f"{pref_1_over_3:.5f}")` 
+$$
+
+### 5.4
+
+The MLE loss is calculated using:
+
+$$
+\begin{aligned}
+-\mathbb{E}[ &\mathbf{1}[\tau_{1}>\tau_{2}] \log\sigma(r_{\tau_{1}} - r_{\tau_{2}}) + \mathbf{1}[\tau_{2}>\tau_{1}] \log\sigma(r_{\tau_{2}} - r_{\tau_{1}}) \\
+&+ \mathbf{1}[\tau_{1}>\tau_{3}] \log\sigma(r_{\tau_{1}} - r_{\tau_{3}}) + \mathbf{1}[\tau_{3}>\tau_{1}] \log\sigma(r_{\tau_{3}} - r_{\tau_{1}})] \\
+&= -(\mathbb{P}(\tau_{1} > \tau_{2}) \log \sigma(r_{\tau_{1}} - r_{\tau_{2}}) +\mathbb{P}(\tau_{3} > \tau_{1})\log\sigma(r_{\tau_{3}}-r_{\tau_{1}}))
+\end{aligned}
+$$
+
+We can use probability values and returns calculated in the previous parts to
+fill in these variables. We calculate the loss in Python:
+
+```{python}
+{{< include p5_4.py >}}
+```
+
+The MLE loss according to $\hat{R}$ is $`{python} Markdown(f"{mle_loss:.4f}")`$.
+
+### 5.5
+
+If the human picks $\tau_2$ over $\tau_1$, then this is switching to a
+trajectory with a lower return than in [5.4]. If it picks $\tau_3$ over
+$\tau_1$, this is the same choice made in [5.4], so this choice has no effect on
+the change in loss.
+
+If switching from $\tau_2$ to $\tau_1$ means picking a trajectory with a lower
+return than in [5.4], then this means **the loss will increase**. Intuitively,
+this makes sense, because choosing a worse return should increase the loss
+value. Mathematically, the probability of choosing the lower return will be
+smaller, which will cause the loss to decrease, but the $\log \sigma$ term will
+be disproportionately more negative, causing the overall loss to increase. We
+could plot and show that this will be the case any time a smaller return is
+chosen over a larger one.

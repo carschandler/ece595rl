@@ -1,0 +1,175 @@
+## Problem 3
+
+### 3.1
+
+To compute $\nabla_{\theta} \log \pi_{\theta}(a_t|s_t)$ for the softmax policy:
+
+$$
+\pi_{\theta}(a|s) = \frac{\exp(\theta_{s,a})}{\sum_{a'\in\mathcal{A}}\exp(\theta_{s,a'})}
+$$
+
+We can split up the numerator and denominator using logarithm properties and solve the gradient of the resulting difference:
+
+$$
+\begin{aligned}
+\nabla_{\theta} \log \pi_{\theta}(a|s) &= \nabla_{\theta} \left(\theta_{s,a} - \log\sum_{a'\in\mathcal{A}}\exp(\theta_{s,a'})\right) \\
+&= \nabla_{\theta}\theta_{s,a} - \frac{\nabla_{\theta} \sum_{a' \in \mathcal{A}}\exp(\theta_{s,a'})}{\sum_{a'\in\mathcal{A}}\exp(\theta_{s,a'})} \\
+\end{aligned}
+$$
+
+This becomes a difference of vectors where each element in the vector is equal to the result above where the gradient operator becomes a partial derivative operator with respect to each of the possible $\theta_{s,a}$ values. For example, the entries look like:
+
+$$
+\frac{ \partial  }{ \partial \theta_{s_{i},a_{j}} } 
+\theta_{s,a} - \frac{\frac{\partial}{\partial \theta_{s_{i},a_{j}}} \sum_{a' \in \mathcal{A}}\exp(\theta_{s,a'})}{\sum_{a'\in\mathcal{A}}\exp(\theta_{s,a'})}, \quad \forall s_{i} \in \mathcal{S},\ \forall a_{j} \in \mathcal{A} \\
+$$
+
+so the first term evaluates to:
+
+$$
+\frac{ \partial  }{ \partial \theta_{s_{i},a_{j}} }  \theta_{s,a} = \begin{cases}
+1, \quad (s,a)=(s_{i}, a_{j}) \\
+0, \quad \text{otherwise}
+\end{cases}
+$$
+
+The second term becomes
+
+$$
+\frac{\frac{\partial}{\partial \theta_{s_{i},a_{j}}} \sum_{a' \in \mathcal{A}}\exp(\theta_{s,a'})}{\sum_{a'\in\mathcal{A}}\exp(\theta_{s,a'})} = \begin{cases}
+\frac{\exp(\theta_{s_{i},a_{j}})}{\sum_{a'\in\mathcal{A}}\exp(\theta_{s,a'})}, \quad  s=s_{i} \\
+0, \quad \text{otherwise} \\
+\end{cases}
+$$
+
+This is because the numerator expands out to a summation of $\exp(\theta_{s, a_{k}})$ terms, the partial derivative of which will evaluate to $0$ if $s \ne s_{i}$ or $a_{k} \ne a_{i}$. The $s_{i}$ corresponds to any of the indices of the vector where $s=s_{i}$, but the $a_{k}$ corresponds to indices of the summation. So, for each entry in the vector, if the $s$ matches the $s$ which corresponds to the $\theta_{s,a}$ term with respect to which we are differentiating in that index, then the result will be nonzero, otherwise it will be zero. Once inside a nonzero index, then we are looking at terms of the summation inside that nonzero result, and only the term corresponding to the action with which respect to which we are differentiating will remain.
+
+So, the first term will be nonzero only for a single index where we differentiate with respect to the correct $\theta$. The second term will be present for all indices where we differentiate with respect to $\theta$ values with matching $s$ values.
+
+We can write these in terms of an indicator function using the notation $\mathbf{1}_{(s_{i}, a_{j})}(s,a)$ where this is defined to be zero in all indices except for the index where $(s,a) = (s_{i}, a_{j})$ corresponding to the parameter $\theta_{s_{i}, a_{j}}$. The gradient vector is then comprised of the following expression for each state-action pair:
+
+$$
+\begin{aligned}
+\nabla_{\theta} \log \pi_{\theta}(a|s) &= \mathbf{1}_{(s_{i}, a_{j})}(s,a) - \mathbf{1}_{s_{i}}(s)\frac{\exp(\theta_{s_{i},a_{j}})}{\sum_{a'\in\mathcal{A}}\exp(\theta_{s_{i},a'})}, \quad \forall s_{i} \in \mathcal{S},\ \forall a_{j} \in \mathcal{A} \\
+\end{aligned}
+$$
+
+So, if we need to evaluate this at $a_{t}, s_{t}$ like the problem states, it becomes:
+
+$$
+\begin{aligned}
+\nabla_{\theta} \log \pi_{\theta}(a_{t}|s_{t}) &= \mathbf{1}_{(s_{i}, a_{j})}(s_{t},a_{t}) - \mathbf{1}_{s_{i}}(s_{t})\frac{\exp(\theta_{s_{i},a_{j}})}{\sum_{a'\in\mathcal{A}}\exp(\theta_{s_{i},a'})}, \quad \forall s_{i} \in \mathcal{S},\ \forall a_{j} \in \mathcal{A} \\
+\end{aligned}
+$$
+
+At this point, we note that the final fraction in this expression is equivalent to the definition of the original softmax policy, so we can substitute this in, and our final answer is:
+
+$$
+\begin{aligned}
+\nabla_{\theta} \log \pi_{\theta}(a_{t}|s_{t}) &= \mathbf{1}_{(s_{i}, a_{j})}(s_{t},a_{t}) - \mathbf{1}_{s_{i}}(s_{t})\pi_{\theta}(a_{i}|s_{j}), \quad \forall s_{i} \in \mathcal{S},\ \forall a_{j} \in \mathcal{A} \\
+\end{aligned}
+$$
+
+### 3.2
+
+For softmax linear policies, we follow a similar line of reasoning to [3.1]:
+
+$$
+\begin{aligned}
+\nabla_{\theta} \log \pi_{\theta}(a|s) &= \nabla_{\theta} \left(\boldsymbol{\theta}^{\top}\boldsymbol{\phi}(s,a) - \log\sum_{a'\in\mathcal{A}}\exp\left(\boldsymbol{\theta}^{\top}\boldsymbol{\phi}(s, a')\right)\right) \\
+\nabla_{\theta} \log \pi_{\theta}(a|s) &= \nabla_{\theta} \left( \boldsymbol{\theta}^{\top}\boldsymbol{\phi}(s,a) \right)  - \frac{\nabla_{\theta} \sum_{a'\in\mathcal{A}}\exp\left(\boldsymbol{\theta}^{\top}\boldsymbol{\phi}(s, a')\right) }{\sum_{a'\in\mathcal{A}}\exp\left(\boldsymbol{\theta}^{\top}\boldsymbol{\phi}(s, a')\right) } \\
+\nabla_{\theta} \log \pi_{\theta}(a|s) &=  \boldsymbol{\phi}(s,a) - \frac{\sum_{a'\in\mathcal{A}} \boldsymbol{\phi}(s, a') \exp\left(\boldsymbol{\theta}^{\top}\boldsymbol{\phi}(s, a')\right) }{\sum_{a'\in\mathcal{A}}\exp\left(\boldsymbol{\theta}^{\top}\boldsymbol{\phi}(s, a')\right) } \\
+\nabla_{\theta} \log \pi_{\theta}(a|s) &=  \boldsymbol{\phi}(s,a) - \sum_{a'\in\mathcal{A}} \pi_{\theta}(a'|s) \boldsymbol{\phi}(s, a')  \\
+\end{aligned}
+$$
+
+And at $(s_{t}, a_{t})$, this becomes:
+
+$$
+\begin{aligned}
+\nabla_{\theta} \log \pi_{\theta}(a_{t}|s_{t}) &= \boldsymbol{\phi}(s_{t},a_{t}) - \sum_{a'\in\mathcal{A}} \pi_{\theta}(a'|s_{t}) \boldsymbol{\phi}(s_{t}, a')  \\
+\end{aligned}
+$$
+
+### 3.3
+
+For softmax neural policies:
+
+$$
+\begin{aligned}
+\nabla_{\theta} \log \pi_{\theta}(a|s) &= \nabla_{\theta} \left(f_{\theta}(s,a) - \log\sum_{a'\in\mathcal{A}}\exp\left( f_{\theta}(s,a) \right) \right) \\
+\nabla_{\theta} \log \pi_{\theta}(a\frac{ \partial }{ \partial \theta_{s_{i}, a_{j}} } \left( f_{\theta}(s,a') \right) |s) &= \nabla_{\theta} \left(f_{\theta}(s,a) \right) -  \frac{\nabla_{\theta} \sum_{a'\in\mathcal{A}}\exp\left( f_{\theta}(s, a') \right) }{\sum_{a'\in\mathcal{A}}\exp\left( f_{\theta}(s, a') \right) } \\
+\nabla_{\theta} \log \pi_{\theta}(a|s) &= \frac{ \partial  }{ \partial \theta_{s_{i}, a_{j}} } f_{\theta}(s,a) -  \frac{\sum_{a'\in\mathcal{A}} \frac{ \partial }{ \partial \theta_{s_{i}, a_{j}} } \left( f_{\theta}(s,a') \right)  \exp\left( f_{\theta}(s, a') \right) }{\sum_{a'\in\mathcal{A}}\exp\left( f_{\theta}(s, a') \right) }, \quad \forall s_{i} \in \mathcal{S},\ \forall a_{j} \in \mathcal{A} \\
+\nabla_{\theta} \log \pi_{\theta}(a|s) &=  \frac{ \partial  }{ \partial \theta_{s_{i}, a_{j}} } f_{\theta}(s,a) - \sum_{a'\in\mathcal{A}} \frac{ \partial }{ \partial \theta_{s_{i}, a_{j}} } \left( f_{\theta}(s,a') \right) \pi_{\theta}(a'|s), \quad \forall s_{i} \in \mathcal{S},\ \forall a_{j} \in \mathcal{A} \\
+\end{aligned}
+$$
+
+And at $(s_{t}, a_{t})$, this becomes:
+
+$$
+\begin{aligned}
+\nabla_{\theta} \log \pi_{\theta}(a_{t}|s_{t}) &=  \frac{ \partial  }{ \partial \theta_{s_{i}, a_{j}} } f_{\theta}(s_{t},a_{t}) - \sum_{a'\in\mathcal{A}} \frac{ \partial }{ \partial \theta_{s_{i}, a_{j}} } \left( f_{\theta}(s_{t},a') \right) \pi_{\theta}(a'|s_{t}), \quad \forall s_{i} \in \mathcal{S},\ \forall a_{j} \in \mathcal{A} \\
+\end{aligned}
+$$
+
+### 3.4
+
+The A2C algorithm estimates the gradient by:
+
+$$
+g_{t} = \frac{1}{1-\gamma} \nabla_{\theta} \log \pi_{\theta_{t}}(a_{t} | s_{t}) A^{\pi_{\theta_{t}}}(s_{t}, a_{t})
+$$
+
+and then updates $\theta$ accordingly:
+
+$$
+\theta_{t+1} = \theta_{t} + \eta g_{t}
+$$
+
+We already calculated the gradient term in [3.1] as:
+
+$$
+\begin{aligned}
+\nabla_{\theta} \log \pi_{\theta}(a_{t}|s_{t}) &= \mathbf{1}_{(s_{i}, a_{j})}(s_{t},a_{t}) - \mathbf{1}_{s_{i}}(s_{t})\pi_{\theta}(a_{i}|s_{j}), \quad \forall s_{i} \in \mathcal{S},\ \forall a_{j} \in \mathcal{A} \\
+\end{aligned}
+$$
+
+#### 3.4.a, 3.4.b
+
+We are told that $(s_{t}, a_{t}) = (3, b)$, so the $\nabla_{\theta}$ term will be zero for the indices corresponding to $\theta_{1, d}, \theta_{2, b}$ since neither the state nor the action match $(s_{t}, a_{t})$. As a result, the gradient estimate will be zero, and zero will be added in the update step, so **the parameters $\theta_{1,d}$ and $\theta_{2,b}$ will both *remain the same* after updating the parameters via stochastic gradient ascent.**
+
+#### 3.4.c
+
+For $\theta_{3, b}$, both indicator functions are nonzero, so the element in its index evaluates to:
+
+$$
+\begin{aligned}
+\frac{ \partial  }{ \partial \theta_{3,b} }  \log \pi_{\theta}(b|3) &= 1 - \pi_{\theta}(b|3)
+\end{aligned}
+$$
+
+Therefore, the $g_{t}$ term will be
+
+$$
+\frac{1}{1-\gamma} (1 - \pi_{\theta}(b|3)) A^{\pi_{\theta_{t}}}(s_{t}=3, a_{t}=b)
+$$
+
+The $\frac{1}{1-\gamma}$ term is a positive constant since we are in the discounted setting, $1 - \pi_{\theta}(b|3)$ is positive since the softmax policy is comprised of an exponential divided by a sum of exponentials, yielding a positive quotient. Lastly, the $A^{\pi_{\theta_{t}}}(s_{t}, a_{t})$ term is less than zero as given by the problem statement. So, $g_{t}$ is the product of a two positive terms and a negative term, making it negative. So, a negative term (multiplied by some positive learning rate $\eta$) will be added to the current $\theta$ parameter, so **the parameter $\theta_{3,b}$ will *decrease* after the update step**.
+
+#### 3.4.d
+
+For $\theta_{3,c}$, only the second indicator function is nonzero in the gradient since the state matches $(s_{t}, a_{t})$ but not the action, so the element in its index of the gradient vector evaluates to:
+
+$$
+\begin{aligned}
+\frac{ \partial  }{ \partial \theta_{3, c} }  \log \pi_{\theta}(b|3) &= - \pi_{\theta}(b|3)
+\end{aligned}
+$$
+
+Therefore, the $g_{t}$ term will be
+
+$$
+g_{t} = \frac{1}{1-\gamma} \cdot -\pi_{\theta}(a_{t}|s_{t}) A^{\pi_{\theta_{t}}}(s_{t}, a_{t})
+$$
+
+Here, we have a product of a positive $\gamma$ term, a negative policy term, and a negative action term, yielding a positive gradient estimate, which will be added to the current $\theta$ parameter in the update step. Thus, **the parameter $\theta_{3,c}$ will *increase* after the update step**.

@@ -4,7 +4,7 @@ author: Robert (Cars) Chandler — chandl71@purdue.edu
 format:
   pdf:
     monofont: CommitMono Nerd Font
-    sansfont: Latin Modern Roman
+    # sansfont: Latin Modern Roman
     mathspec: true
 execute: 
   freeze: auto
