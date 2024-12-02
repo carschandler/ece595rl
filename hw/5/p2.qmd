@@ -132,9 +132,10 @@ from IPython.display import Markdown
 
 a = np.array([[-1, 1], [0, 1], [-2, -1]])
 b = np.array([1.675, -3.35, -1.85])
-thetas, *_ = np.linalg.lstsq(a, b)
+thetas, sum_sq_err, *_ = np.linalg.lstsq(a, b)
 
 t1, t2 = [Markdown(f"{theta:.5f}") for theta in thetas]
+sse = Markdown(f"{sum_sq_err.item():.5f}")
 ```
 
 $$
@@ -143,3 +144,6 @@ $$
 \theta_2 &= `{python} t2` \\
 \end{aligned}
 $$
+
+and the result of the objective function (the minimal sum of square errors) is
+$`{python} sse`$.
